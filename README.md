@@ -1,4 +1,4 @@
-# Cloud
+# Cloud Tools
 
 ![Next.js](https://img.shields.io/badge/-Next.js-000000?style=flat-square&logo=next.js&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/-TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white)
@@ -7,9 +7,9 @@
 
 ![preview](./preview.png)
 
-_Cloud_ is a AWS cloud-based service that provides users with a platform to convert or compress files.
+_Cloud Tools_ is a AWS cloud-based service that provides users with a platform to convert or compress files.
 
-## Why Did I Build _Cloud_?
+## Why Did I Build _Cloud Tools_?
 
 In preparation for the [AWS Solutions Architect Associate](https://aws.amazon.com/certification/certified-solutions-architect-associate/?ch=sec&sec=rmg&d=1) exam, I sought to apply my Amazon AWS knowledge to a real-world project. This endeavor not only reinforces my understanding of AWS services but also provides a tangible showcase of my skills in designing and implementing cloud-based solutions. By building _Cloud_, I can demonstrate my ability to architect a scalable, efficient, and secure system, highlighting the practical application of the concepts I've learned.
 
@@ -39,7 +39,7 @@ graph TD;
         H --> J[SQS for Processing Queue]
         J --> H
     end
-    
+
     subgraph Monitoring
         E --> K[CloudWatch for Logs & Metrics]
         F --> K
@@ -61,7 +61,7 @@ graph TD;
 
 2. **Backend**:
    - **API Gateway**: Acts as the entry point for API requests from the frontend. It routes requests to appropriate Lambda functions.
-   - **Lambda Functions**: 
+   - **Lambda Functions**:
      - **Convert Files**: Handles file conversion tasks.
      - **Compress Files**: Handles file compression tasks.
 
