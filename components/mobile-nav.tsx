@@ -60,7 +60,7 @@ export function MobileNav() {
       </SheetTrigger>
       <SheetContent side="left" className="w-[300px] sm:w-[400px]">
         <SheetHeader className="border-b pb-4 mb-4 flex items-center justify-between">
-          <SheetTitle className="text-2xl font-bold">Cloud</SheetTitle>
+          <SheetTitle className="text-2xl font-bold">Cloud Tools</SheetTitle>
           <SearchTool />
         </SheetHeader>
         <nav className="flex flex-col space-y-4">
