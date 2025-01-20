@@ -12,18 +12,18 @@ const fadeInUp = {
   transition: { duration: 0.5 }
 }
 
-const ebookFormats = ['epub', 'mobi', 'pdf', 'azw3']
+const ebookFormats = ['epub+zip', 'mobi', 'pdf', 'azw3']
 
 export default function EbookConverterPage() {
   return (
     <PageTransition>
-      <motion.div 
+      <motion.div
         className="bg-secondary container mx-auto px-4 py-8"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
       >
-        <motion.h1 
+        <motion.h1
           className="text-4xl font-bold mb-8 text-center"
           variants={fadeInUp}
           initial="initial"
@@ -39,7 +39,7 @@ export default function EbookConverterPage() {
             transition={{ delay: 0.2 }}
           >
             <h2 className="text-2xl font-semibold mb-4">Convert eBook</h2>
-            <FileUploader 
+            <FileUploader
               fileType="ebook"
               formats={ebookFormats}
               apiEndpoint="https://your-api-gateway-url.amazonaws.com/convert-ebook"
