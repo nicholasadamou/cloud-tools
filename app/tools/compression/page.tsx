@@ -108,7 +108,7 @@ export default function CompressionPage() {
 
           {/* Call to Action */}
           <motion.section
-            className="bg-secondary py-16"
+            className="bg-secondary py-16 md:py-24"
             variants={fadeInUp}
             initial="initial"
             animate="animate"
