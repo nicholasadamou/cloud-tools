@@ -11,7 +11,7 @@ _Cloud Tools_ is a AWS cloud-based service that provides users with a platform t
 
 ## Why Did I Build _Cloud Tools_?
 
-In preparation for the [AWS Solutions Architect Associate](https://aws.amazon.com/certification/certified-solutions-architect-associate/?ch=sec&sec=rmg&d=1) exam, I sought to apply my Amazon AWS knowledge to a real-world project. This endeavor not only reinforces my understanding of AWS services but also provides a tangible showcase of my skills in designing and implementing cloud-based solutions. By building _Cloud Tools_, I can demonstrate my ability to architect a scalable, efficient, and secure system, highlighting the practical application of the concepts I've learned.
+I am eager to apply my Amazon AWS knowledge to a real-world project, as this endeavor will not only reinforce my understanding of AWS services but also provide a tangible showcase of my skills in designing and implementing cloud-based solutions. By building **Cloud Tools**, I aim to demonstrate my ability to architect scalable, efficient, and secure systems. This project will highlight the practical application of the concepts I've learned, particularly in distributed systems and system design, which I have been studying extensively for both interviews and personal growth. Through this initiative, I can effectively illustrate my capacity to translate theoretical knowledge into practical, impactful solutions.
 
 ## System Architecture
 
