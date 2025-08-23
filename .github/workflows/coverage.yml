@@ -2,9 +2,9 @@ name: Test Coverage
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
   coverage:
@@ -33,7 +33,7 @@ jobs:
         
     - name: Generate coverage badge
       uses: tj-actions/coverage-badge-js@v1
-      if: github.ref == 'refs/heads/main'
+      if: github.ref == 'refs/heads/master'
       with:
         output: coverage-badge.svg
         
