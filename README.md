@@ -82,6 +82,17 @@ graph TD;
 
 This architecture leverages Vercel for hosting the frontend, providing seamless integration for deploying static sites, while utilizing AWS's serverless infrastructure for backend processing, ensuring scalability and security.
 
+## 📚 Documentation
+
+This project includes several documentation files to help you get started and contribute:
+
+| Document | Description |
+|----------|-------------|
+| **[QUICK_SETUP.md](./QUICK_SETUP.md)** | **🚀 Start here!** One-command setup guide to get running in 5 minutes |
+| **[WORKER_SETUP.md](./WORKER_SETUP.md)** | File processing worker setup and troubleshooting |
+| **[CONTRIBUTING.md](./.github/CONTRIBUTING.md)** | Complete contributor guide with development workflow |
+| **README.md** | This file - project overview and architecture |
+
 ## 🚀 Quick Start
 
 **New here? Get running in 5 minutes:** 
@@ -96,9 +107,9 @@ npm run dev    # Start developing
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-For detailed setup instructions, see [QUICK_SETUP.md](./QUICK_SETUP.md).
+For detailed setup instructions, see **[QUICK_SETUP.md](./QUICK_SETUP.md)**.
 
-Basic development workflow:
+### Development Workflow
 
 ```bash
 npm run dev
@@ -113,6 +124,16 @@ bun dev
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+
+### File Processing
+
+To enable file conversion and compression features, you'll need to run the processing worker:
+
+```bash
+npm run worker  # Start the file processing worker
+```
+
+For complete worker setup instructions, see **[WORKER_SETUP.md](./WORKER_SETUP.md)**.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
