@@ -30,23 +30,28 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: latest
+        
     - name: Setup Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm'
+        cache: 'pnpm'
         
     - name: Install dependencies
-      run: npm ci
+      run: pnpm install --frozen-lockfile
       
     - name: Run tests
-      run: npm test
+      run: pnpm test
       env:
         NODE_ENV: test
         
     - name: Upload test results
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: test-results-${{ matrix.os }}-node${{ matrix.node-version }}
         path: |
@@ -78,14 +83,19 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: latest
+        
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20.x'
-        cache: 'npm'
+        cache: 'pnpm'
         
     - name: Install dependencies
-      run: npm ci
+      run: pnpm install --frozen-lockfile
       
     - name: Wait for LocalStack
       run: |
@@ -112,7 +122,7 @@ jobs:
         AWS_DEFAULT_REGION: us-east-1
         
     - name: Run integration tests
-      run: npm run test:integration
+      run: pnpm run test:integration
       env:
         NODE_ENV: test
         AWS_ENDPOINT_URL: http://localhost:4566
@@ -149,14 +159,17 @@ jobs:
         # Copy package files
         COPY package*.json ./
         
+        # Install pnpm
+        RUN corepack enable && corepack prepare pnpm@latest --activate
+        
         # Install dependencies
-        RUN npm ci --only=production=false
+        RUN pnpm install --frozen-lockfile
         
         # Copy source code
         COPY . .
         
         # Run tests
-        CMD ["npm", "test"]
+        CMD ["pnpm", "test"]
         EOF
         
         docker build -f Dockerfile.test -t cloud-tools-test .
@@ -177,19 +190,24 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: latest
+        
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20.x'
-        cache: 'npm'
+        cache: 'pnpm'
         
     - name: Install dependencies
-      run: npm ci
+      run: pnpm install --frozen-lockfile
       
     - name: Run performance tests
       run: |
         # Run tests with timing information
-        time npm test -- --reporter=json > test-results.json
+        time pnpm test -- --reporter=json > test-results.json
         
         # Extract test timing data
         node -e "

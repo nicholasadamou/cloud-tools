@@ -90,9 +90,9 @@ describe('/api/health', () => {
             external: 5 // 5 MB
           },
           nodejs: {
-            version: 'v24.6.0',
-            platform: 'darwin',
-            arch: 'arm64'
+            version: expect.any(String), // Don't hardcode version
+            platform: expect.any(String), // Don't hardcode platform
+            arch: expect.any(String) // Don't hardcode architecture
           }
         },
         localstack: {

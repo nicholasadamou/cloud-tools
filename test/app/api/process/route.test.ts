@@ -198,11 +198,11 @@ describe('/api/process', () => {
     })
 
     it('should handle queue status retrieval error', async () => {
-      // This would require mocking the getSQSQueueUrl function, but for now we'll simulate an error
-      // by creating a malformed URL that would cause the URL constructor to fail
-      const malformedRequest = createMockGetRequest('invalid-url')
+      // Mock SQS service to throw an error
+      mockSQSSend.mockRejectedValueOnce(new Error('SQS service error'))
       
-      const response = await GET(malformedRequest)
+      const request = createMockGetRequest('http://localhost:3000/api/process?action=queue-status')
+      const response = await GET(request)
       const data = await response.json()
 
       expect(response.status).toBe(500)
