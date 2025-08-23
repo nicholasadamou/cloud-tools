@@ -42,7 +42,7 @@ export default function EbookConverterPage() {
             <FileUploader
               fileType="ebook"
               formats={ebookFormats}
-              apiEndpoint="https://your-api-gateway-url.amazonaws.com/convert-ebook"
+              apiEndpoint="/api/process"
               storageKey="ebookConversionHistory"
             />
             <motion.div

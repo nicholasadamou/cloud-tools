@@ -82,11 +82,23 @@ graph TD;
 
 This architecture leverages Vercel for hosting the frontend, providing seamless integration for deploying static sites, while utilizing AWS's serverless infrastructure for backend processing, ensuring scalability and security.
 
+## 🚀 Quick Start
+
+**New here? Get running in 5 minutes:** 
+👉 **[QUICK_SETUP.md](./QUICK_SETUP.md)** 👈
+
+```bash
+npm run setup  # One command setup!
+npm run dev    # Start developing
+```
+
 ## Getting Started
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-First, run the development server:
+For detailed setup instructions, see [QUICK_SETUP.md](./QUICK_SETUP.md).
+
+Basic development workflow:
 
 ```bash
 npm run dev
@@ -112,6 +124,92 @@ To learn more about Next.js, take a look at the following resources:
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Run AWS infrastructure locally (LocalStack)
+
+You can emulate most of the AWS services used by this project locally with [LocalStack]. This is helpful for fast iteration without an AWS account or incurring costs.
+
+### What you get locally
+- S3 for temporary file storage
+- SQS for async processing
+- DynamoDB for job/history tracking
+- CloudWatch Logs (basic)
+- Lambda emulation (optional; see notes)
+
+### Prerequisites
+- Docker Desktop 4.x+
+- AWS CLI v2
+- Node.js and pnpm/yarn/npm for the Next.js app
+
+### Start LocalStack
+1. Start the LocalStack container from the project root:
+   ```bash
+   docker compose up -d
+   # or: docker-compose up -d (older Docker)
+   ```
+   This exposes the LocalStack edge endpoint on http://localhost:4566.
+
+2. (Optional) If you want LocalStack to auto-create resources on boot, place init scripts in the ./.localstack folder (mounted to /etc/localstack/init/ready.d). Scripts in that folder will run once LocalStack is ready.
+
+### Configure AWS CLI to use LocalStack
+LocalStack accepts any credentials by default. You can use a dedicated profile:
+```bash
+aws configure --profile localstack
+# AWS Access Key ID [None]: test
+# AWS Secret Access Key [None]: test
+# Default region name [None]: us-east-1
+# Default output format [None]: json
+```
+
+Set an environment variable for convenience:
+```bash
+export AWS_PROFILE=localstack
+export AWS_DEFAULT_REGION=us-east-1
+export LOCALSTACK_URL=http://localhost:4566
+```
+
+### Create example resources locally
+You can adjust names to your preference; the values below match .env.local.example:
+
+- S3 bucket:
+```bash
+aws --endpoint-url=$LOCALSTACK_URL s3 mb s3://cloud-tools-local-bucket
+```
+
+- DynamoDB table:
+```bash
+aws --endpoint-url=$LOCALSTACK_URL dynamodb create-table \
+  --table-name CloudToolsJobs \
+  --attribute-definitions AttributeName=jobId,AttributeType=S \
+  --key-schema AttributeName=jobId,KeyType=HASH \
+  --billing-mode PAY_PER_REQUEST
+```
+
+- SQS queue:
+```bash
+aws --endpoint-url=$LOCALSTACK_URL sqs create-queue --queue-name cloud-tools-jobs-queue
+```
+
+### Wire the Next.js app to LocalStack
+1. Copy the example env file and edit as needed:
+   ```bash
+   cp .env.local.example .env.local
+   ```
+2. Run the dev server:
+   ```bash
+   pnpm dev
+   # or npm run dev / yarn dev / bun dev
+   ```
+
+If or when you add AWS SDK usage in the app/backend, point the SDK to the LocalStack endpoints using the variables above (for AWS SDK v3, pass endpoint or use environment variables).
+
+### Lambda emulation notes
+- LocalStack can run Lambdas in multiple modes. For simple Node.js handlers, you can use the default Docker-based executor. Packaging and deploying Lambdas typically involves tools like AWS SAM or Serverless Framework. Both can target LocalStack.
+- If you plan to introduce real backend logic, consider using one of:
+  - Serverless Framework + serverless-offline (for local HTTP) and/or LocalStack integration
+  - AWS SAM CLI with `sam local start-api` and LocalStack
+
+[LocalStack]: https://docs.localstack.cloud/
 
 ## Deploy on Vercel
 

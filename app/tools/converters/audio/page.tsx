@@ -42,7 +42,7 @@ export default function AudioConverterPage() {
             <FileUploader 
               fileType="audio"
               formats={audioFormats}
-              apiEndpoint="https://your-api-gateway-url.amazonaws.com/convert-audio"
+              apiEndpoint="/api/process"
               storageKey="audioConversionHistory"
             />
             <motion.div

@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from '@/hooks/use-toast'
-import { Loader2 } from 'lucide-react'
+import { Loader2, CheckCircle, AlertCircle, Clock, Upload } from 'lucide-react'
 import { Progress } from '@/components/ui/progress'
 import { SelectedFile } from '@/components/selected-file'
 
@@ -39,9 +39,25 @@ export default function FileUploader({ fileType, formats, apiEndpoint, storageKe
 
   useEffect(() => {
     if (file) {
-      const type = file.type.split('/')[1]
-      setCurrentFileType(type)
-      setAvailableFormats(formats.filter(format => format !== type))
+      // Extract file extension from filename
+      const extension = file.name.split('.').pop()?.toLowerCase() || ''
+      setCurrentFileType(extension)
+      
+      // Handle common extension variations
+      const getExtensionVariations = (ext: string): string[] => {
+        const variations: { [key: string]: string[] } = {
+          'jpg': ['jpg', 'jpeg'],
+          'jpeg': ['jpg', 'jpeg'],
+          'tif': ['tif', 'tiff'],
+          'tiff': ['tif', 'tiff'],
+          'htm': ['htm', 'html'],
+          'html': ['htm', 'html'],
+        }
+        return variations[ext] || [ext]
+      }
+      
+      const extensionVariations = getExtensionVariations(extension)
+      setAvailableFormats(formats.filter(format => !extensionVariations.includes(format.toLowerCase())))
       setConvertTo('')
     } else {
       setCurrentFileType(null)
@@ -67,7 +83,12 @@ export default function FileUploader({ fileType, formats, apiEndpoint, storageKe
     e.preventDefault()
     if (!file || (!isCompression && !convertTo)) {
       toast({
-        title: "Error",
+        title: (
+          <div className="flex items-center space-x-2">
+            <AlertCircle className="h-4 w-4" />
+            <span>Error</span>
+          </div>
+        ),
         description: `Please select a ${fileType} ${!isCompression ? 'and conversion format' : ''}.`,
         variant: "destructive",
       })
@@ -76,54 +97,98 @@ export default function FileUploader({ fileType, formats, apiEndpoint, storageKe
 
     setIsLoading(true)
     setProgress(0)
-    const formData = new FormData()
-    formData.append('file', file)
-    if (!isCompression) {
-      formData.append('convertTo', convertTo)
-    }
-
+    
     try {
-      const response = await fetch(apiEndpoint, {
+      // Step 1: Upload file to S3
+      setProgress(25)
+      const uploadFormData = new FormData()
+      uploadFormData.append('file', file)
+      uploadFormData.append('operation', isCompression ? 'compress' : 'convert')
+      if (!isCompression && convertTo) {
+        uploadFormData.append('targetFormat', convertTo)
+      }
+
+      const uploadResponse = await fetch('/api/upload', {
         method: 'POST',
-        body: formData,
+        body: uploadFormData,
       })
 
-      const reader = response.body?.getReader()
-      const contentLength = +response.headers.get('Content-Length')!
-      let receivedLength = 0
-
-      while(true) {
-        const { done, value } = await reader!.read()
-        if (done) break
-        receivedLength += value.length
-        setProgress(Math.round((receivedLength / contentLength) * 100))
+      const uploadData = await uploadResponse.json()
+      
+      if (!uploadResponse.ok) {
+        throw new Error(uploadData.error || 'Upload failed')
       }
 
-      const data = await response.json()
+      const { jobId } = uploadData.data
+      
+      // Step 2: Queue job for processing
+      setProgress(75)
+      const processResponse = await fetch('/api/process', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jobId,
+          operation: isCompression ? 'compress' : 'convert',
+          targetFormat: convertTo,
+          quality: isCompression ? 80 : undefined,
+        }),
+      })
 
-      if (response.ok) {
-        toast({
-          title: "Success",
-          description: `${fileType.charAt(0).toUpperCase() + fileType.slice(1)} ${isCompression ? 'compressed' : 'converted'} successfully!`,
-        })
-        window.open(data.processedFileUrl, '_blank')
-        // Add to conversion/compression history
-        const history = JSON.parse(localStorage.getItem(storageKey) || '[]')
-        history.unshift({
-          originalName: file.name,
-          processedTo: isCompression ? `Compressed ${fileType.toUpperCase()}` : convertTo,
-          date: new Date().toISOString(),
-          url: data.processedFileUrl
-        })
-        localStorage.setItem(storageKey, JSON.stringify(history.slice(0, 10))) // Keep only last 10 entries
-        clearSelection();
-        router.refresh();
-      } else {
-        throw new Error(data.message || `${isCompression ? 'Compression' : 'Conversion'} failed`)
+      const processData = await processResponse.json()
+      
+      if (!processResponse.ok) {
+        throw new Error(processData.error || 'Failed to queue job for processing')
       }
-    } catch (error) {
+
+      setProgress(100)
+
       toast({
-        title: "Error",
+        title: (
+          <div className="flex items-center space-x-2">
+            <Upload className="h-4 w-4" />
+            <span>Upload Complete</span>
+          </div>
+        ),
+        description: `${fileType.charAt(0).toUpperCase() + fileType.slice(1)} queued for ${isCompression ? 'compression' : 'conversion'}! Job ID: ${jobId}`,
+      })
+      
+      // Add to history with job info
+      const history = JSON.parse(localStorage.getItem(storageKey) || '[]')
+      history.unshift({
+        jobId,
+        originalName: file.name,
+        processedTo: isCompression ? `Compressed ${fileType.toUpperCase()}` : convertTo?.toUpperCase(),
+        date: new Date().toISOString(),
+        status: 'processing',
+        operation: isCompression ? 'compress' : 'convert'
+      })
+      localStorage.setItem(storageKey, JSON.stringify(history.slice(0, 10)))
+      
+      clearSelection();
+      router.refresh();
+      
+      // Show job tracking info
+      toast({
+        title: (
+          <div className="flex items-center space-x-2">
+            <Clock className="h-4 w-4" />
+            <span>Processing Started</span>
+          </div>
+        ),
+        description: `Your ${fileType} is being processed. You can check the status using Job ID: ${jobId}`,
+      })
+      
+    } catch (error) {
+      console.error('Processing error:', error)
+      toast({
+        title: (
+          <div className="flex items-center space-x-2">
+            <AlertCircle className="h-4 w-4" />
+            <span>Upload Failed</span>
+          </div>
+        ),
         description: error instanceof Error ? error.message : "An unknown error occurred",
         variant: "destructive",
       })

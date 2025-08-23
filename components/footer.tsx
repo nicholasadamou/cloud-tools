@@ -1,6 +1,10 @@
+'use client'
+
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import { Image, FileAudio, FileVideo, BookOpen, FileImage, FileText } from 'lucide-react'
 import Logo from './logo'
+import { useSystemStatus } from '@/hooks/use-system-status'
 
 const converters = [
   { name: 'Image Converter', href: '/tools/converters/image', icon: Image },
@@ -15,6 +19,26 @@ const compressionTools = [
 ]
 
 export default function Footer() {
+  const { status } = useSystemStatus()
+
+  // Temporary fallback for testing
+  const testStatus = status || 'operational'
+
+  // Get background color for status circle
+  const getCircleStyle = (status: string) => {
+    switch (status) {
+      case 'operational':
+        return { backgroundColor: '#22c55e' } // green-500
+      case 'degraded':
+        return { backgroundColor: '#eab308' } // yellow-500
+      case 'down':
+        return { backgroundColor: '#ef4444' } // red-500
+      case 'checking':
+      default:
+        return { backgroundColor: '#9ca3af' } // gray-400
+    }
+  }
+
   return (
     <footer className="light:bg-white dark:bg-black text-secondary-foreground">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -28,6 +52,27 @@ export default function Footer() {
                 </li>
                 <li>
                   <Link href="/services" className="text-base hover:text-foreground transition-colors">Services</Link>
+                </li>
+                <li>
+                  <Link href="/jobs" className="text-base hover:text-foreground transition-colors">Job Status</Link>
+                </li>
+                <li>
+                  <Link href="/status" className="text-base hover:text-foreground transition-colors flex items-center">
+                    <motion.div
+                      className="w-3 h-3 rounded-full mr-2"
+                      style={getCircleStyle(testStatus)}
+                      animate={{
+                        scale: [1, 1.2, 1],
+                        opacity: [1, 0.7, 1],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    />
+                    <span>System Status</span>
+                  </Link>
                 </li>
               </ul>
             </div>

@@ -42,7 +42,7 @@ export default function ImageConverterPage() {
             <FileUploader 
               fileType="image"
               formats={imageFormats}
-              apiEndpoint="https://your-api-gateway-url.amazonaws.com/convert-image"
+              apiEndpoint="/api/process"
               storageKey="imageConversionHistory"
             />
             <motion.div

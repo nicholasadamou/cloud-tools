@@ -42,7 +42,7 @@ export default function VideoConverterPage() {
             <FileUploader 
               fileType="video"
               formats={videoFormats}
-              apiEndpoint="https://your-api-gateway-url.amazonaws.com/convert-video"
+              apiEndpoint="/api/process"
               storageKey="videoConversionHistory"
             />
             <motion.div

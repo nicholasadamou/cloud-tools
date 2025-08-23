@@ -3,7 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, Home, PenToolIcon as Tools, Info, ChevronRight, Image, Minimize2, BookOpen, Music, Video, FileImage, FileText, RefreshCcw } from 'lucide-react'
+import { Menu, Home, PenToolIcon as Tools, Info, ChevronRight, Image, Minimize2, BookOpen, Music, Video, FileImage, FileText, RefreshCcw, Briefcase } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Sheet,
@@ -44,6 +44,7 @@ const toolCategories = [
 
 const navItems = [
   { name: 'Home', href: '/', icon: Home },
+  { name: 'Jobs', href: '/jobs', icon: Briefcase },
   { name: 'About', href: '/about', icon: Info },
 ]
 

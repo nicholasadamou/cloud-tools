@@ -42,7 +42,7 @@ export default function ImageCompressionPage() {
             <FileUploader 
               fileType="image"
               formats={imageFormats}
-              apiEndpoint="https://your-api-gateway-url.amazonaws.com/compress-image"
+              apiEndpoint="/api/process"
               storageKey="imageCompressionHistory"
               isCompression
             />

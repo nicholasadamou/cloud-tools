@@ -42,7 +42,7 @@ export default function PDFCompressionPage() {
             <FileUploader
               fileType="pdf"
               formats={pdfFormats}
-              apiEndpoint="https://your-api-gateway-url.amazonaws.com/compress-pdf"
+              apiEndpoint="/api/process"
               storageKey="pdfCompressionHistory"
               isCompression
             />
