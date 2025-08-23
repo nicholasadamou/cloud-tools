@@ -5,7 +5,7 @@
 ![Tailwind CSS](https://img.shields.io/badge/-Tailwind%20CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
 ![Framer Motion](https://img.shields.io/badge/-Framer%20Motion-0081C9?style=flat-square&logo=framer&logoColor=white)
 
-![preview](./preview.png)
+![preview](../preview.png)
 
 _Cloud Tools_ is a AWS cloud-based service that provides users with a platform to convert or compress files.
 
@@ -88,16 +88,16 @@ This project includes several documentation files to help you get started and co
 
 | Document                                         | Description |
 |--------------------------------------------------|-------------|
-| **[QUICK_SETUP.md](./docs/QUICK_SETUP.md)**      | **🚀 Start here!** One-command setup guide to get running in 5 minutes |
-| **[WORKER_SETUP.md](./docs/WORKER_SETUP.md)**    | File processing worker setup and troubleshooting |
-| **[ACT_USAGE.md](./docs/ACT_USAGE.md)**          | **⚡ Run GitHub Actions locally** - Complete ACT setup and usage guide |
-| **[CONTRIBUTING.md](./.github/CONTRIBUTING.md)** | Complete contributor guide with development workflow |
+| **[QUICK_SETUP.md](../docs/QUICK_SETUP.md)**      | **🚀 Start here!** One-command setup guide to get running in 5 minutes |
+| **[WORKER_SETUP.md](../docs/WORKER_SETUP.md)**    | File processing worker setup and troubleshooting |
+| **[ACT_USAGE.md](../docs/ACT_USAGE.md)**          | **⚡ Run GitHub Actions locally** - Complete ACT setup and usage guide |
+| **[CONTRIBUTING.md](./CONTRIBUTING.md)** | Complete contributor guide with development workflow |
 | **README.md**                                    | This file - project overview and architecture |
 
 ## 🚀 Quick Start
 
 **New here? Get running in 5 minutes:**
-👉 **[QUICK_SETUP.md](./docs/QUICK_SETUP.md)** 👈
+👉 **[QUICK_SETUP.md](../docs/QUICK_SETUP.md)** 👈
 
 ```bash
 npm run setup  # One command setup!
@@ -108,7 +108,7 @@ npm run dev    # Start developing
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-For detailed setup instructions, see **[QUICK_SETUP.md](./docs/QUICK_SETUP.md)**.
+For detailed setup instructions, see **[QUICK_SETUP.md](../docs/QUICK_SETUP.md)**.
 
 ### Development Workflow
 
@@ -134,7 +134,7 @@ To enable file conversion and compression features, you'll need to run the proce
 npm run worker  # Start the file processing worker
 ```
 
-For complete worker setup instructions, see **[WORKER_SETUP.md](./docs/WORKER_SETUP.md)**.
+For complete worker setup instructions, see **[WORKER_SETUP.md](../docs/WORKER_SETUP.md)**.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
