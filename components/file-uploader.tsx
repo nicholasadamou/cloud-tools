@@ -83,12 +83,7 @@ export default function FileUploader({ fileType, formats, apiEndpoint, storageKe
     e.preventDefault()
     if (!file || (!isCompression && !convertTo)) {
       toast({
-        title: (
-          <div className="flex items-center space-x-2">
-            <AlertCircle className="h-4 w-4" />
-            <span>Error</span>
-          </div>
-        ),
+        title: "Error",
         description: `Please select a ${fileType} ${!isCompression ? 'and conversion format' : ''}.`,
         variant: "destructive",
       })
@@ -145,12 +140,7 @@ export default function FileUploader({ fileType, formats, apiEndpoint, storageKe
       setProgress(100)
 
       toast({
-        title: (
-          <div className="flex items-center space-x-2">
-            <Upload className="h-4 w-4" />
-            <span>Upload Complete</span>
-          </div>
-        ),
+        title: "Upload Complete",
         description: `${fileType.charAt(0).toUpperCase() + fileType.slice(1)} queued for ${isCompression ? 'compression' : 'conversion'}! Job ID: ${jobId}`,
       })
       
@@ -171,24 +161,14 @@ export default function FileUploader({ fileType, formats, apiEndpoint, storageKe
       
       // Show job tracking info
       toast({
-        title: (
-          <div className="flex items-center space-x-2">
-            <Clock className="h-4 w-4" />
-            <span>Processing Started</span>
-          </div>
-        ),
+        title: "Processing Started",
         description: `Your ${fileType} is being processed. You can check the status using Job ID: ${jobId}`,
       })
       
     } catch (error) {
       console.error('Processing error:', error)
       toast({
-        title: (
-          <div className="flex items-center space-x-2">
-            <AlertCircle className="h-4 w-4" />
-            <span>Upload Failed</span>
-          </div>
-        ),
+        title: "Upload Failed",
         description: error instanceof Error ? error.message : "An unknown error occurred",
         variant: "destructive",
       })
