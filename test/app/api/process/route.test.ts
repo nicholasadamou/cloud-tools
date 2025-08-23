@@ -4,14 +4,27 @@ import { resetAllMocks, mockS3Send, mockSQSSend, mockDocSend } from '../../../mo
 import { JobStatus, JobType } from '@/lib/aws-config'
 import { createMockGetRequest, createMockPostRequest, createMockDeleteRequest } from '@/test/helpers/nextRequest'
 
+// Mock the getSQSQueueUrl function
+vi.mock('@/lib/aws-config', async () => {
+  const actual = await vi.importActual('@/lib/aws-config')
+  return {
+    ...actual,
+    getSQSQueueUrl: vi.fn().mockResolvedValue('http://localhost:4566/000000000000/test-queue')
+  }
+})
+
 // Mock fetch for job status updates
 const mockFetch = vi.fn()
 global.fetch = mockFetch
 
 describe('/api/process', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     resetAllMocks()
     mockFetch.mockClear()
+    
+    // Reset the getSQSQueueUrl mock
+    const { getSQSQueueUrl } = await import('@/lib/aws-config')
+    vi.mocked(getSQSQueueUrl).mockResolvedValue('http://localhost:4566/000000000000/test-queue')
   })
 
   describe('POST', () => {
@@ -198,8 +211,9 @@ describe('/api/process', () => {
     })
 
     it('should handle queue status retrieval error', async () => {
-      // Mock SQS service to throw an error
-      mockSQSSend.mockRejectedValueOnce(new Error('SQS service error'))
+      // Mock getSQSQueueUrl to throw an error
+      const { getSQSQueueUrl } = await import('@/lib/aws-config')
+      vi.mocked(getSQSQueueUrl).mockRejectedValueOnce(new Error('SQS service error'))
       
       const request = createMockGetRequest('http://localhost:3000/api/process?action=queue-status')
       const response = await GET(request)
