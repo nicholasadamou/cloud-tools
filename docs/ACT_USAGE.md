@@ -3,6 +3,7 @@
 This comprehensive guide shows you how to run GitHub Actions workflows locally using [ACT](https://github.com/nektos/act) with the provided npm scripts and interactive tools.
 
 ## Table of Contents
+
 - [Installation & Setup](#installation--setup)
 - [Quick Start & Scripts](#quick-start--scripts)
 - [Configuration](#configuration)
@@ -22,11 +23,12 @@ This comprehensive guide shows you how to run GitHub Actions workflows locally u
 
 ### Install ACT
 
-1. **Install ACT**: 
+1. **Install ACT**:
+
    ```bash
    # macOS
    brew install act
-   
+
    # Or using curl
    curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
    ```
@@ -39,60 +41,61 @@ This comprehensive guide shows you how to run GitHub Actions workflows locally u
 
 ### Quick Commands
 
-| Script | Description |
-|--------|-------------|
-| `pnpm act:list` | List all available workflows and jobs |
-| `pnpm act:quick` | Fast type-check only (quickest validation) |
-| `pnpm act:dry` | Dry run of CI workflow (no execution) |
-| `pnpm act:verbose` | Run CI with verbose output for debugging |
+| Script             | Description                                |
+| ------------------ | ------------------------------------------ |
+| `pnpm act:list`    | List all available workflows and jobs      |
+| `pnpm act:quick`   | Fast type-check only (quickest validation) |
+| `pnpm act:dry`     | Dry run of CI workflow (no execution)      |
+| `pnpm act:verbose` | Run CI with verbose output for debugging   |
 
 ### CI Workflow (`ci.yml`)
 
-| Script | Job | Description |
-|--------|-----|-------------|
-| `pnpm act:ci` | All jobs | Run complete CI pipeline |
-| `pnpm act:ci:lint` | `lint-and-format` | Linting and code formatting checks |
-| `pnpm act:ci:type-check` | `type-check` | TypeScript type checking |
-| `pnpm act:ci:test` | `test` | Unit tests with coverage |
-| `pnpm act:ci:build` | `build` | Next.js build verification |
-| `pnpm act:ci:security` | `security` | Security audit |
-| `pnpm act:ci:summary` | `summary` | CI results summary |
+| Script                   | Job               | Description                        |
+| ------------------------ | ----------------- | ---------------------------------- |
+| `pnpm act:ci`            | All jobs          | Run complete CI pipeline           |
+| `pnpm act:ci:lint`       | `lint-and-format` | Linting and code formatting checks |
+| `pnpm act:ci:type-check` | `type-check`      | TypeScript type checking           |
+| `pnpm act:ci:test`       | `test`            | Unit tests with coverage           |
+| `pnpm act:ci:build`      | `build`           | Next.js build verification         |
+| `pnpm act:ci:security`   | `security`        | Security audit                     |
+| `pnpm act:ci:summary`    | `summary`         | CI results summary                 |
 
 ### Test Workflow (`test.yml`)
 
-| Script | Description |
-|--------|-------------|
+| Script          | Description             |
+| --------------- | ----------------------- |
 | `pnpm act:test` | Run unit tests workflow |
 
 ### Coverage Workflow (`coverage.yml`)
 
-| Script | Job | Description |
-|--------|-----|-------------|
-| `pnpm act:coverage` | All jobs | Complete coverage analysis |
-| `pnpm act:coverage:report` | `coverage` | Generate coverage report |
+| Script                      | Job                   | Description                 |
+| --------------------------- | --------------------- | --------------------------- |
+| `pnpm act:coverage`         | All jobs              | Complete coverage analysis  |
+| `pnpm act:coverage:report`  | `coverage`            | Generate coverage report    |
 | `pnpm act:coverage:compare` | `coverage-comparison` | Compare PR vs base coverage |
 
 ### Test Environments (`test-environments.yml`)
 
-| Script | Job | Description |
-|--------|-----|-------------|
-| `pnpm act:envs` | All jobs | Run all environment tests |
-| `pnpm act:envs:matrix` | `test-matrix` | Cross-platform matrix testing |
+| Script                     | Job                    | Description                       |
+| -------------------------- | ---------------------- | --------------------------------- |
+| `pnpm act:envs`            | All jobs               | Run all environment tests         |
+| `pnpm act:envs:matrix`     | `test-matrix`          | Cross-platform matrix testing     |
 | `pnpm act:envs:localstack` | `test-with-localstack` | Integration tests with LocalStack |
-| `pnpm act:envs:docker` | `test-docker` | Tests in Docker container |
-| `pnpm act:envs:perf` | `performance-tests` | Performance benchmarks |
+| `pnpm act:envs:docker`     | `test-docker`          | Tests in Docker container         |
+| `pnpm act:envs:perf`       | `performance-tests`    | Performance benchmarks            |
 
 ### Combined Scripts
 
-| Script | Description |
-|--------|-------------|
-| `pnpm act:all` | Run CI, Test, and Coverage workflows |
-| `pnpm act:full` | Run full CI test job (comprehensive) |
-| `pnpm act:local` | Run tests with local optimizations |
+| Script           | Description                          |
+| ---------------- | ------------------------------------ |
+| `pnpm act:all`   | Run CI, Test, and Coverage workflows |
+| `pnpm act:full`  | Run full CI test job (comprehensive) |
+| `pnpm act:local` | Run tests with local optimizations   |
 
 ## Usage Examples
 
 ### 1. Quick Development Check
+
 ```bash
 # Fast type-check - good for quick validation
 pnpm act:quick
@@ -102,6 +105,7 @@ pnpm act:dry
 ```
 
 ### 2. Pre-commit Validation
+
 ```bash
 # Run linting and formatting checks
 pnpm act:ci:lint
@@ -114,6 +118,7 @@ pnpm act:ci:lint && pnpm act:ci:type-check
 ```
 
 ### 3. Full Testing Suite
+
 ```bash
 # Run complete CI pipeline
 pnpm act:ci
@@ -124,6 +129,7 @@ pnpm act:coverage:report
 ```
 
 ### 4. Debugging Workflow Issues
+
 ```bash
 # Enable verbose output
 pnpm act:verbose
@@ -136,6 +142,7 @@ pnpm act:ci:test
 ```
 
 ### 5. Integration Testing
+
 ```bash
 # Test with LocalStack (requires Docker)
 pnpm act:envs:localstack
@@ -147,12 +154,15 @@ pnpm act:envs:docker
 ## Configuration
 
 ### Environment Variables
+
 The workflows use these environment variables (set in `.actrc`):
+
 - `NODE_ENV=test`
 - `CI=true`
 - `GITHUB_ACTIONS=true`
 
 ### ACT Configuration (`.actrc`)
+
 - Uses `linux/amd64` architecture for M-series Mac compatibility
 - Uses `catthehacker/ubuntu:act-latest` Docker image
 - Sets default environment variables
@@ -162,12 +172,14 @@ The workflows use these environment variables (set in `.actrc`):
 ### Common Issues
 
 1. **Architecture Mismatch (M-series Macs)**
+
    ```bash
    # Already configured in .actrc, but you can override:
    act --container-architecture linux/amd64
    ```
 
 2. **Docker Memory Issues**
+
    ```bash
    # Increase Docker memory in Docker Desktop settings
    # Or add to .actrc:
@@ -175,6 +187,7 @@ The workflows use these environment variables (set in `.actrc`):
    ```
 
 3. **Verbose Debugging**
+
    ```bash
    pnpm act:verbose
    # Or add --verbose to any command
@@ -182,16 +195,18 @@ The workflows use these environment variables (set in `.actrc`):
    ```
 
 4. **Container Not Found**
+
    ```bash
    # Pull required image manually
    docker pull catthehacker/ubuntu:act-latest
    ```
 
 5. **LocalStack Issues**
+
    ```bash
    # Make sure Docker is running
    docker ps
-   
+
    # Start LocalStack manually if needed
    pnpm localstack:start
    ```
@@ -199,13 +214,14 @@ The workflows use these environment variables (set in `.actrc`):
 ### Performance Tips
 
 1. **Reuse Containers**: Add `--reuse` to `.actrc` for faster subsequent runs
-2. **Selective Jobs**: Run only the jobs you need instead of full workflows  
+2. **Selective Jobs**: Run only the jobs you need instead of full workflows
 3. **Skip Matrix**: Most workflows have matrix strategies; single jobs are faster
 4. **Local Dependencies**: Use `pnpm act:local` for optimized local execution
 
 ## Matrix Testing Notes
 
 Some workflows use matrix strategies that might be resource-intensive:
+
 - `test-environments.yml` tests multiple OS/Node combinations
 - Consider running specific jobs instead of the full matrix locally
 - CI servers handle matrices better than local machines
@@ -213,18 +229,23 @@ Some workflows use matrix strategies that might be resource-intensive:
 ## Integration with Development Workflow
 
 ### Pre-commit Hook
+
 Add to `.husky/pre-commit`:
+
 ```bash
 pnpm act:quick
 ```
 
-### Pre-push Hook  
+### Pre-push Hook
+
 Add to `.husky/pre-push`:
+
 ```bash
 pnpm act:ci:test
 ```
 
 ### Development Loop
+
 1. Make changes
 2. `pnpm act:quick` - Fast validation
 3. `pnpm act:ci:test` - Full test suite
@@ -236,6 +257,7 @@ pnpm act:ci:test
 ### Use the Interactive Script
 
 For an easy-to-use menu interface, run:
+
 ```bash
 pnpm act:menu
 # or directly
@@ -243,6 +265,7 @@ pnpm act:menu
 ```
 
 This provides an interactive menu with options for:
+
 - Quick actions (list, validate, dry run)
 - Testing (specific jobs, full CI, verbose output)
 - Information (system info, documentation)
@@ -336,6 +359,7 @@ act --help                       # Show help
 ### VS Code Integration
 
 Add to `.vscode/tasks.json`:
+
 ```json
 {
   "version": "2.0.0",
@@ -368,8 +392,9 @@ Add to `.vscode/tasks.json`:
 #### CI Workflow (`ci.yml`)
 
 The CI workflow includes these jobs:
+
 - `lint-and-format`: ESLint and Prettier checks
-- `type-check`: TypeScript type checking  
+- `type-check`: TypeScript type checking
 - `security`: Security audit
 - `test`: Unit tests with coverage (depends on lint/type-check)
 - `build`: Next.js build verification (depends on lint/type-check)
@@ -378,14 +403,16 @@ The CI workflow includes these jobs:
 #### Test Workflow (`test.yml`)
 
 Runs tests across multiple Node.js versions (18.x, 20.x) with:
+
 - Linting
-- Type checking  
+- Type checking
 - Unit tests
 - Coverage reporting
 
 #### Coverage Workflow (`coverage.yml`)
 
 Generates and uploads coverage reports to Codecov with:
+
 - Coverage report generation
 - Coverage comparison for PRs
 - Badge generation

@@ -34,8 +34,12 @@ console.log(`   AWS_ENDPOINT_URL: ${process.env.AWS_ENDPOINT_URL || 'undefined'}
 console.log(`   S3_BUCKET_NAME: ${process.env.S3_BUCKET_NAME || 'undefined'}`);
 console.log(`   DDB_TABLE_NAME: ${process.env.DDB_TABLE_NAME || 'undefined'}`);
 console.log(`   SQS_QUEUE_NAME: ${process.env.SQS_QUEUE_NAME || 'undefined'}`);
-console.log(`   AWS_ACCESS_KEY_ID: ${process.env.AWS_ACCESS_KEY_ID ? '***' + process.env.AWS_ACCESS_KEY_ID.slice(-4) : 'undefined'}`);
-console.log(`   AWS_SECRET_ACCESS_KEY: ${process.env.AWS_SECRET_ACCESS_KEY ? '***' + process.env.AWS_SECRET_ACCESS_KEY.slice(-4) : 'undefined'}`);
+console.log(
+  `   AWS_ACCESS_KEY_ID: ${process.env.AWS_ACCESS_KEY_ID ? '***' + process.env.AWS_ACCESS_KEY_ID.slice(-4) : 'undefined'}`
+);
+console.log(
+  `   AWS_SECRET_ACCESS_KEY: ${process.env.AWS_SECRET_ACCESS_KEY ? '***' + process.env.AWS_SECRET_ACCESS_KEY.slice(-4) : 'undefined'}`
+);
 console.log('');
 
 let worker: QueueWorker | null = null;
@@ -65,7 +69,7 @@ process.on('SIGTERM', () => {
     console.log('💡 Press Ctrl+C to stop the worker');
     console.log('📊 Check the console for job processing logs');
     console.log('');
-    
+
     await worker.start();
   } catch (error) {
     console.error('❌ Failed to start worker:', error);

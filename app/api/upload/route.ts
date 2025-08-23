@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
-import { s3Client, docClient, AWS_RESOURCES, generateS3Key, getJobTypeFromFile, JobStatus } from '@/lib/aws-config';
+import {
+  s3Client,
+  docClient,
+  AWS_RESOURCES,
+  generateS3Key,
+  getJobTypeFromFile,
+  JobStatus,
+} from '@/lib/aws-config';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,10 +19,7 @@ export async function POST(request: NextRequest) {
     const targetFormat = formData.get('targetFormat') as string; // target format (optional)
 
     if (!file) {
-      return NextResponse.json(
-        { error: 'No file provided' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
     if (!operation || !['convert', 'compress'].includes(operation)) {
@@ -66,7 +70,7 @@ export async function POST(request: NextRequest) {
       status: JobStatus.PENDING,
       createdAt: now,
       updatedAt: now,
-      progress: 0
+      progress: 0,
     };
 
     const putCommand = new PutCommand({
@@ -89,15 +93,14 @@ export async function POST(request: NextRequest) {
         targetFormat,
         jobType,
         uploadedAt: new Date().toISOString(),
-      }
+      },
     });
-
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json(
-      { 
-        error: 'Upload failed', 
-        details: error instanceof Error ? error.message : 'Unknown error'
+      {
+        error: 'Upload failed',
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

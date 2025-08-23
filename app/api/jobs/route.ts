@@ -34,21 +34,18 @@ export async function GET(request: NextRequest) {
       // Get specific job
       const command = new GetCommand({
         TableName: AWS_RESOURCES.DYNAMODB_TABLE,
-        Key: { jobId }
+        Key: { jobId },
       });
 
       const result = await docClient.send(command);
 
       if (!result.Item) {
-        return NextResponse.json(
-          { error: 'Job not found' },
-          { status: 404 }
-        );
+        return NextResponse.json({ error: 'Job not found' }, { status: 404 });
       }
 
       return NextResponse.json({
         success: true,
-        data: result.Item as Job
+        data: result.Item as Job,
       });
     } else {
       // List all jobs (with optional filtering)
@@ -61,25 +58,24 @@ export async function GET(request: NextRequest) {
         ...(status && {
           FilterExpression: '#status = :status',
           ExpressionAttributeNames: { '#status': 'status' },
-          ExpressionAttributeValues: { ':status': status }
-        })
+          ExpressionAttributeValues: { ':status': status },
+        }),
       });
 
       const result = await docClient.send(command);
 
       return NextResponse.json({
         success: true,
-        data: result.Items as Job[] || [],
-        count: result.Items?.length || 0
+        data: (result.Items as Job[]) || [],
+        count: result.Items?.length || 0,
       });
     }
-
   } catch (error) {
     console.error('Get jobs error:', error);
     return NextResponse.json(
-      { 
-        error: 'Failed to retrieve jobs', 
-        details: error instanceof Error ? error.message : 'Unknown error'
+      {
+        error: 'Failed to retrieve jobs',
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );
@@ -90,22 +86,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const {
-      jobId,
-      fileName,
-      fileSize,
-      fileType,
-      s3Key,
-      operation,
-      targetFormat,
-      jobType
-    } = body;
+    const { jobId, fileName, fileSize, fileType, s3Key, operation, targetFormat, jobType } = body;
 
     if (!jobId || !fileName || !s3Key || !operation || !jobType) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     const now = new Date().toISOString();
@@ -121,27 +105,26 @@ export async function POST(request: NextRequest) {
       status: JobStatus.PENDING,
       createdAt: now,
       updatedAt: now,
-      progress: 0
+      progress: 0,
     };
 
     const command = new PutCommand({
       TableName: AWS_RESOURCES.DYNAMODB_TABLE,
-      Item: job
+      Item: job,
     });
 
     await docClient.send(command);
 
     return NextResponse.json({
       success: true,
-      data: job
+      data: job,
     });
-
   } catch (error) {
     console.error('Create job error:', error);
     return NextResponse.json(
-      { 
-        error: 'Failed to create job', 
-        details: error instanceof Error ? error.message : 'Unknown error'
+      {
+        error: 'Failed to create job',
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );
@@ -152,13 +135,19 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { jobId, status, progress, downloadUrl, errorMessage, originalFileSize, processedFileSize, compressionSavings } = body;
+    const {
+      jobId,
+      status,
+      progress,
+      downloadUrl,
+      errorMessage,
+      originalFileSize,
+      processedFileSize,
+      compressionSavings,
+    } = body;
 
     if (!jobId) {
-      return NextResponse.json(
-        { error: 'Job ID is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Job ID is required' }, { status: 400 });
     }
 
     const updateExpression: string[] = [];
@@ -217,24 +206,25 @@ export async function PUT(request: NextRequest) {
       TableName: AWS_RESOURCES.DYNAMODB_TABLE,
       Key: { jobId },
       UpdateExpression: `SET ${updateExpression.join(', ')}`,
-      ExpressionAttributeNames: Object.keys(expressionAttributeNames).length ? expressionAttributeNames : undefined,
+      ExpressionAttributeNames: Object.keys(expressionAttributeNames).length
+        ? expressionAttributeNames
+        : undefined,
       ExpressionAttributeValues: expressionAttributeValues,
-      ReturnValues: 'ALL_NEW'
+      ReturnValues: 'ALL_NEW',
     });
 
     const result = await docClient.send(command);
 
     return NextResponse.json({
       success: true,
-      data: result.Attributes as Job
+      data: result.Attributes as Job,
     });
-
   } catch (error) {
     console.error('Update job error:', error);
     return NextResponse.json(
-      { 
-        error: 'Failed to update job', 
-        details: error instanceof Error ? error.message : 'Unknown error'
+      {
+        error: 'Failed to update job',
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

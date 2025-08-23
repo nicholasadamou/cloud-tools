@@ -1,50 +1,50 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowRight, Image, FileAudio, FileVideo, BookOpen } from 'lucide-react'
-import { PageTransition } from '@/components/page-transition'
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowRight, Image, FileAudio, FileVideo, BookOpen } from 'lucide-react';
+import { PageTransition } from '@/components/page-transition';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5 }
-}
+  transition: { duration: 0.5 },
+};
 
 const staggeredFadeIn = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5, staggerChildren: 0.1 }
-}
+  transition: { duration: 0.5, staggerChildren: 0.1 },
+};
 
 const converters = [
   {
-    title: "Image Converter",
-    description: "Convert images between various formats like JPG, PNG, WebP, and GIF.",
+    title: 'Image Converter',
+    description: 'Convert images between various formats like JPG, PNG, WebP, and GIF.',
     icon: Image,
-    href: "/tools/converters/image"
+    href: '/tools/converters/image',
   },
   {
-    title: "Audio Converter",
-    description: "Convert audio files to different formats including MP3, WAV, OGG, and FLAC.",
+    title: 'Audio Converter',
+    description: 'Convert audio files to different formats including MP3, WAV, OGG, and FLAC.',
     icon: FileAudio,
-    href: "/tools/converters/audio"
+    href: '/tools/converters/audio',
   },
   {
-    title: "Video Converter",
-    description: "Convert video files to popular formats such as MP4, MOV, AVI, and WebM.",
+    title: 'Video Converter',
+    description: 'Convert video files to popular formats such as MP4, MOV, AVI, and WebM.',
     icon: FileVideo,
-    href: "/tools/converters/video"
+    href: '/tools/converters/video',
   },
   {
-    title: "eBook Converter",
-    description: "Convert eBooks between formats like EPUB, MOBI, PDF, and AZW3.",
+    title: 'eBook Converter',
+    description: 'Convert eBooks between formats like EPUB, MOBI, PDF, and AZW3.',
     icon: BookOpen,
-    href: "/tools/converters/ebooks"
-  }
-]
+    href: '/tools/converters/ebooks',
+  },
+];
 
 export default function ConvertersPage() {
   return (
@@ -127,16 +127,10 @@ export default function ConvertersPage() {
             transition={{ delay: 0.4 }}
           >
             <div className="container mx-auto px-4 text-center">
-              <motion.h2
-                className="text-3xl font-bold mb-6"
-                variants={fadeInUp}
-              >
+              <motion.h2 className="text-3xl font-bold mb-6" variants={fadeInUp}>
                 Ready to convert your files?
               </motion.h2>
-              <motion.p
-                className="text-xl mb-8 text-muted-foreground"
-                variants={fadeInUp}
-              >
+              <motion.p className="text-xl mb-8 text-muted-foreground" variants={fadeInUp}>
                 Choose a converter above to get started, or explore our other tools.
               </motion.p>
               <motion.div variants={fadeInUp}>
@@ -151,6 +145,5 @@ export default function ConvertersPage() {
         </main>
       </div>
     </PageTransition>
-  )
+  );
 }
-

@@ -1,38 +1,38 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowRight, FileImage, FileText } from 'lucide-react'
-import { PageTransition } from '@/components/page-transition'
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowRight, FileImage, FileText } from 'lucide-react';
+import { PageTransition } from '@/components/page-transition';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5 }
-}
+  transition: { duration: 0.5 },
+};
 
 const staggeredFadeIn = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5, staggerChildren: 0.1 }
-}
+  transition: { duration: 0.5, staggerChildren: 0.1 },
+};
 
 const compressionTools = [
   {
-    title: "Image Compression",
-    description: "Reduce the file size of your images without compromising quality.",
+    title: 'Image Compression',
+    description: 'Reduce the file size of your images without compromising quality.',
     icon: FileImage,
-    href: "/tools/compression/image"
+    href: '/tools/compression/image',
   },
   {
-    title: "PDF Compression",
-    description: "Compress PDF files to reduce their size while maintaining readability.",
+    title: 'PDF Compression',
+    description: 'Compress PDF files to reduce their size while maintaining readability.',
     icon: FileText,
-    href: "/tools/compression/pdf"
-  }
-]
+    href: '/tools/compression/pdf',
+  },
+];
 
 export default function CompressionPage() {
   return (
@@ -115,16 +115,10 @@ export default function CompressionPage() {
             transition={{ delay: 0.4 }}
           >
             <div className="container mx-auto px-4 text-center">
-              <motion.h2
-                className="text-3xl font-bold mb-6"
-                variants={fadeInUp}
-              >
+              <motion.h2 className="text-3xl font-bold mb-6" variants={fadeInUp}>
                 Need to compress your files?
               </motion.h2>
-              <motion.p
-                className="text-xl mb-8 text-muted-foreground"
-                variants={fadeInUp}
-              >
+              <motion.p className="text-xl mb-8 text-muted-foreground" variants={fadeInUp}>
                 Choose a compression tool above to get started, or explore our other services.
               </motion.p>
               <motion.div variants={fadeInUp}>
@@ -139,6 +133,5 @@ export default function CompressionPage() {
         </main>
       </div>
     </PageTransition>
-  )
+  );
 }
-

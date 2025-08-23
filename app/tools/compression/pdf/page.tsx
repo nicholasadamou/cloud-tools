@@ -1,18 +1,18 @@
-'use client'
+'use client';
 
-import { motion } from 'framer-motion'
-import FileUploader from '@/components/file-uploader'
-import ConversionHistory from '@/components/conversion-history'
-import { PageTransition } from '@/components/page-transition'
-import { ToolSwitcher } from '@/components/tool-switcher'
+import { motion } from 'framer-motion';
+import FileUploader from '@/components/file-uploader';
+import ConversionHistory from '@/components/conversion-history';
+import { PageTransition } from '@/components/page-transition';
+import { ToolSwitcher } from '@/components/tool-switcher';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5 }
-}
+  transition: { duration: 0.5 },
+};
 
-const pdfFormats = ['pdf']
+const pdfFormats = ['pdf'];
 
 export default function PDFCompressionPage() {
   return (
@@ -67,6 +67,5 @@ export default function PDFCompressionPage() {
         </div>
       </motion.div>
     </PageTransition>
-  )
+  );
 }
-

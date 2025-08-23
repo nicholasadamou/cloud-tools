@@ -3,36 +3,36 @@ import { NextResponse } from 'next/server';
 export async function GET() {
   try {
     // Check LocalStack connectivity
-    let localStackStatus = 'unknown'
-    let localStackServices = {}
-    
+    let localStackStatus = 'unknown';
+    let localStackServices = {};
+
     try {
       const localStackResponse = await fetch('http://localhost:4566/_localstack/health', {
-        signal: AbortSignal.timeout(3000)
-      })
+        signal: AbortSignal.timeout(3000),
+      });
       if (localStackResponse.ok) {
-        const health = await localStackResponse.json()
-        localStackServices = health.services
-        localStackStatus = 'connected'
+        const health = await localStackResponse.json();
+        localStackServices = health.services;
+        localStackStatus = 'connected';
       } else {
-        localStackStatus = 'unreachable'
+        localStackStatus = 'unreachable';
       }
     } catch {
-      localStackStatus = 'down'
+      localStackStatus = 'down';
     }
 
     // Calculate uptime in a more readable format
-    const uptimeSeconds = process.uptime()
-    const uptimeDays = Math.floor(uptimeSeconds / 86400)
-    const uptimeHours = Math.floor((uptimeSeconds % 86400) / 3600)
-    const uptimeMins = Math.floor((uptimeSeconds % 3600) / 60)
-    
-    let uptimeString = ''
-    if (uptimeDays > 0) uptimeString += `${uptimeDays}d `
-    if (uptimeHours > 0) uptimeString += `${uptimeHours}h `
-    uptimeString += `${uptimeMins}m`
+    const uptimeSeconds = process.uptime();
+    const uptimeDays = Math.floor(uptimeSeconds / 86400);
+    const uptimeHours = Math.floor((uptimeSeconds % 86400) / 3600);
+    const uptimeMins = Math.floor((uptimeSeconds % 3600) / 60);
 
-    const memUsage = process.memoryUsage()
+    let uptimeString = '';
+    if (uptimeDays > 0) uptimeString += `${uptimeDays}d `;
+    if (uptimeHours > 0) uptimeString += `${uptimeHours}h `;
+    uptimeString += `${uptimeMins}m`;
+
+    const memUsage = process.memoryUsage();
     const healthStatus = {
       status: 'healthy',
       timestamp: new Date().toISOString(),
@@ -41,7 +41,7 @@ export async function GET() {
       services: {
         api: 'operational',
         localstack: localStackStatus,
-        ...localStackServices
+        ...localStackServices,
       },
       system: {
         uptime: uptimeString,
@@ -50,18 +50,18 @@ export async function GET() {
           used: Math.round(memUsage.heapUsed / 1024 / 1024),
           total: Math.round(memUsage.heapTotal / 1024 / 1024),
           rss: Math.round(memUsage.rss / 1024 / 1024),
-          external: Math.round(memUsage.external / 1024 / 1024)
+          external: Math.round(memUsage.external / 1024 / 1024),
         },
         nodejs: {
           version: process.version,
           platform: process.platform,
-          arch: process.arch
-        }
+          arch: process.arch,
+        },
       },
       localstack: {
         status: localStackStatus,
-        services: localStackServices
-      }
+        services: localStackServices,
+      },
     };
 
     return NextResponse.json(healthStatus, { status: 200 });
@@ -70,7 +70,7 @@ export async function GET() {
       {
         status: 'unhealthy',
         timestamp: new Date().toISOString(),
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 503 }
     );

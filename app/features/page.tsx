@@ -1,67 +1,72 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowRight, Zap, Lock, Cloud, Repeat, Minimize2, Smartphone, Globe } from 'lucide-react'
-import { PageTransition } from '@/components/page-transition'
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowRight, Zap, Lock, Cloud, Repeat, Minimize2, Smartphone, Globe } from 'lucide-react';
+import { PageTransition } from '@/components/page-transition';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5 }
-}
+  transition: { duration: 0.5 },
+};
 
 const staggeredFadeIn = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5, staggerChildren: 0.1 }
-}
+  transition: { duration: 0.5, staggerChildren: 0.1 },
+};
 
 export default function FeaturesPage() {
   const features = [
     {
       icon: Repeat,
-      title: "File Conversion",
-      description: "Convert files between various formats with ease. Support for images, documents, audio, and more."
+      title: 'File Conversion',
+      description:
+        'Convert files between various formats with ease. Support for images, documents, audio, and more.',
     },
     {
       icon: Minimize2,
-      title: "File Compression",
-      description: "Reduce file sizes without compromising quality. Perfect for images, PDFs, and other large files."
+      title: 'File Compression',
+      description:
+        'Reduce file sizes without compromising quality. Perfect for images, PDFs, and other large files.',
     },
     {
       icon: Zap,
-      title: "Fast Processing",
-      description: "Experience lightning-fast file processing with our optimized cloud infrastructure."
+      title: 'Fast Processing',
+      description:
+        'Experience lightning-fast file processing with our optimized cloud infrastructure.',
     },
     {
       icon: Lock,
-      title: "Secure & Private",
-      description: "Your files are encrypted during transfer and automatically deleted after processing."
+      title: 'Secure & Private',
+      description:
+        'Your files are encrypted during transfer and automatically deleted after processing.',
     },
     {
       icon: Cloud,
-      title: "Cloud-Powered",
-      description: "Access our tools from anywhere, on any device with internet access."
+      title: 'Cloud-Powered',
+      description: 'Access our tools from anywhere, on any device with internet access.',
     },
     {
       icon: Smartphone,
-      title: "Mobile Friendly",
-      description: "Our responsive design ensures a seamless experience on smartphones and tablets."
+      title: 'Mobile Friendly',
+      description:
+        'Our responsive design ensures a seamless experience on smartphones and tablets.',
     },
     {
       icon: Globe,
-      title: "Multiple Languages",
-      description: "Support for multiple languages to serve users from around the world."
+      title: 'Multiple Languages',
+      description: 'Support for multiple languages to serve users from around the world.',
     },
     {
       icon: ArrowRight,
-      title: "Batch Processing",
-      description: "Convert or compress multiple files at once to save time and effort."
-    }
-  ]
+      title: 'Batch Processing',
+      description: 'Convert or compress multiple files at once to save time and effort.',
+    },
+  ];
 
   return (
     <PageTransition>
@@ -90,7 +95,8 @@ export default function FeaturesPage() {
                 animate="animate"
                 transition={{ delay: 0.2 }}
               >
-                Discover the tools that make Cloud Tools the best choice for file conversion and compression
+                Discover the tools that make Cloud Tools the best choice for file conversion and
+                compression
               </motion.p>
             </div>
           </div>
@@ -138,16 +144,10 @@ export default function FeaturesPage() {
             transition={{ delay: 0.4 }}
           >
             <div className="container mx-auto px-4 text-center">
-              <motion.h2
-                className="text-3xl font-bold mb-6"
-                variants={fadeInUp}
-              >
+              <motion.h2 className="text-3xl font-bold mb-6" variants={fadeInUp}>
                 Ready to experience these features?
               </motion.h2>
-              <motion.p
-                className="text-xl mb-8 text-muted-foreground"
-                variants={fadeInUp}
-              >
+              <motion.p className="text-xl mb-8 text-muted-foreground" variants={fadeInUp}>
                 Start converting and compressing your files with Cloud Tools today.
               </motion.p>
               <motion.div variants={fadeInUp}>
@@ -162,6 +162,5 @@ export default function FeaturesPage() {
         </main>
       </div>
     </PageTransition>
-  )
+  );
 }
-

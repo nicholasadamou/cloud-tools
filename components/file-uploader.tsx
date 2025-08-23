@@ -1,23 +1,29 @@
-"use client"
+'use client';
 
-import React, { useState, useEffect, useRef } from 'react'
-import { motion } from 'framer-motion'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { toast } from '@/hooks/use-toast'
-import { Loader2 } from 'lucide-react'
-import { Progress } from '@/components/ui/progress'
-import { SelectedFile } from '@/components/selected-file'
+import React, { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { toast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { SelectedFile } from '@/components/selected-file';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5 }
-}
+  transition: { duration: 0.5 },
+};
 
 interface FileUploaderProps {
   fileType: 'image' | 'video' | 'audio' | 'ebook' | 'pdf';
@@ -27,48 +33,55 @@ interface FileUploaderProps {
   isCompression?: boolean;
 }
 
-export default function FileUploader({ fileType, formats, storageKey, isCompression = false }: FileUploaderProps) {
-  const [file, setFile] = useState<File | null>(null)
-  const [currentFileType, setCurrentFileType] = useState<string | null>(null)
-  const [convertTo, setConvertTo] = useState<string>('')
-  const [availableFormats, setAvailableFormats] = useState<string[]>(formats)
-  const [isLoading, setIsLoading] = useState(false)
-  const [progress, setProgress] = useState(0)
-  const router = useRouter()
+export default function FileUploader({
+  fileType,
+  formats,
+  storageKey,
+  isCompression = false,
+}: FileUploaderProps) {
+  const [file, setFile] = useState<File | null>(null);
+  const [currentFileType, setCurrentFileType] = useState<string | null>(null);
+  const [convertTo, setConvertTo] = useState<string>('');
+  const [availableFormats, setAvailableFormats] = useState<string[]>(formats);
+  const [isLoading, setIsLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (file) {
       // Extract file extension from filename
-      const extension = file.name.split('.').pop()?.toLowerCase() || ''
-      setCurrentFileType(extension)
-      
+      const extension = file.name.split('.').pop()?.toLowerCase() || '';
+      setCurrentFileType(extension);
+
       // Handle common extension variations
       const getExtensionVariations = (ext: string): string[] => {
         const variations: { [key: string]: string[] } = {
-          'jpg': ['jpg', 'jpeg'],
-          'jpeg': ['jpg', 'jpeg'],
-          'tif': ['tif', 'tiff'],
-          'tiff': ['tif', 'tiff'],
-          'htm': ['htm', 'html'],
-          'html': ['htm', 'html'],
-        }
-        return variations[ext] || [ext]
-      }
-      
-      const extensionVariations = getExtensionVariations(extension)
-      setAvailableFormats(formats.filter(format => !extensionVariations.includes(format.toLowerCase())))
-      setConvertTo('')
+          jpg: ['jpg', 'jpeg'],
+          jpeg: ['jpg', 'jpeg'],
+          tif: ['tif', 'tiff'],
+          tiff: ['tif', 'tiff'],
+          htm: ['htm', 'html'],
+          html: ['htm', 'html'],
+        };
+        return variations[ext] || [ext];
+      };
+
+      const extensionVariations = getExtensionVariations(extension);
+      setAvailableFormats(
+        formats.filter(format => !extensionVariations.includes(format.toLowerCase()))
+      );
+      setConvertTo('');
     } else {
-      setCurrentFileType(null)
-      setAvailableFormats(formats)
+      setCurrentFileType(null);
+      setAvailableFormats(formats);
     }
-  }, [file, formats])
+  }, [file, formats]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0]
-    setFile(selectedFile || null)
-  }
+    const selectedFile = e.target.files?.[0];
+    setFile(selectedFile || null);
+  };
 
   const clearSelection = () => {
     setFile(null);
@@ -80,44 +93,44 @@ export default function FileUploader({ fileType, formats, storageKey, isCompress
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!file || (!isCompression && !convertTo)) {
       toast({
-        title: "Error",
+        title: 'Error',
         description: `Please select a ${fileType} ${!isCompression ? 'and conversion format' : ''}.`,
-        variant: "destructive",
-      })
-      return
+        variant: 'destructive',
+      });
+      return;
     }
 
-    setIsLoading(true)
-    setProgress(0)
-    
+    setIsLoading(true);
+    setProgress(0);
+
     try {
       // Step 1: Upload file to S3
-      setProgress(25)
-      const uploadFormData = new FormData()
-      uploadFormData.append('file', file)
-      uploadFormData.append('operation', isCompression ? 'compress' : 'convert')
+      setProgress(25);
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', file);
+      uploadFormData.append('operation', isCompression ? 'compress' : 'convert');
       if (!isCompression && convertTo) {
-        uploadFormData.append('targetFormat', convertTo)
+        uploadFormData.append('targetFormat', convertTo);
       }
 
       const uploadResponse = await fetch('/api/upload', {
         method: 'POST',
         body: uploadFormData,
-      })
+      });
 
-      const uploadData = await uploadResponse.json()
-      
+      const uploadData = await uploadResponse.json();
+
       if (!uploadResponse.ok) {
-        throw new Error(uploadData.error || 'Upload failed')
+        throw new Error(uploadData.error || 'Upload failed');
       }
 
-      const { jobId } = uploadData.data
-      
+      const { jobId } = uploadData.data;
+
       // Step 2: Queue job for processing
-      setProgress(75)
+      setProgress(75);
       const processResponse = await fetch('/api/process', {
         method: 'POST',
         headers: {
@@ -129,62 +142,59 @@ export default function FileUploader({ fileType, formats, storageKey, isCompress
           targetFormat: convertTo,
           quality: isCompression ? 80 : undefined,
         }),
-      })
+      });
 
-      const processData = await processResponse.json()
-      
+      const processData = await processResponse.json();
+
       if (!processResponse.ok) {
-        throw new Error(processData.error || 'Failed to queue job for processing')
+        throw new Error(processData.error || 'Failed to queue job for processing');
       }
 
-      setProgress(100)
+      setProgress(100);
 
       toast({
-        title: "Upload Complete",
+        title: 'Upload Complete',
         description: `${fileType.charAt(0).toUpperCase() + fileType.slice(1)} queued for ${isCompression ? 'compression' : 'conversion'}! Job ID: ${jobId}`,
-      })
-      
+      });
+
       // Add to history with job info
-      const history = JSON.parse(localStorage.getItem(storageKey) || '[]')
+      const history = JSON.parse(localStorage.getItem(storageKey) || '[]');
       history.unshift({
         jobId,
         originalName: file.name,
-        processedTo: isCompression ? `Compressed ${fileType.toUpperCase()}` : convertTo?.toUpperCase(),
+        processedTo: isCompression
+          ? `Compressed ${fileType.toUpperCase()}`
+          : convertTo?.toUpperCase(),
         date: new Date().toISOString(),
         status: 'processing',
-        operation: isCompression ? 'compress' : 'convert'
-      })
-      localStorage.setItem(storageKey, JSON.stringify(history.slice(0, 10)))
-      
+        operation: isCompression ? 'compress' : 'convert',
+      });
+      localStorage.setItem(storageKey, JSON.stringify(history.slice(0, 10)));
+
       clearSelection();
       router.refresh();
-      
+
       // Show job tracking info
       toast({
-        title: "Processing Started",
+        title: 'Processing Started',
         description: `Your ${fileType} is being processed. You can check the status using Job ID: ${jobId}`,
-      })
-      
+      });
     } catch (error) {
-      console.error('Processing error:', error)
+      console.error('Processing error:', error);
       toast({
-        title: "Upload Failed",
-        description: error instanceof Error ? error.message : "An unknown error occurred",
-        variant: "destructive",
-      })
+        title: 'Upload Failed',
+        description: error instanceof Error ? error.message : 'An unknown error occurred',
+        variant: 'destructive',
+      });
       clearSelection();
     } finally {
-      setIsLoading(false)
-      setProgress(0)
+      setIsLoading(false);
+      setProgress(0);
     }
-  }
+  };
 
   return (
-    <motion.div
-      variants={fadeInUp}
-      initial="initial"
-      animate="animate"
-    >
+    <motion.div variants={fadeInUp} initial="initial" animate="animate">
       <Card className="w-full">
         <CardHeader className="pb-4">
           <p className="text-sm text-muted-foreground">
@@ -250,7 +260,7 @@ export default function FileUploader({ fileType, formats, storageKey, isCompress
                       <SelectValue placeholder="Select format" />
                     </SelectTrigger>
                     <SelectContent position="popper">
-                      {availableFormats.map((format) => (
+                      {availableFormats.map(format => (
                         <SelectItem key={format} value={format}>
                           {format.toUpperCase()}
                         </SelectItem>
@@ -274,10 +284,7 @@ export default function FileUploader({ fileType, formats, storageKey, isCompress
               <p className="text-sm text-center text-muted-foreground">{progress}% complete</p>
             </motion.div>
           )}
-          <motion.div
-            variants={fadeInUp}
-            transition={{ delay: 0.5 }}
-          >
+          <motion.div variants={fadeInUp} transition={{ delay: 0.5 }}>
             <Button
               type="submit"
               onClick={handleSubmit}
@@ -297,6 +304,5 @@ export default function FileUploader({ fileType, formats, storageKey, isCompress
         </CardFooter>
       </Card>
     </motion.div>
-  )
+  );
 }
-

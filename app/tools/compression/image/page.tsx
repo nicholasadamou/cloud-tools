@@ -1,29 +1,29 @@
-'use client'
+'use client';
 
-import { motion } from 'framer-motion'
-import FileUploader from '@/components/file-uploader'
-import ConversionHistory from '@/components/conversion-history'
-import { PageTransition } from '@/components/page-transition'
-import { ToolSwitcher } from '@/components/tool-switcher'
+import { motion } from 'framer-motion';
+import FileUploader from '@/components/file-uploader';
+import ConversionHistory from '@/components/conversion-history';
+import { PageTransition } from '@/components/page-transition';
+import { ToolSwitcher } from '@/components/tool-switcher';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5 }
-}
+  transition: { duration: 0.5 },
+};
 
-const imageFormats = ['jpg', 'png', 'webp', 'gif']
+const imageFormats = ['jpg', 'png', 'webp', 'gif'];
 
 export default function ImageCompressionPage() {
   return (
     <PageTransition>
-      <motion.div 
+      <motion.div
         className="bg-secondary container mx-auto px-4 py-8"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
       >
-        <motion.h1 
+        <motion.h1
           className="text-4xl font-bold mb-8 text-center"
           variants={fadeInUp}
           initial="initial"
@@ -39,7 +39,7 @@ export default function ImageCompressionPage() {
             transition={{ delay: 0.2 }}
           >
             <h2 className="text-2xl font-semibold mb-4">Compress Image</h2>
-            <FileUploader 
+            <FileUploader
               fileType="image"
               formats={imageFormats}
               apiEndpoint="/api/process"
@@ -68,6 +68,5 @@ export default function ImageCompressionPage() {
         </div>
       </motion.div>
     </PageTransition>
-  )
+  );
 }
-

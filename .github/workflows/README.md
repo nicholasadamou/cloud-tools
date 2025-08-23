@@ -7,7 +7,9 @@ This directory contains GitHub Actions workflows for automated CI/CD processes.
 ### 🧪 Test Workflows
 
 #### [`test.yml`](./test.yml)
+
 **Simple Unit Tests**
+
 - Triggers: Push/PR to `master` branch
 - Node versions: 18.x, 20.x
 - Features:
@@ -17,8 +19,10 @@ This directory contains GitHub Actions workflows for automated CI/CD processes.
   - Uploads to Codecov
   - Comments PR with coverage info
 
-#### [`ci.yml`](./ci.yml)  
+#### [`ci.yml`](./ci.yml)
+
 **Comprehensive CI Pipeline**
+
 - Triggers: Push/PR to `master` branch
 - Jobs:
   - **Lint & Format**: ESLint and Prettier checks
@@ -29,7 +33,9 @@ This directory contains GitHub Actions workflows for automated CI/CD processes.
   - **Summary**: Aggregates results
 
 #### [`coverage.yml`](./coverage.yml)
+
 **Test Coverage Analysis**
+
 - Triggers: Push/PR to `master` branch
 - Features:
   - Detailed coverage reporting
@@ -39,17 +45,21 @@ This directory contains GitHub Actions workflows for automated CI/CD processes.
   - Coverage threshold verification
 
 #### [`test-environments.yml`](./test-environments.yml)
+
 **Multi-Environment Testing**
+
 - Triggers: Push/PR to `master`, daily schedule (2 AM UTC)
 - Features:
   - **Test Matrix**: Cross-platform (Ubuntu, Windows, macOS)
   - **LocalStack Integration**: Tests with AWS services
-  - **Docker Testing**: Tests in containerized environment  
+  - **Docker Testing**: Tests in containerized environment
   - **Performance Tests**: Monitors test execution time
   - **Notifications**: Alerts on failures
 
 #### [`shellcheck.yml`](./shellcheck.yml)
+
 **Shell Script Validation**
+
 - Triggers: Push/PR to `master` (only when shell scripts change)
 - Features:
   - **ShellCheck Analysis**: Static analysis for shell scripts
@@ -68,7 +78,7 @@ Add these to your repository secrets (Settings → Secrets and variables → Act
 # Optional: For enhanced Codecov features
 CODECOV_TOKEN=your_codecov_token
 
-# Optional: For Coveralls integration  
+# Optional: For Coveralls integration
 COVERALLS_REPO_TOKEN=your_coveralls_token
 ```
 
@@ -80,7 +90,7 @@ Recommended branch protection for `master`:
 - ✅ Require branches to be up to date before merging
 - ✅ Required status checks:
   - `Continuous Integration / Lint and Format Check`
-  - `Continuous Integration / TypeScript Type Check` 
+  - `Continuous Integration / TypeScript Type Check`
   - `Continuous Integration / Unit Tests (20.x)`
   - `Continuous Integration / Build Check`
 
@@ -98,28 +108,33 @@ Add these badges to your main README.md:
 ## Workflow Features
 
 ### 🔄 Automatic Triggers
+
 - **Push events**: `master` branch
-- **Pull requests**: To `master` branch  
+- **Pull requests**: To `master` branch
 - **Scheduled**: Daily integration tests (2 AM UTC)
 
 ### 📊 Coverage Reporting
+
 - **Codecov**: Detailed coverage analysis
 - **Coveralls**: Alternative coverage tracking
 - **PR Comments**: Coverage changes in PR discussions
 - **Badges**: Visual coverage status
 
 ### 🔧 Quality Checks
+
 - **ESLint**: Code quality and style enforcement
 - **Prettier**: Code formatting consistency
 - **TypeScript**: Type safety verification
 - **npm audit**: Security vulnerability scanning
 
-### 🚀 Performance Monitoring  
+### 🚀 Performance Monitoring
+
 - **Test timing**: Monitors test execution performance
 - **Build verification**: Ensures production builds work
 - **Multi-environment**: Tests across OS and Node versions
 
 ### 🐳 Container Testing
+
 - **Docker**: Tests in isolated container environment
 - **LocalStack**: AWS service integration testing
 - **Cross-platform**: Ubuntu, Windows, macOS compatibility
@@ -129,7 +144,7 @@ Add these badges to your main README.md:
 ### Common Issues
 
 1. **Test timeouts**: Adjust timeout in `vitest.config.ts` if needed
-2. **Coverage thresholds**: Modify `codecov.yml` for your requirements  
+2. **Coverage thresholds**: Modify `codecov.yml` for your requirements
 3. **LocalStack connectivity**: Ensure health checks pass before tests
 4. **Windows path issues**: Use forward slashes in scripts
 

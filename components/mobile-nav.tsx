@@ -1,25 +1,34 @@
-"use client"
+'use client';
 
-import React from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { Menu, Home, PenToolIcon as Tools, Info, ChevronRight, Image, Minimize2, BookOpen, Music, Video, FileImage, FileText, RefreshCcw, Briefcase } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet"
+  Menu,
+  Home,
+  PenToolIcon as Tools,
+  Info,
+  ChevronRight,
+  Image,
+  Minimize2,
+  BookOpen,
+  Music,
+  Video,
+  FileImage,
+  FileText,
+  RefreshCcw,
+  Briefcase,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion"
-import { ThemeToggle } from '@/components/theme-toggle'
-import { SearchTool } from './search-tool'
+} from '@/components/ui/accordion';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { SearchTool } from './search-tool';
 
 const toolCategories = [
   {
@@ -30,7 +39,7 @@ const toolCategories = [
       { name: 'Audio', href: '/tools/converters/audio', icon: Music },
       { name: 'Video', href: '/tools/converters/video', icon: Video },
       { name: 'Image', href: '/tools/converters/image', icon: Image },
-    ]
+    ],
   },
   {
     name: 'Compression',
@@ -38,18 +47,18 @@ const toolCategories = [
     subcategories: [
       { name: 'Image', href: '/tools/compression/image', icon: FileImage },
       { name: 'PDF', href: '/tools/compression/pdf', icon: FileText },
-    ]
+    ],
   },
-]
+];
 
 const navItems = [
   { name: 'Home', href: '/', icon: Home },
   { name: 'Jobs', href: '/jobs', icon: Briefcase },
   { name: 'About', href: '/about', icon: Info },
-]
+];
 
 export function MobileNav() {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   return (
     <Sheet>
@@ -65,17 +74,15 @@ export function MobileNav() {
           <SearchTool />
         </SheetHeader>
         <nav className="flex flex-col space-y-4">
-          {navItems.map((item) => {
-            const Icon = item.icon
-            const isActive = pathname === item.href
+          {navItems.map(item => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href;
             return (
               <Link
                 key={item.name}
                 href={item.href}
                 className={`flex items-center justify-between p-2 rounded-lg transition-colors ${
-                  isActive
-                    ? 'bg-primary text-primary-foreground'
-                    : 'hover:bg-muted'
+                  isActive ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
                 }`}
               >
                 <div className="flex items-center space-x-4">
@@ -84,7 +91,7 @@ export function MobileNav() {
                 </div>
                 <ChevronRight className="h-5 w-5" />
               </Link>
-            )
+            );
           })}
           <Accordion type="multiple" className="w-full">
             <AccordionItem value="tools">
@@ -96,7 +103,7 @@ export function MobileNav() {
               </AccordionTrigger>
               <AccordionContent>
                 <div className="pl-4 space-y-2">
-                  {toolCategories.map((category) => (
+                  {toolCategories.map(category => (
                     <Accordion type="single" collapsible className="w-full" key={category.name}>
                       <AccordionItem value={category.name}>
                         <AccordionTrigger className="flex items-center justify-between p-2 rounded-lg transition-colors hover:bg-muted hover:no-underline">
@@ -107,7 +114,7 @@ export function MobileNav() {
                         </AccordionTrigger>
                         <AccordionContent>
                           <div className="pl-8 space-y-2">
-                            {category.subcategories.map((subcategory) => (
+                            {category.subcategories.map(subcategory => (
                               <Link
                                 key={subcategory.name}
                                 href={subcategory.href}
@@ -133,6 +140,5 @@ export function MobileNav() {
         </div>
       </SheetContent>
     </Sheet>
-  )
+  );
 }
-

@@ -1,9 +1,11 @@
 # File Processing Worker Setup
 
 ## Overview
+
 The Cloud Tools application uses a comprehensive, SOLID-principle based file processing worker system for handling multimedia file conversions and compressions. The worker uses an SQS-based queue system and supports multiple file types with extensible processors.
 
 ## Architecture
+
 ```
 1. User uploads file → S3 (uploads/)
 2. Job queued → SQS with job metadata
@@ -15,12 +17,14 @@ The Cloud Tools application uses a comprehensive, SOLID-principle based file pro
 ## Supported File Types & Operations
 
 ### Images
+
 - **Formats**: JPEG, PNG, WebP, GIF, TIFF, BMP
 - **Operations**: Convert, Compress
 - **Processor**: SharpImageConverter
 - **Features**: Progressive JPEG, palette optimization, dimension scaling, format-specific optimizations
 
-### Videos  
+### Videos
+
 - **Formats**: MP4, MOV, AVI, WebM, MKV, FLV, WMV
 - **Operations**: Convert
 - **Processor**: FFmpegVideoConverter
@@ -28,18 +32,21 @@ The Cloud Tools application uses a comprehensive, SOLID-principle based file pro
 - **Requires**: FFmpeg installation
 
 ### Audio
+
 - **Formats**: MP3, WAV, OGG, FLAC, AAC, M4A, WMA
 - **Operations**: Convert
-- **Processor**: FFmpegAudioConverter  
+- **Processor**: FFmpegAudioConverter
 - **Features**: Bitrate optimization, codec-specific settings
 - **Requires**: FFmpeg installation
 
 ### PDFs
+
 - **Operations**: Compress
 - **Processor**: PDFCompressor
 - **Features**: Metadata removal, object stream optimization, structure optimization
 
 ### eBooks
+
 - **Formats**: EPUB, MOBI, AZW3, PDF, TXT, DOCX, RTF
 - **Operations**: Convert
 - **Processor**: CalibreEBookConverter
@@ -49,6 +56,7 @@ The Cloud Tools application uses a comprehensive, SOLID-principle based file pro
 ## Quick Start
 
 ### 1. Ensure LocalStack is Running
+
 ```bash
 pnpm run localstack:status
 # If not running:
@@ -56,12 +64,14 @@ pnpm run localstack:start
 ```
 
 ### 2. Start the Worker (Required for File Processing)
+
 ```bash
 # In a separate terminal window:
 pnpm run worker
 ```
 
 ### 3. Start the Development Server
+
 ```bash
 # In another terminal window:
 pnpm run dev
@@ -70,6 +80,7 @@ pnpm run dev
 ### 4. Test File Processing
 
 #### Image Conversion/Compression
+
 1. Go to http://localhost:3000/tools/converters/image
 2. Upload an image file (JPG, PNG, WebP, GIF, TIFF, BMP)
 3. Select a target format or compression quality
@@ -78,20 +89,22 @@ pnpm run dev
 6. Download the processed file
 
 #### Other File Types
+
 - **Video Conversion**: Upload video files (MP4, MOV, AVI, WebM, etc.)
-- **Audio Conversion**: Upload audio files (MP3, WAV, FLAC, OGG, etc.)  
+- **Audio Conversion**: Upload audio files (MP3, WAV, FLAC, OGG, etc.)
 - **PDF Compression**: Upload PDF files for size optimization
 - **eBook Conversion**: Upload eBooks (EPUB, MOBI, etc.) for format conversion
 
 ## Worker Details
 
 ### What the Worker Does
+
 - **Polls SQS Queue**: Continuously checks for new jobs (configurable interval, default 5 seconds)
 - **Downloads Files**: Retrieves original files from S3 using job metadata
 - **Multi-Format Processing**: Uses specialized processors for different file types:
   - **Sharp**: High-performance image processing with format-specific optimizations
   - **FFmpeg**: Professional video/audio conversion with quality presets
-  - **PDF-lib**: PDF compression with metadata removal and structure optimization  
+  - **PDF-lib**: PDF compression with metadata removal and structure optimization
   - **Calibre**: eBook conversion with fallback handling
 - **Quality-Based Processing**: Applies different strategies based on quality settings
 - **Uploads Results**: Stores processed files back to S3 with appropriate naming
@@ -101,30 +114,36 @@ pnpm run dev
 ### Processing Capabilities
 
 #### Image Processing (Sharp)
+
 - **Conversion**: Format conversion with quality optimization
 - **Compression**: Advanced compression with dimension scaling, progressive JPEG, palette optimization
 - **Supported Formats**: JPEG, PNG, WebP, GIF, TIFF, BMP
 
 #### Video Processing (FFmpeg)
+
 - **Conversion**: Codec selection, bitrate optimization, quality presets
 - **Format Support**: MP4 (H.264), WebM (VP9), MOV, AVI, MKV, FLV, WMV
 - **Quality Settings**: Adjustable CRF values and bitrate ranges (1000k-8000k)
 
 #### Audio Processing (FFmpeg)
+
 - **Conversion**: Format-specific optimization with quality-based bitrates
 - **Format Support**: MP3, WAV, OGG, FLAC, AAC, M4A, WMA
 - **Codec Settings**: Optimized settings per format (VBR for MP3, compression levels for FLAC)
 
 #### PDF Processing (PDF-lib)
+
 - **Compression**: Metadata removal, object stream optimization
 - **Structure Optimization**: Configurable processing based on quality settings
 
 #### eBook Processing (Calibre + Fallback)
+
 - **Full Conversion**: Uses Calibre for comprehensive format support
 - **Fallback Support**: Basic text extraction when Calibre is unavailable
 - **Format Support**: EPUB, MOBI, AZW3, PDF, TXT, DOCX, RTF
 
 ### Worker Console Output
+
 ```bash
 🚀 Starting Cloud Tools File Processing Worker...
 📋 This worker will poll the SQS queue for file conversion jobs
@@ -138,7 +157,7 @@ pnpm run dev
    DDB_TABLE_NAME: CloudToolsJobs
    SQS_QUEUE_NAME: cloud-tools-jobs-queue
 
-ℹ️ Worker initialized { 
+ℹ️ Worker initialized {
   queueUrl: 'http://localhost:4566/000000000000/cloud-tools-jobs-queue',
   bucketName: 'cloud-tools-local-bucket',
   processors: ['SharpImageConverter', 'PDFCompressor', 'FFmpegVideoConverter', 'FFmpegAudioConverter', 'CalibreEBookConverter']
@@ -155,37 +174,43 @@ pnpm run dev
 ## System Requirements
 
 ### Required
+
 - **Node.js 18+**: Runtime environment
 - **Docker Desktop**: For LocalStack AWS services
 - **Sharp**: Image processing (auto-installed via npm)
 - **PDF-lib**: PDF processing (auto-installed via npm)
 
 ### Optional (Enhanced Features)
+
 - **FFmpeg**: Required for video/audio conversion
+
   ```bash
   # macOS
   brew install ffmpeg
-  
+
   # Ubuntu/Debian
   sudo apt update && sudo apt install ffmpeg
-  
+
   # Windows (using chocolatey)
   choco install ffmpeg
   ```
 
 - **Calibre**: Required for eBook conversion
+
   ```bash
   # macOS
   brew install --cask calibre
-  
+
   # Ubuntu/Debian
   sudo apt update && sudo apt install calibre
-  
+
   # Windows: Download from https://calibre-ebook.com/download
   ```
 
 ### Environment Variables
+
 The worker loads environment variables from (in order):
+
 1. `.env.local` (development)
 2. `.env.development.local`
 3. `.env.development`
@@ -194,6 +219,7 @@ The worker loads environment variables from (in order):
 ## Troubleshooting
 
 ### Worker Won't Start
+
 ```bash
 # Check if LocalStack is running
 pnpm run localstack:health
@@ -206,6 +232,7 @@ cat .env.local
 ```
 
 ### Jobs Stuck in Processing
+
 - Make sure the worker is running (`pnpm run worker`)
 - Check worker console for error messages
 - Verify required libraries:
@@ -218,6 +245,7 @@ cat .env.local
 ### Processor-Specific Issues
 
 #### FFmpeg Not Found (Video/Audio)
+
 ```bash
 # Check if FFmpeg is installed
 ffmpeg -version
@@ -226,6 +254,7 @@ ffmpeg -version
 ```
 
 #### Calibre Not Found (eBooks)
+
 ```bash
 # Check if Calibre is installed
 ebook-convert --version
@@ -235,6 +264,7 @@ ebook-convert --version
 ```
 
 #### Sharp Installation Issues (Images)
+
 ```bash
 # Rebuild Sharp for your platform
 pnpm rebuild sharp
@@ -244,6 +274,7 @@ pnpm uninstall sharp && pnpm install sharp
 ```
 
 ### Download Links Not Working
+
 - LocalStack S3 URLs: `http://localhost:4566/bucket-name/processed/...`
 - Make sure LocalStack is accessible on port 4566
 - Check if processed file was actually created in S3:
@@ -252,6 +283,7 @@ pnpm uninstall sharp && pnpm install sharp
   ```
 
 ### Memory Issues (Large Files)
+
 - Node.js has default memory limits
 - For large file processing, increase memory:
   ```bash
@@ -259,6 +291,7 @@ pnpm uninstall sharp && pnpm install sharp
   ```
 
 ### Performance Tuning
+
 - **Poll Interval**: Adjust `pollIntervalMs` in worker constructor (default: 5000ms)
 - **Concurrent Processing**: Current implementation processes jobs sequentially
 - **Quality Settings**: Lower quality = faster processing + smaller files
@@ -266,6 +299,7 @@ pnpm uninstall sharp && pnpm install sharp
 ## Development Notes
 
 ### Worker Architecture (SOLID Principles)
+
 The worker is built following SOLID principles for maintainability and extensibility:
 
 - **Single Responsibility**: Each class handles one concern (S3FileStorage, SharpImageConverter, etc.)
@@ -275,10 +309,12 @@ The worker is built following SOLID principles for maintainability and extensibi
 - **Dependency Inversion**: Main worker depends on abstractions, not concrete implementations
 
 **Deployment Options**:
+
 - **Development**: Simple Node.js process polling SQS
 - **Production**: AWS Lambda triggers, ECS/Fargate containers, or Kubernetes pods
 
 ### File Storage Structure
+
 ```
 S3 Bucket Structure:
 uploads/                    # Original files
@@ -289,15 +325,17 @@ processed/                  # Converted/compressed files
 ```
 
 ### Adding New File Types
+
 To add support for new file types, create a new processor:
 
 1. **Create Processor Class**:
+
    ```typescript
    export class MyCustomProcessor implements FileProcessor {
      canProcess(operation: string, format?: string): boolean {
        // Define supported operations and formats
      }
-     
+
      async process(buffer: Buffer, message: ProcessingMessage): Promise<ProcessingResult> {
        // Implement processing logic
      }
@@ -305,12 +343,14 @@ To add support for new file types, create a new processor:
    ```
 
 2. **Register Processor**:
+
    ```typescript
    // In createFileProcessingWorker() function
    worker.addProcessor(new MyCustomProcessor());
    ```
 
 3. **Install Dependencies**:
+
    ```bash
    pnpm install my-processing-library
    ```
@@ -321,13 +361,15 @@ To add support for new file types, create a new processor:
 ### Key Components
 
 #### Interfaces (Dependency Inversion)
+
 - `FileProcessor`: Strategy pattern for different file types
 - `FileStorage`: Abstraction for S3/storage operations
-- `MessageQueue`: Abstraction for SQS/queue operations  
+- `MessageQueue`: Abstraction for SQS/queue operations
 - `JobStatusUpdater`: Abstraction for status updates
 - `Logger`: Abstraction for logging operations
 
 #### Concrete Implementations
+
 - `SharpImageConverter`: High-performance image processing
 - `FFmpegVideoConverter`: Professional video conversion
 - `FFmpegAudioConverter`: Professional audio conversion
@@ -340,16 +382,18 @@ To add support for new file types, create a new processor:
 
 ## Commands Reference
 
-| Command | Description |
-|---------|-------------|
-| `pnpm run worker` | Start the file processing worker |
-| `pnpm run dev` | Start the web application |
-| `pnpm run localstack:status` | Check LocalStack status |
-| `pnpm run localstack:reset` | Reset LocalStack and recreate resources |
-| `pnpm run verify` | Verify complete setup |
+| Command                      | Description                             |
+| ---------------------------- | --------------------------------------- |
+| `pnpm run worker`            | Start the file processing worker        |
+| `pnpm run dev`               | Start the web application               |
+| `pnpm run localstack:status` | Check LocalStack status                 |
+| `pnpm run localstack:reset`  | Reset LocalStack and recreate resources |
+| `pnpm run verify`            | Verify complete setup                   |
 
 ## Production Deployment
+
 For production, replace the worker script with:
+
 - **AWS Lambda**: Triggered by SQS messages
 - **ECS/Fargate**: Containerized worker processes
 - **EC2**: Long-running worker instances

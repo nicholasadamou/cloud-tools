@@ -1,102 +1,98 @@
-"use client"
+'use client';
 
-import React, { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
-import { toast } from '@/hooks/use-toast'
-import { Loader2, Search, CheckCircle, Clock, AlertCircle, XCircle } from 'lucide-react'
-import { Job } from '@/app/api/jobs/route'
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { toast } from '@/hooks/use-toast';
+import { Loader2, Search, CheckCircle, Clock, AlertCircle, XCircle } from 'lucide-react';
+import { Job } from '@/app/api/jobs/route';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5 }
-}
+  transition: { duration: 0.5 },
+};
 
 const getStatusIcon = (status: string) => {
   switch (status) {
     case 'completed':
-      return <CheckCircle className="h-4 w-4 text-green-500" />
+      return <CheckCircle className="h-4 w-4 text-green-500" />;
     case 'processing':
-      return <Clock className="h-4 w-4 text-blue-500" />
+      return <Clock className="h-4 w-4 text-blue-500" />;
     case 'failed':
-      return <XCircle className="h-4 w-4 text-red-500" />
+      return <XCircle className="h-4 w-4 text-red-500" />;
     case 'pending':
     default:
-      return <AlertCircle className="h-4 w-4 text-yellow-500" />
+      return <AlertCircle className="h-4 w-4 text-yellow-500" />;
   }
-}
+};
 
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'completed':
-      return 'bg-green-100 text-green-800'
+      return 'bg-green-100 text-green-800';
     case 'processing':
-      return 'bg-blue-100 text-blue-800'
+      return 'bg-blue-100 text-blue-800';
     case 'failed':
-      return 'bg-red-100 text-red-800'
+      return 'bg-red-100 text-red-800';
     case 'pending':
     default:
-      return 'bg-yellow-100 text-yellow-800'
+      return 'bg-yellow-100 text-yellow-800';
   }
-}
+};
 
 export default function JobStatus() {
-  const [jobId, setJobId] = useState('')
-  const [job, setJob] = useState<Job | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [jobId, setJobId] = useState('');
+  const [job, setJob] = useState<Job | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const checkJobStatus = async () => {
     if (!jobId.trim()) {
       toast({
-        title: "Error",
-        description: "Please enter a job ID",
-        variant: "destructive",
-      })
-      return
+        title: 'Error',
+        description: 'Please enter a job ID',
+        variant: 'destructive',
+      });
+      return;
     }
 
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     try {
-      const response = await fetch(`/api/jobs?jobId=${encodeURIComponent(jobId.trim())}`)
-      const data = await response.json()
+      const response = await fetch(`/api/jobs?jobId=${encodeURIComponent(jobId.trim())}`);
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch job status')
+        throw new Error(data.error || 'Failed to fetch job status');
       }
 
-      setJob(data.data)
+      setJob(data.data);
       toast({
-        title: "Success",
-        description: "Job status retrieved successfully",
-      })
+        title: 'Success',
+        description: 'Job status retrieved successfully',
+      });
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred'
-      setError(errorMessage)
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      setError(errorMessage);
       toast({
-        title: "Error",
+        title: 'Error',
         description: errorMessage,
-        variant: "destructive",
-      })
+        variant: 'destructive',
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
-    <motion.div
-      variants={fadeInUp}
-      initial="initial"
-      animate="animate"
-    >
+    <motion.div variants={fadeInUp} initial="initial" animate="animate">
       <Card className="w-full">
         <CardHeader>
           <CardTitle>Job Status Checker</CardTitle>
@@ -107,19 +103,18 @@ export default function JobStatus() {
         <CardContent className="space-y-4">
           <div className="flex space-x-2">
             <div className="flex-1">
-              <Label htmlFor="jobId" className="sr-only">Job ID</Label>
+              <Label htmlFor="jobId" className="sr-only">
+                Job ID
+              </Label>
               <Input
                 id="jobId"
                 placeholder="Enter job ID (e.g., 123e4567-e89b-12d3-a456-426614174000)"
                 value={jobId}
-                onChange={(e) => setJobId(e.target.value)}
+                onChange={e => setJobId(e.target.value)}
                 disabled={isLoading}
               />
             </div>
-            <Button 
-              onClick={checkJobStatus}
-              disabled={isLoading || !jobId.trim()}
-            >
+            <Button onClick={checkJobStatus} disabled={isLoading || !jobId.trim()}>
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
@@ -177,7 +172,9 @@ export default function JobStatus() {
                     </div>
                     {job.targetFormat && (
                       <div>
-                        <Label className="text-sm font-medium text-muted-foreground">Target Format</Label>
+                        <Label className="text-sm font-medium text-muted-foreground">
+                          Target Format
+                        </Label>
                         <p className="text-sm uppercase">{job.targetFormat}</p>
                       </div>
                     )}
@@ -225,5 +222,5 @@ export default function JobStatus() {
         </CardContent>
       </Card>
     </motion.div>
-  )
+  );
 }

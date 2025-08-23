@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import { motion } from 'framer-motion'
+import { motion } from 'framer-motion';
 
 const pageVariants = {
   initial: {
@@ -15,16 +15,16 @@ const pageVariants = {
     opacity: 0,
     y: -20,
   },
-}
+};
 
 const pageTransition = {
   type: 'tween',
   ease: 'anticipate',
   duration: 0.5,
-}
+};
 
 interface PageTransitionProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export function PageTransition({ children }: PageTransitionProps) {
@@ -38,6 +38,5 @@ export function PageTransition({ children }: PageTransitionProps) {
     >
       {children}
     </motion.div>
-  )
+  );
 }
-

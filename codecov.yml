@@ -14,18 +14,18 @@ coverage:
         base: auto
 
 comment:
-  layout: "reach,diff,flags,tree,reach"
+  layout: 'reach,diff,flags,tree,reach'
   behavior: default
   require_changes: false
   require_base: false
   require_head: true
 
 ignore:
-  - "app/**/*"  # Next.js app directory (UI pages)
-  - "components/ui/**/*"  # Shadcn UI components
-  - "*.config.*"  # Configuration files
-  - "*.d.ts"  # Type definition files
-  - "scripts/**/*"  # Utility scripts
+  - 'app/**/*' # Next.js app directory (UI pages)
+  - 'components/ui/**/*' # Shadcn UI components
+  - '*.config.*' # Configuration files
+  - '*.d.ts' # Type definition files
+  - 'scripts/**/*' # Utility scripts
 
 github_checks:
   annotations: true

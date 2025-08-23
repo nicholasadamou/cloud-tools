@@ -1,16 +1,16 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/button'
-import { ArrowRight } from 'lucide-react'
-import { PageTransition } from '@/components/page-transition'
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { ArrowRight } from 'lucide-react';
+import { PageTransition } from '@/components/page-transition';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5 }
-}
+  transition: { duration: 0.5 },
+};
 
 export default function PrivacyPolicyPage() {
   return (
@@ -72,7 +72,8 @@ export default function PrivacyPolicyPage() {
                   animate="animate"
                   transition={{ delay: 0.7 }}
                 >
-                  We collect information you provide directly to us when using our services, including:
+                  We collect information you provide directly to us when using our services,
+                  including:
                 </motion.p>
                 <motion.ul
                   className="list-disc pl-6 space-y-2"
@@ -81,7 +82,9 @@ export default function PrivacyPolicyPage() {
                   animate="animate"
                   transition={{ delay: 0.8 }}
                 >
-                  <li>Personal information (e.g., name, email address) when you create an account</li>
+                  <li>
+                    Personal information (e.g., name, email address) when you create an account
+                  </li>
                   <li>Files you upload for conversion or compression</li>
                   <li>Usage data and analytics information</li>
                 </motion.ul>
@@ -131,7 +134,10 @@ export default function PrivacyPolicyPage() {
                   animate="animate"
                   transition={{ delay: 1.3 }}
                 >
-                  We implement appropriate technical and organizational measures to protect your personal information, including encryption of data in transit and at rest. However, no method of transmission over the Internet or electronic storage is 100% secure, so we cannot guarantee absolute security.
+                  We implement appropriate technical and organizational measures to protect your
+                  personal information, including encryption of data in transit and at rest.
+                  However, no method of transmission over the Internet or electronic storage is 100%
+                  secure, so we cannot guarantee absolute security.
                 </motion.p>
 
                 <motion.h2
@@ -149,7 +155,9 @@ export default function PrivacyPolicyPage() {
                   animate="animate"
                   transition={{ delay: 1.5 }}
                 >
-                  We retain your personal information only for as long as necessary to fulfill the purposes for which we collected it, including for the purposes of satisfying any legal, accounting, or reporting requirements.
+                  We retain your personal information only for as long as necessary to fulfill the
+                  purposes for which we collected it, including for the purposes of satisfying any
+                  legal, accounting, or reporting requirements.
                 </motion.p>
 
                 <motion.h2
@@ -167,7 +175,8 @@ export default function PrivacyPolicyPage() {
                   animate="animate"
                   transition={{ delay: 1.7 }}
                 >
-                  Depending on your location, you may have certain rights regarding your personal information, including:
+                  Depending on your location, you may have certain rights regarding your personal
+                  information, including:
                 </motion.p>
                 <motion.ul
                   className="list-disc pl-6 space-y-2"
@@ -197,7 +206,9 @@ export default function PrivacyPolicyPage() {
                   animate="animate"
                   transition={{ delay: 2 }}
                 >
-                  We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the &ldquo;Last updated&rdquo; date at the top of this Privacy Policy.
+                  We may update this Privacy Policy from time to time. We will notify you of any
+                  changes by posting the new Privacy Policy on this page and updating the
+                  &ldquo;Last updated&rdquo; date at the top of this Privacy Policy.
                 </motion.p>
 
                 <motion.h2
@@ -240,7 +251,9 @@ export default function PrivacyPolicyPage() {
           >
             <div className="container mx-auto px-4 text-center">
               <h2 className="text-3xl font-bold mb-6">Ready to get started?</h2>
-              <p className="text-xl mb-8 text-muted-foreground">Try our file conversion and compression tools today.</p>
+              <p className="text-xl mb-8 text-muted-foreground">
+                Try our file conversion and compression tools today.
+              </p>
               <Link href="/tools/converters/image">
                 <Button size="lg" className="font-semibold">
                   Get Started <ArrowRight className="ml-2 h-5 w-5" />
@@ -251,6 +264,5 @@ export default function PrivacyPolicyPage() {
         </main>
       </div>
     </PageTransition>
-  )
+  );
 }
-

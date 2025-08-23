@@ -17,10 +17,7 @@ export async function POST(request: NextRequest) {
     const { jobId, operation, targetFormat, quality, options } = body;
 
     if (!jobId || !operation) {
-      return NextResponse.json(
-        { error: 'Job ID and operation are required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Job ID and operation are required' }, { status: 400 });
     }
 
     if (!['convert', 'compress'].includes(operation)) {
@@ -38,7 +35,7 @@ export async function POST(request: NextRequest) {
       quality: quality || (operation === 'compress' ? 80 : undefined),
       options: options || {},
       timestamp: new Date().toISOString(),
-      retryCount: 0
+      retryCount: 0,
     };
 
     // Get SQS queue URL
@@ -51,19 +48,19 @@ export async function POST(request: NextRequest) {
       MessageAttributes: {
         jobId: {
           StringValue: jobId,
-          DataType: 'String'
+          DataType: 'String',
         },
         operation: {
           StringValue: operation,
-          DataType: 'String'
+          DataType: 'String',
         },
         ...(targetFormat && {
           targetFormat: {
             StringValue: targetFormat,
-            DataType: 'String'
-          }
-        })
-      }
+            DataType: 'String',
+          },
+        }),
+      },
     });
 
     const result = await sqsClient.send(sendCommand);
@@ -78,16 +75,15 @@ export async function POST(request: NextRequest) {
         jobId,
         messageId: result.MessageId,
         queueUrl,
-        message: 'Job queued for processing'
-      }
+        message: 'Job queued for processing',
+      },
     });
-
   } catch (error) {
     console.error('Process job error:', error);
     return NextResponse.json(
-      { 
-        error: 'Failed to queue job for processing', 
-        details: error instanceof Error ? error.message : 'Unknown error'
+      {
+        error: 'Failed to queue job for processing',
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );
@@ -98,17 +94,20 @@ export async function POST(request: NextRequest) {
 async function updateJobStatus(jobId: string, status: JobStatus, progress?: number) {
   try {
     // Call the jobs API to update status
-    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/jobs`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        jobId,
-        status,
-        progress
-      })
-    });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/jobs`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jobId,
+          status,
+          progress,
+        }),
+      }
+    );
 
     if (!response.ok) {
       console.error('Failed to update job status:', await response.text());
@@ -127,7 +126,7 @@ export async function GET(request: NextRequest) {
     if (action === 'queue-status') {
       // Get queue attributes (approximate message count, etc.)
       const queueUrl = await getSQSQueueUrl();
-      
+
       // In a real implementation, you would get queue attributes
       // For demo purposes, we'll return mock data
       return NextResponse.json({
@@ -136,8 +135,8 @@ export async function GET(request: NextRequest) {
           queueUrl,
           approximateNumberOfMessages: 0,
           approximateNumberOfMessagesNotVisible: 0,
-          status: 'available'
-        }
+          status: 'available',
+        },
       });
     }
 
@@ -145,13 +144,12 @@ export async function GET(request: NextRequest) {
       { error: 'Invalid action. Use ?action=queue-status' },
       { status: 400 }
     );
-
   } catch (error) {
     console.error('Get queue status error:', error);
     return NextResponse.json(
-      { 
-        error: 'Failed to get queue status', 
-        details: error instanceof Error ? error.message : 'Unknown error'
+      {
+        error: 'Failed to get queue status',
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );
@@ -165,10 +163,7 @@ export async function DELETE(request: NextRequest) {
     const jobId = searchParams.get('jobId');
 
     if (!jobId) {
-      return NextResponse.json(
-        { error: 'Job ID is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Job ID is required' }, { status: 400 });
     }
 
     // In a real implementation, you would:
@@ -183,16 +178,15 @@ export async function DELETE(request: NextRequest) {
       success: true,
       data: {
         jobId,
-        message: 'Job cancelled and removed from processing queue'
-      }
+        message: 'Job cancelled and removed from processing queue',
+      },
     });
-
   } catch (error) {
     console.error('Cancel job error:', error);
     return NextResponse.json(
-      { 
-        error: 'Failed to cancel job', 
-        details: error instanceof Error ? error.message : 'Unknown error'
+      {
+        error: 'Failed to cancel job',
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

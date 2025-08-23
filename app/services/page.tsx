@@ -1,47 +1,59 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowRight, FileIcon as FileConvert, Minimize2, Image, FileAudio, FileVideo, BookOpen, FileImage, FileText } from 'lucide-react'
-import { PageTransition } from '@/components/page-transition'
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  ArrowRight,
+  FileIcon as FileConvert,
+  Minimize2,
+  Image,
+  FileAudio,
+  FileVideo,
+  BookOpen,
+  FileImage,
+  FileText,
+} from 'lucide-react';
+import { PageTransition } from '@/components/page-transition';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5 }
-}
+  transition: { duration: 0.5 },
+};
 
 const staggeredFadeIn = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5, staggerChildren: 0.1 }
-}
+  transition: { duration: 0.5, staggerChildren: 0.1 },
+};
 
 export default function ServicesPage() {
   const services = [
     {
       icon: FileConvert,
-      title: "File Conversion",
-      description: "Convert your files to various formats with ease. Support for images, documents, audio, and more.",
+      title: 'File Conversion',
+      description:
+        'Convert your files to various formats with ease. Support for images, documents, audio, and more.',
       items: [
         { name: 'Image Converter', icon: Image, href: '/tools/converters/image' },
         { name: 'Audio Converter', icon: FileAudio, href: '/tools/converters/audio' },
         { name: 'Video Converter', icon: FileVideo, href: '/tools/converters/video' },
         { name: 'eBook Converter', icon: BookOpen, href: '/tools/converters/ebooks' },
-      ]
+      ],
     },
     {
       icon: Minimize2,
-      title: "File Compression",
-      description: "Reduce file sizes without compromising quality. Perfect for images, PDFs, and more.",
+      title: 'File Compression',
+      description:
+        'Reduce file sizes without compromising quality. Perfect for images, PDFs, and more.',
       items: [
         { name: 'Image Compression', icon: FileImage, href: '/tools/compression/image' },
         { name: 'PDF Compression', icon: FileText, href: '/tools/compression/pdf' },
-      ]
+      ],
     },
-  ]
+  ];
 
   return (
     <PageTransition>
@@ -103,7 +115,11 @@ export default function ServicesPage() {
                         <p className="text-muted-foreground mb-4">{service.description}</p>
                         <div className="grid grid-cols-2 gap-4">
                           {service.items.map((item, itemIndex) => (
-                            <Link key={itemIndex} href={item.href} className="flex items-center text-sm text-secondary-foreground hover:underline">
+                            <Link
+                              key={itemIndex}
+                              href={item.href}
+                              className="flex items-center text-sm text-secondary-foreground hover:underline"
+                            >
                               <item.icon className="mr-2 h-4 w-4" /> {item.name}
                             </Link>
                           ))}
@@ -125,16 +141,10 @@ export default function ServicesPage() {
             transition={{ delay: 0.4 }}
           >
             <div className="container mx-auto px-4 text-center">
-              <motion.h2
-                className="text-3xl font-bold mb-6"
-                variants={fadeInUp}
-              >
+              <motion.h2 className="text-3xl font-bold mb-6" variants={fadeInUp}>
                 Ready to get started?
               </motion.h2>
-              <motion.p
-                className="text-xl mb-8 text-muted-foreground"
-                variants={fadeInUp}
-              >
+              <motion.p className="text-xl mb-8 text-muted-foreground" variants={fadeInUp}>
                 Try our file conversion and compression tools today.
               </motion.p>
               <motion.div variants={fadeInUp}>
@@ -149,6 +159,5 @@ export default function ServicesPage() {
         </main>
       </div>
     </PageTransition>
-  )
+  );
 }
-

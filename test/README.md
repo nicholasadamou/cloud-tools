@@ -56,6 +56,7 @@ test/
 ### 1. Unit Tests (`lib/` directory)
 
 **AWS Configuration Tests** (`lib/aws-config.test.ts`)
+
 - S3 key generation and sanitization
 - File type detection and classification
 - Job type determination based on file extension
@@ -63,6 +64,7 @@ test/
 - Resource URL generation
 
 **Utility Function Tests** (`lib/utils.test.ts`)
+
 - CSS class name combination and merging
 - Tailwind CSS conflict resolution
 - Conditional class application
@@ -70,6 +72,7 @@ test/
 ### 2. API Route Tests (`app/api/` directory)
 
 **Upload API Tests** (`app/api/upload/route.test.ts`)
+
 - File upload validation and processing
 - S3 storage integration
 - DynamoDB job record creation
@@ -77,6 +80,7 @@ test/
 - CORS support
 
 **Jobs API Tests** (`app/api/jobs/route.test.ts`)
+
 - Job creation, retrieval, and updates
 - Status and progress tracking
 - Compression savings calculation
@@ -84,6 +88,7 @@ test/
 - Query parameter validation
 
 **Process API Tests** (`app/api/process/route.test.ts`)
+
 - SQS queue message handling
 - Job processing workflow initiation
 - Queue status monitoring
@@ -92,6 +97,7 @@ test/
 ### 3. Component Tests (`components/` directory)
 
 **File Uploader Tests** (`components/file-uploader.test.tsx`)
+
 - File selection and validation
 - Operation type switching
 - User interaction handling
@@ -101,6 +107,7 @@ test/
 ### 4. Integration Tests (`integration/` directory)
 
 **Upload Workflow Tests** (`integration/upload-workflow.test.ts`)
+
 - Complete file processing pipeline
 - Multi-service interaction testing
 - Error propagation and recovery
@@ -136,8 +143,8 @@ npm install --save-dev \
 1. **Create test files** following the naming convention: `*.test.ts` or `*.test.tsx`
 2. **Import necessary testing utilities**:
    ```typescript
-   import { describe, it, expect, vi, beforeEach } from 'vitest'
-   import { render, screen, fireEvent } from '@testing-library/react'
+   import { describe, it, expect, vi, beforeEach } from 'vitest';
+   import { render, screen, fireEvent } from '@testing-library/react';
    ```
 3. **Use the established mocking patterns** from `test/mocks/aws.ts`
 4. **Follow the AAA pattern**: Arrange, Act, Assert
@@ -145,24 +152,24 @@ npm install --save-dev \
 ### Example Test Structure
 
 ```typescript
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 describe('ComponentName', () => {
   beforeEach(() => {
     // Setup before each test
-  })
+  });
 
   it('should do something specific', () => {
     // Arrange
-    const input = 'test input'
-    
+    const input = 'test input';
+
     // Act
-    const result = functionUnderTest(input)
-    
+    const result = functionUnderTest(input);
+
     // Assert
-    expect(result).toBe('expected output')
-  })
-})
+    expect(result).toBe('expected output');
+  });
+});
 ```
 
 ## 🔧 Configuration
@@ -217,6 +224,7 @@ node --inspect-brk node_modules/.bin/vitest run
 ## 🚀 Continuous Integration
 
 Tests are configured to run in CI environments with:
+
 - Coverage reporting
 - JUnit XML output for test results
 - Parallel test execution

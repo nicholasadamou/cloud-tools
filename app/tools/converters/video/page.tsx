@@ -1,29 +1,29 @@
-'use client'
+'use client';
 
-import { motion } from 'framer-motion'
-import FileUploader from '@/components/file-uploader'
-import ConversionHistory from '@/components/conversion-history'
-import { PageTransition } from '@/components/page-transition'
-import { ToolSwitcher } from '@/components/tool-switcher'
+import { motion } from 'framer-motion';
+import FileUploader from '@/components/file-uploader';
+import ConversionHistory from '@/components/conversion-history';
+import { PageTransition } from '@/components/page-transition';
+import { ToolSwitcher } from '@/components/tool-switcher';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5 }
-}
+  transition: { duration: 0.5 },
+};
 
-const videoFormats = ['mp4', 'mov', 'avi', 'webm']
+const videoFormats = ['mp4', 'mov', 'avi', 'webm'];
 
 export default function VideoConverterPage() {
   return (
     <PageTransition>
-      <motion.div 
+      <motion.div
         className="bg-secondary container mx-auto px-4 py-8"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
       >
-        <motion.h1 
+        <motion.h1
           className="text-4xl font-bold mb-8 text-center"
           variants={fadeInUp}
           initial="initial"
@@ -39,7 +39,7 @@ export default function VideoConverterPage() {
             transition={{ delay: 0.2 }}
           >
             <h2 className="text-2xl font-semibold mb-4">Convert Video</h2>
-            <FileUploader 
+            <FileUploader
               fileType="video"
               formats={videoFormats}
               apiEndpoint="/api/process"
@@ -67,6 +67,5 @@ export default function VideoConverterPage() {
         </div>
       </motion.div>
     </PageTransition>
-  )
+  );
 }
-

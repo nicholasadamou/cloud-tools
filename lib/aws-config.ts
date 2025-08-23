@@ -50,10 +50,12 @@ const endpoint = isLocal ? process.env.AWS_ENDPOINT_URL : undefined;
 const awsConfig = {
   region: process.env.AWS_REGION || 'us-east-1',
   endpoint,
-  credentials: isLocal ? {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'test',
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'test',
-  } : undefined,
+  credentials: isLocal
+    ? {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'test',
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'test',
+      }
+    : undefined,
 };
 
 /**
@@ -231,7 +233,7 @@ export enum JobStatus {
   /** Job has been successfully completed */
   COMPLETED = 'completed',
   /** Job processing has failed */
-  FAILED = 'failed'
+  FAILED = 'failed',
 }
 
 /**
@@ -267,33 +269,33 @@ export enum JobType {
   /** Compress PDF files to reduce file size */
   PDF_COMPRESSION = 'pdf_compression',
   /** Convert eBook files between different formats (EPUB, MOBI, etc.) */
-  EBOOK_CONVERSION = 'ebook_conversion'
+  EBOOK_CONVERSION = 'ebook_conversion',
 }
 
 /**
  * Retrieves the SQS queue URL for the specified queue.
- * 
+ *
  * In LocalStack development environments, returns a manually constructed URL
  * to avoid DNS resolution issues. In production, dynamically fetches the queue URL
  * from AWS SQS service.
- * 
+ *
  * @param {string} [queueName=AWS_RESOURCES.SQS_QUEUE] - Name of the SQS queue.
  *   Defaults to the configured queue name from AWS_RESOURCES.
- * 
+ *
  * @returns {Promise<string>} Promise that resolves to the complete SQS queue URL.
- * 
+ *
  * @throws {Error} When the queue URL cannot be found in production environments.
- * 
+ *
  * @example
  * // Get default queue URL
  * const queueUrl = await getSQSQueueUrl();
  * // Returns: 'http://localhost:4566/000000000000/cloud-tools-jobs-queue' (LocalStack)
  * // Returns: 'https://sqs.us-east-1.amazonaws.com/123456789012/cloud-tools-jobs-queue' (AWS)
- * 
+ *
  * @example
  * // Get specific queue URL
  * const customQueueUrl = await getSQSQueueUrl('my-custom-queue');
- * 
+ *
  * @since 1.0.0
  */
 export async function getSQSQueueUrl(queueName: string = AWS_RESOURCES.SQS_QUEUE): Promise<string> {
@@ -301,32 +303,32 @@ export async function getSQSQueueUrl(queueName: string = AWS_RESOURCES.SQS_QUEUE
     // For LocalStack, always use our manually constructed URL to avoid DNS issues
     return `http://localhost:4566/000000000000/${queueName}`;
   }
-  
+
   // In production, get the queue URL dynamically
   const { GetQueueUrlCommand } = await import('@aws-sdk/client-sqs');
   const command = new GetQueueUrlCommand({ QueueName: queueName });
   const response = await sqsClient.send(command);
-  
+
   if (!response.QueueUrl) {
     throw new Error(`Queue URL not found for queue: ${queueName}`);
   }
-  
+
   return response.QueueUrl;
 }
 
 /**
  * Retrieves the configured S3 bucket name for file storage.
- * 
+ *
  * Returns the S3 bucket name from the AWS_RESOURCES configuration.
  * This function provides a consistent interface for accessing the bucket name
  * and can be extended for more complex bucket selection logic in the future.
- * 
+ *
  * @returns {Promise<string>} Promise that resolves to the S3 bucket name.
- * 
+ *
  * @example
  * const bucketName = await getS3BucketName();
  * console.log(bucketName); // 'cloud-tools-local-bucket'
- * 
+ *
  * @since 1.0.0
  */
 export async function getS3BucketName(): Promise<string> {
@@ -335,28 +337,28 @@ export async function getS3BucketName(): Promise<string> {
 
 /**
  * Generates a structured S3 object key for file storage.
- * 
+ *
  * Creates a hierarchical S3 key structure that includes the folder, date,
  * job ID, and sanitized filename. This provides organization and prevents
  * naming conflicts while maintaining readability.
- * 
+ *
  * The generated key structure is: `{folder}/{YYYY-MM-DD}/{jobId}/{sanitizedFileName}`
- * 
+ *
  * @param {string} jobId - Unique identifier for the processing job.
  * @param {string} fileName - Original filename of the uploaded file.
  * @param {string} [folder='uploads'] - S3 folder prefix for organization.
  *   Common values include 'uploads' and 'processed'.
- * 
+ *
  * @returns {string} Structured S3 object key ready for storage operations.
- * 
+ *
  * @example
  * const key = generateS3Key('job-123', 'my file.jpg');
  * // Returns: 'uploads/2023-12-01/job-123/my_file.jpg'
- * 
+ *
  * @example
  * const processedKey = generateS3Key('job-123', 'output.webp', 'processed');
  * // Returns: 'processed/2023-12-01/job-123/output.webp'
- * 
+ *
  * @since 1.0.0
  */
 export function generateS3Key(jobId: string, fileName: string, folder: string = 'uploads'): string {
@@ -367,22 +369,22 @@ export function generateS3Key(jobId: string, fileName: string, folder: string = 
 
 /**
  * Extracts and normalizes the file extension from a filename.
- * 
+ *
  * Safely extracts the file extension from a filename, handling edge cases
  * like filenames without extensions or multiple dots. The extension is
  * returned in lowercase for consistent comparisons.
- * 
+ *
  * @param {string} fileName - Filename to extract extension from.
- * 
+ *
  * @returns {string} Lowercase file extension without the dot, or empty string
  *   if no extension is found.
- * 
+ *
  * @example
  * getFileExtension('document.pdf'); // Returns: 'pdf'
  * getFileExtension('image.JPEG'); // Returns: 'jpeg'
  * getFileExtension('archive.tar.gz'); // Returns: 'gz'
  * getFileExtension('README'); // Returns: ''
- * 
+ *
  * @since 1.0.0
  */
 export function getFileExtension(fileName: string): string {
@@ -396,45 +398,45 @@ export function getFileExtension(fileName: string): string {
 
 /**
  * Determines the appropriate job type based on file extension and operation.
- * 
+ *
  * Analyzes the file extension and requested operation to determine the most
  * appropriate job type for processing. This function acts as a file type
  * classifier that maps extensions to processing categories.
- * 
+ *
  * Supported file types:
  * - **Images**: jpg, jpeg, png, gif, webp, bmp, tiff, svg
  * - **Videos**: mp4, avi, mov, mkv, wmv, flv, webm
  * - **Audio**: mp3, wav, flac, aac, ogg, m4a, wma
  * - **PDFs**: pdf (compression only)
  * - **eBooks**: epub, mobi, azw, pdf, txt, doc, docx
- * 
+ *
  * @param {string} fileName - Name of the file to be processed.
  * @param {'convert' | 'compress'} operation - Type of operation to perform.
- * 
+ *
  * @returns {JobType} The most appropriate job type for the file and operation.
  *   Returns IMAGE_CONVERSION as a fallback for unknown file types.
- * 
+ *
  * @example
  * // Image conversion
  * getJobTypeFromFile('photo.jpg', 'convert'); // Returns: JobType.IMAGE_CONVERSION
- * 
+ *
  * // Image compression
  * getJobTypeFromFile('photo.png', 'compress'); // Returns: JobType.IMAGE_COMPRESSION
- * 
+ *
  * // Video conversion
  * getJobTypeFromFile('movie.mp4', 'convert'); // Returns: JobType.VIDEO_CONVERSION
- * 
+ *
  * // PDF compression
  * getJobTypeFromFile('document.pdf', 'compress'); // Returns: JobType.PDF_COMPRESSION
- * 
+ *
  * // Unknown file type (fallback)
  * getJobTypeFromFile('unknown.xyz', 'convert'); // Returns: JobType.IMAGE_CONVERSION
- * 
+ *
  * @since 1.0.0
  */
 export function getJobTypeFromFile(fileName: string, operation: 'convert' | 'compress'): JobType {
   const extension = getFileExtension(fileName);
-  
+
   if (operation === 'compress') {
     if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(extension)) {
       return JobType.IMAGE_COMPRESSION;
@@ -443,7 +445,7 @@ export function getJobTypeFromFile(fileName: string, operation: 'convert' | 'com
       return JobType.PDF_COMPRESSION;
     }
   }
-  
+
   if (operation === 'convert') {
     if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff', 'svg'].includes(extension)) {
       return JobType.IMAGE_CONVERSION;
@@ -458,6 +460,6 @@ export function getJobTypeFromFile(fileName: string, operation: 'convert' | 'com
       return JobType.EBOOK_CONVERSION;
     }
   }
-  
+
   return JobType.IMAGE_CONVERSION; // Default fallback
 }
