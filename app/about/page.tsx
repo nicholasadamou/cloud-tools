@@ -61,13 +61,13 @@ export default function AboutPage() {
               <h2 className="text-3xl font-bold text-center mb-8">Our Story</h2>
               <div className="max-w-3xl mx-auto">
                 <p className="text-lg mb-6">
-                  Cloud Tools was founded in 2025 with a simple mission: to make file conversion and compression accessible to everyone. We recognized the challenges people face when dealing with incompatible file formats or oversized files, and we set out to create a solution that's both powerful and easy to use.
+                  Cloud Tools was founded in 2025 with a simple mission: to make file conversion and compression accessible to everyone. We recognized the challenges people face when dealing with incompatible file formats or oversized files, and we set out to create a solution that&rsquo;s both powerful and easy to use.
                 </p>
                 <p className="text-lg mb-6">
-                  Our team of passionate developers and designers worked tirelessly to create a suite of cloud-based tools that can handle a wide range of file types and operations. We believe that technology should simplify your life, not complicate it, and that's the principle that guides everything we do.
+                  Our team of passionate developers and designers worked tirelessly to create a suite of cloud-based tools that can handle a wide range of file types and operations. We believe that technology should simplify your life, not complicate it, and that&rsquo;s the principle that guides everything we do.
                 </p>
                 <p className="text-lg">
-                  Today, Cloud Tools serves thousands of users worldwide, helping them convert, compress, and manage their files with ease. We're constantly innovating and expanding our offerings to meet the evolving needs of our users.
+                  Today, Cloud Tools serves thousands of users worldwide, helping them convert, compress, and manage their files with ease. We&rsquo;re constantly innovating and expanding our offerings to meet the evolving needs of our users.
                 </p>
               </div>
             </div>
@@ -98,7 +98,7 @@ export default function AboutPage() {
                     <CardContent className="p-6 text-center">
                       <Target className="h-12 w-12 text-primary mx-auto mb-4" />
                       <h3 className="text-xl font-semibold mb-2">Innovation</h3>
-                      <p className="text-muted-foreground">We're always pushing the boundaries of what's possible, striving to create cutting-edge solutions for file management.</p>
+                      <p className="text-muted-foreground">We&rsquo;re always pushing the boundaries of what&rsquo;s possible, striving to create cutting-edge solutions for file management.</p>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -107,7 +107,7 @@ export default function AboutPage() {
                     <CardContent className="p-6 text-center">
                       <Shield className="h-12 w-12 text-primary mx-auto mb-4" />
                       <h3 className="text-xl font-semibold mb-2">Security</h3>
-                      <p className="text-muted-foreground">We prioritize the security and privacy of our users' data, implementing robust measures to protect their files.</p>
+                      <p className="text-muted-foreground">We prioritize the security and privacy of our users&rsquo; data, implementing robust measures to protect their files.</p>
                     </CardContent>
                   </Card>
                 </motion.div>

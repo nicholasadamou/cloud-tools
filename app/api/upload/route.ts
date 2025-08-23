@@ -69,12 +69,12 @@ export async function POST(request: NextRequest) {
       progress: 0
     };
 
-    const jobCommand = new PutCommand({
+    const putCommand = new PutCommand({
       TableName: AWS_RESOURCES.DYNAMODB_TABLE,
-      Item: jobRecord
+      Item: jobRecord,
     });
 
-    await docClient.send(jobCommand);
+    await docClient.send(putCommand);
 
     // Return success response
     return NextResponse.json({

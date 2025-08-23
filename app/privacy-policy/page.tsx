@@ -197,7 +197,7 @@ export default function PrivacyPolicyPage() {
                   animate="animate"
                   transition={{ delay: 2 }}
                 >
-                  We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date at the top of this Privacy Policy.
+                  We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the &ldquo;Last updated&rdquo; date at the top of this Privacy Policy.
                 </motion.p>
 
                 <motion.h2

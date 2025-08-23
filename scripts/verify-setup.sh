@@ -38,8 +38,16 @@ echo "🔍 Verifying Cloud Tools setup..."
 # Check LocalStack health
 print_status "Checking LocalStack health..."
 if curl -s http://localhost:4566/_localstack/health >/dev/null 2>&1; then
-    health_status=$(curl -s http://localhost:4566/_localstack/health | jq -r '.services.s3, .services.dynamodb, .services.sqs')
-    print_success "LocalStack is running and accessible"
+    # Get health status for individual services
+    health_response=$(curl -s http://localhost:4566/_localstack/health 2>/dev/null)
+    if command_exists jq && [[ -n "$health_response" ]]; then
+        s3_status=$(echo "$health_response" | jq -r '.services.s3 // "unknown"')
+        ddb_status=$(echo "$health_response" | jq -r '.services.dynamodb // "unknown"')
+        sqs_status=$(echo "$health_response" | jq -r '.services.sqs // "unknown"')
+        print_success "LocalStack is running (S3: $s3_status, DynamoDB: $ddb_status, SQS: $sqs_status)"
+    else
+        print_success "LocalStack is running and accessible"
+    fi
 else
     print_error "LocalStack is not accessible at http://localhost:4566"
     exit 1

@@ -67,7 +67,7 @@ export function SearchTool() {
 										}}
 									>
 										<div className="flex items-center">
-											{/* @ts-ignore */}
+											{/* @ts-expect-error tool.icon may not have correct React component type */}
 											{React.createElement(tool.icon, { className: "mr-2 h-4 w-4" })}
 											<span>{tool.name}</span>
 										</div>

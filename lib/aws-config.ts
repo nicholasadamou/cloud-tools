@@ -28,7 +28,7 @@ import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
  * @private
  * @type {boolean}
  */
-const isLocal = process.env.NODE_ENV === 'development';
+const isLocal = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
 
 /**
  * AWS endpoint URL for LocalStack development or undefined for production AWS.
@@ -386,7 +386,12 @@ export function generateS3Key(jobId: string, fileName: string, folder: string = 
  * @since 1.0.0
  */
 export function getFileExtension(fileName: string): string {
-  return fileName.split('.').pop()?.toLowerCase() || '';
+  const parts = fileName.split('.');
+  if (parts.length === 1 || (parts.length === 2 && parts[0] === '')) {
+    // No extension (e.g., 'README') or hidden file (e.g., '.gitignore')
+    return parts.length === 2 ? parts[1].toLowerCase() : '';
+  }
+  return parts.pop()?.toLowerCase() || '';
 }
 
 /**

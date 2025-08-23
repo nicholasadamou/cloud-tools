@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { File, Image as ImageIcon } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 
@@ -36,11 +37,14 @@ export function SelectedFile({ file, fileType }: SelectedFileProps) {
       <div className="flex-shrink-0">
         {previewUrl && !imageLoadError ? (
           <div className="relative">
-            <img
+            <Image
               src={previewUrl}
               alt={`Preview of ${file.name}`}
+              width={48}
+              height={48}
               className="h-12 w-12 object-cover rounded-md border bg-muted"
               onError={() => setImageLoadError(true)}
+              unoptimized
             />
           </div>
         ) : isImageFile(file) ? (

@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Make the request to LocalStack from the server side
     const response = await fetch('http://localhost:4566/_localstack/health', {
@@ -28,13 +28,15 @@ export async function GET(request: NextRequest) {
         'Expires': '0',
       },
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('LocalStack health check error:', error)
+    
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
     
     return NextResponse.json(
       { 
         error: 'Failed to connect to LocalStack', 
-        message: error.message,
+        message: errorMessage,
         services: {} 
       },
       { status: 503 }

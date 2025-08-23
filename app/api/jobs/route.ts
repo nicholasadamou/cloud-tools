@@ -162,7 +162,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const updateExpression: string[] = [];
-    const expressionAttributeValues: Record<string, any> = {};
+    const expressionAttributeValues: Record<string, unknown> = {};
     const expressionAttributeNames: Record<string, string> = {};
 
     // Always update the updatedAt timestamp

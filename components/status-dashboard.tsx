@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -23,7 +23,7 @@ interface ServiceStatus {
   name: string
   status: 'operational' | 'degraded' | 'down' | 'checking'
   description: string
-  icon: React.ComponentType<any>
+  icon: React.ComponentType<{ className?: string }>
   responseTime?: number
   lastChecked?: string
 }
@@ -170,7 +170,7 @@ export default function StatusDashboard() {
               if (s3Status === 'running' || s3Status === 'available') {
                 // Also test our upload API OPTIONS call
                 try {
-                  const testResponse = await fetch('/api/upload', {
+                  await fetch('/api/upload', {
                     method: 'OPTIONS',
                     signal: AbortSignal.timeout(2000)
                   })
@@ -208,7 +208,7 @@ export default function StatusDashboard() {
               if (dbStatus === 'running' || dbStatus === 'available') {
                 // Test our jobs API which uses DynamoDB
                 try {
-                  const jobsResponse = await fetch('/api/jobs?limit=1', {
+                  await fetch('/api/jobs?limit=1', {
                     method: 'GET',
                     signal: AbortSignal.timeout(2000)
                   })
@@ -246,7 +246,7 @@ export default function StatusDashboard() {
               if (sqsStatus === 'running' || sqsStatus === 'available') {
                 // Also test our process API which uses SQS
                 try {
-                  const processResponse = await fetch('/api/process?action=queue-status', {
+                  await fetch('/api/process?action=queue-status', {
                     method: 'GET',
                     signal: AbortSignal.timeout(2000)
                   })
@@ -276,7 +276,7 @@ export default function StatusDashboard() {
     }
   }
 
-  const checkAllServices = async () => {
+  const checkAllServices = useCallback(async () => {
     setIsLoading(true)
     const updatedServices = await Promise.all(
       services.map(async (service) => {
@@ -326,28 +326,12 @@ export default function StatusDashboard() {
     })
     
     setIsLoading(false)
-  }
+  }, [services])
 
-  const calculateUptime = (): string => {
-    // Mock uptime calculation
-    const now = new Date()
-    const startTime = new Date(now.getTime() - (Math.random() * 86400000 * 7)) // Random uptime up to 7 days
-    const diffMs = now.getTime() - startTime.getTime()
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-    const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))
-    
-    if (diffHours >= 24) {
-      const days = Math.floor(diffHours / 24)
-      const hours = diffHours % 24
-      return `${days}d ${hours}h`
-    }
-    
-    return `${diffHours}h ${diffMins}m`
-  }
 
   useEffect(() => {
     checkAllServices()
-  }, [])
+  }, [checkAllServices])
 
   const overallStatus = () => {
     const operationalCount = services.filter(s => s.status === 'operational').length

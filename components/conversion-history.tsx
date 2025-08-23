@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from 'react'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -41,11 +42,6 @@ export default function ConversionHistory({ storageKey }: ConversionHistoryProps
     return imageExtensions.some(ext => filename.toLowerCase().includes(ext.toLowerCase()))
   }, [])
 
-  // Helper function to get file extension from filename
-  const getFileExtension = useCallback((filename: string) => {
-    const lastDot = filename.lastIndexOf('.')
-    return lastDot > -1 ? filename.substring(lastDot) : ''
-  }, [])
 
   // Function to load history from localStorage
   const loadHistory = useCallback(() => {
@@ -214,9 +210,11 @@ export default function ConversionHistory({ storageKey }: ConversionHistoryProps
                       {/* Image Preview Thumbnail */}
                       {isImageFile(record.originalName) && record.url && record.status === 'completed' ? (
                         <div className="flex-shrink-0">
-                          <img
+                          <Image
                             src={record.url}
                             alt={`Preview of ${record.originalName}`}
+                            width={64}
+                            height={64}
                             className="w-16 h-16 object-cover rounded-lg border bg-muted"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement
@@ -224,6 +222,7 @@ export default function ConversionHistory({ storageKey }: ConversionHistoryProps
                               const fallback = target.nextElementSibling as HTMLDivElement
                               if (fallback) fallback.style.display = 'flex'
                             }}
+                            unoptimized
                           />
                           <div className="w-16 h-16 hidden items-center justify-center rounded-lg border bg-muted">
                             <ImageIcon className="w-6 h-6 text-muted-foreground" />

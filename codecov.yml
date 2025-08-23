@@ -1,0 +1,38 @@
+coverage:
+  status:
+    project:
+      default:
+        # We set a lower threshold since this is a Next.js app with many UI components
+        # that don't require unit testing
+        target: 20%
+        threshold: 5%
+        base: auto
+    patch:
+      default:
+        target: 80%
+        threshold: 10%
+        base: auto
+
+comment:
+  layout: "reach,diff,flags,tree,reach"
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+
+ignore:
+  - "app/**/*"  # Next.js app directory (UI pages)
+  - "components/ui/**/*"  # Shadcn UI components
+  - "*.config.*"  # Configuration files
+  - "*.d.ts"  # Type definition files
+  - "scripts/**/*"  # Utility scripts
+
+github_checks:
+  annotations: true
+
+flags:
+  unittests:
+    paths:
+      - lib/
+      - test/
+    carryforward: true

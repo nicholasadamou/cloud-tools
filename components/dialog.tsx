@@ -11,11 +11,11 @@ const Dialog = DialogPrimitive.Root
 const DialogTrigger = DialogPrimitive.Trigger
 
 const DialogPortal = ({
-  // @ts-ignore
+  // @ts-expect-error className may not be expected by DialogPortalProps
   className,
   ...props
 }: DialogPrimitive.DialogPortalProps) => (
-  // @ts-ignore
+  // @ts-expect-error className may not be expected by Portal
   <DialogPrimitive.Portal className={cn(className)} {...props} />
 )
 DialogPortal.displayName = DialogPrimitive.Portal.displayName

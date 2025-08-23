@@ -8,6 +8,17 @@
 
 # testing
 /coverage
+/coverage.lcov
+*.lcov
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# vitest
+.vitest/
+/test-output/
+/test-artifacts/
 
 # next.js
 /.next/
@@ -34,6 +45,22 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# testing cache and temp files
+.nyc_output/
+/junit.xml
+/test-report.xml
+*.test.js.map
+*.spec.js.map
+
+# jest
+/jest-cache/
+
+# test databases and temp files
+*.test.db
+*.spec.db
+test-temp/
+temp-test-files/
 
 # localstack
 .localstack/

@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SendMessageCommand } from '@aws-sdk/client-sqs';
 import { sqsClient, getSQSQueueUrl, JobStatus } from '@/lib/aws-config';
-import { Job } from '../jobs/route';
 
 export interface ProcessRequest {
   jobId: string;
   operation: 'convert' | 'compress';
   targetFormat?: string;
   quality?: number;
-  options?: Record<string, any>;
+  options?: Record<string, unknown>;
 }
 
 // POST /api/process - Queue a file for processing

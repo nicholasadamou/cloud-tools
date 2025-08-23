@@ -52,6 +52,9 @@ import { ReceiveMessageCommand, DeleteMessageCommand, Message } from '@aws-sdk/c
 import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { GetCommand } from '@aws-sdk/lib-dynamodb';
 import { sqsClient, docClient, getSQSQueueUrl, getS3BucketName, JobStatus, AWS_RESOURCES } from './aws-config';
+
+// Re-export JobStatus for test files
+export { JobStatus };
 import sharp from 'sharp';
 import { PDFDocument } from 'pdf-lib';
 import ffmpeg from 'fluent-ffmpeg-7';
@@ -84,7 +87,7 @@ export interface ProcessingMessage {
   /** Quality setting for compression (0-100, default 80) */
   quality?: number;
   /** Additional processing options */
-  options?: Record<string, any>;
+  options?: Record<string, unknown>;
   /** ISO timestamp when the job was created */
   timestamp: string;
   /** Number of retry attempts for this job */
@@ -256,7 +259,7 @@ export interface Logger {
    * @param {string} message - Log message
    * @param {any} [data] - Additional data to log
    */
-  info(message: string, data?: any): void;
+  info(message: string, data?: unknown): void;
 
   /**
    * Logs an error message.
@@ -264,7 +267,7 @@ export interface Logger {
    * @param {string} message - Error message
    * @param {any} [error] - Error object or additional data
    */
-  error(message: string, error?: any): void;
+  error(message: string, error?: unknown): void;
 
   /**
    * Logs a warning message.
@@ -272,7 +275,7 @@ export interface Logger {
    * @param {string} message - Warning message
    * @param {any} [data] - Additional data to log
    */
-  warn(message: string, data?: any): void;
+  warn(message: string, data?: unknown): void;
 }
 
 // ========================================
@@ -329,7 +332,7 @@ export class ApiJobStatusUpdater implements JobStatusUpdater {
     }
   ): Promise<void> {
     try {
-      const body: any = { jobId, status, progress, downloadUrl };
+      const body: Record<string, unknown> = { jobId, status, progress, downloadUrl };
       
       // Add compression data if provided
       if (compressionData) {
@@ -773,10 +776,9 @@ export class PDFCompressor implements FileProcessor {
    * Determines if this processor can handle the given operation.
    *
    * @param {string} operation - Processing operation ('compress')
-   * @param {string} [format] - Target format (ignored for PDFs)
    * @returns {boolean} True if this processor can handle the operation
    */
-  canProcess(operation: string, format?: string): boolean {
+  canProcess(operation: string): boolean {
     return this.supportedOperations.includes(operation);
   }
 
@@ -810,8 +812,9 @@ export class PDFCompressor implements FileProcessor {
       const pdfDoc = await PDFDocument.load(buffer);
 
       // Get document info for optimization decisions
-      const pageCount = pdfDoc.getPageCount();
-      const pages = pdfDoc.getPages();
+      // Get document info for optimization decisions
+      // const pageCount = pdfDoc.getPageCount();
+      // const pages = pdfDoc.getPages();
 
       // Basic optimization strategies based on quality setting
       if (quality < 90) {
@@ -947,7 +950,7 @@ export class FFmpegVideoConverter implements FileProcessor {
       try {
         await fs.unlink(inputFile).catch(() => {});
         await fs.unlink(outputFile).catch(() => {});
-      } catch (error) {
+      } catch {
         // Ignore cleanup errors
       }
     }
@@ -1142,7 +1145,7 @@ export class FFmpegAudioConverter implements FileProcessor {
       try {
         await fs.unlink(inputFile).catch(() => {});
         await fs.unlink(outputFile).catch(() => {});
-      } catch (error) {
+      } catch {
         // Ignore cleanup errors
       }
     }
@@ -1356,7 +1359,7 @@ export class CalibreEBookConverter implements FileProcessor {
       try {
         await fs.unlink(inputFile).catch(() => {});
         await fs.unlink(outputFile).catch(() => {});
-      } catch (error) {
+      } catch {
         // Ignore cleanup errors
       }
     }
@@ -1372,7 +1375,7 @@ export class CalibreEBookConverter implements FileProcessor {
   private async checkCalibreAvailable(): Promise<void> {
     try {
       await execAsync('ebook-convert --version');
-    } catch (error) {
+    } catch {
       throw new Error('Calibre not available. Please install Calibre with ebook-convert command.');
     }
   }
@@ -1421,7 +1424,7 @@ export class CalibreEBookConverter implements FileProcessor {
     const command = `ebook-convert "${inputFile}" "${outputFile}" ${options.join(' ')}`;
 
     try {
-      const { stdout, stderr } = await execAsync(command, { timeout: 300000 }); // 5 minute timeout
+      const { stderr } = await execAsync(command, { timeout: 300000 }); // 5 minute timeout
       if (stderr && !stderr.includes('WARNING')) {
         throw new Error(`Calibre conversion error: ${stderr}`);
       }
@@ -1523,7 +1526,7 @@ export class ConsoleLogger implements Logger {
    * @param {string} message - Log message
    * @param {any} [data] - Additional data to log
    */
-  info(message: string, data?: any): void {
+  info(message: string, data?: unknown): void {
     if (data) {
       console.log(`ℹ️ ${message}`, data);
     } else {
@@ -1537,7 +1540,7 @@ export class ConsoleLogger implements Logger {
    * @param {string} message - Error message
    * @param {any} [error] - Error object or additional data
    */
-  error(message: string, error?: any): void {
+  error(message: string, error?: unknown): void {
     if (error) {
       console.error(`❌ ${message}`, error);
     } else {
@@ -1551,7 +1554,7 @@ export class ConsoleLogger implements Logger {
    * @param {string} message - Warning message
    * @param {any} [data] - Additional data to log
    */
-  warn(message: string, data?: any): void {
+  warn(message: string, data?: unknown): void {
     if (data) {
       console.warn(`⚠️ ${message}`, data);
     } else {
@@ -1722,7 +1725,7 @@ export class QueueWorker {
       try {
         const processingMessage: ProcessingMessage = JSON.parse(message.Body!);
         await this.jobStatusUpdater.updateStatus(processingMessage.jobId, JobStatus.FAILED, 0);
-      } catch (parseError) {
+      } catch {
         this.logger.error('Could not parse message to update status');
       }
 
@@ -1764,7 +1767,7 @@ export class QueueWorker {
     }
 
     // Get original file using the correct S3 key from the job record
-    const originalBuffer = await this.fileStorage.getFile(jobRecord.s3Key);
+    const originalBuffer = await this.fileStorage.getFile(jobRecord.s3Key as string);
     const originalFileSize = originalBuffer.length;
     await this.jobStatusUpdater.updateStatus(message.jobId, JobStatus.PROCESSING, 25);
 
@@ -1774,7 +1777,7 @@ export class QueueWorker {
     await this.jobStatusUpdater.updateStatus(message.jobId, JobStatus.PROCESSING, 75);
 
     // Calculate compression savings if this is a compression operation
-    let compressionData: any = undefined;
+    let compressionData: Record<string, unknown> | undefined;
     if (message.operation === 'compress') {
       const savingsBytes = originalFileSize - processedFileSize;
       const savingsPercentage = originalFileSize > 0 ? (savingsBytes / originalFileSize) * 100 : 0;
@@ -1855,7 +1858,7 @@ export class QueueWorker {
    * @returns {Promise<any>} Job record from DynamoDB
    * @throws {Error} When job record is not found
    */
-  private async getJobRecord(jobId: string): Promise<any> {
+  private async getJobRecord(jobId: string): Promise<Record<string, unknown>> {
     const command = new GetCommand({
       TableName: AWS_RESOURCES.DYNAMODB_TABLE,
       Key: { jobId }
