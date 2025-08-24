@@ -11,6 +11,7 @@ terraform/modules/lambda/src/node_modules/
 
 # testing
 /coverage
+/client/coverage/
 /coverage.lcov
 *.lcov
 /test-results/
