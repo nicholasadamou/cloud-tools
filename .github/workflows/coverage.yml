@@ -25,8 +25,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
-          cache: 'pnpm'
+          node-version: "20.x"
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -39,11 +39,11 @@ jobs:
       - name: Verify coverage files
         run: |
           echo "Checking coverage files:"
-          ls -la coverage/ || echo "No coverage directory found"
+          ls -la client/coverage/ || echo "No coverage directory found"
 
-          if [ -f "coverage/coverage-summary.json" ]; then
+          if [ -f "client/coverage/coverage-summary.json" ]; then
             echo "✅ coverage-summary.json found"
-            cat coverage/coverage-summary.json | head -20
+            cat client/coverage/coverage-summary.json | head -20
           else
             echo "❌ coverage-summary.json not found"
             echo "Available files:"
@@ -52,20 +52,20 @@ jobs:
 
       - name: Generate coverage badge
         uses: tj-actions/coverage-badge-js@v1
-        if: github.ref == 'refs/heads/master' && hashFiles('coverage/coverage-summary.json') != ''
+        if: github.ref == 'refs/heads/master' && hashFiles('client/coverage/coverage-summary.json') != ''
         with:
           path: .
           output_path: coverage-badge.svg
-          report_path: coverage/coverage-summary.json
+          report_path: client/coverage/coverage-summary.json
 
       - name: Verify coverage thresholds
         run: |
-          if [ -f "coverage/coverage-summary.json" ]; then
+          if [ -f "client/coverage/coverage-summary.json" ]; then
             # Extract coverage percentages from the JSON report
-            STMT_COV=$(node -p "JSON.parse(require('fs').readFileSync('./coverage/coverage-summary.json', 'utf8')).total.statements.pct")
-            BRANCH_COV=$(node -p "JSON.parse(require('fs').readFileSync('./coverage/coverage-summary.json', 'utf8')).total.branches.pct")
-            FUNC_COV=$(node -p "JSON.parse(require('fs').readFileSync('./coverage/coverage-summary.json', 'utf8')).total.functions.pct")
-            LINE_COV=$(node -p "JSON.parse(require('fs').readFileSync('./coverage/coverage-summary.json', 'utf8')).total.lines.pct")
+            STMT_COV=$(node -p "JSON.parse(require('fs').readFileSync('./client/coverage/coverage-summary.json', 'utf8')).total.statements.pct")
+            BRANCH_COV=$(node -p "JSON.parse(require('fs').readFileSync('./client/coverage/coverage-summary.json', 'utf8')).total.branches.pct")
+            FUNC_COV=$(node -p "JSON.parse(require('fs').readFileSync('./client/coverage/coverage-summary.json', 'utf8')).total.functions.pct")
+            LINE_COV=$(node -p "JSON.parse(require('fs').readFileSync('./client/coverage/coverage-summary.json', 'utf8')).total.lines.pct")
 
             echo "📊 Coverage Report:"
             echo "Statements: ${STMT_COV}%"
@@ -83,7 +83,7 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
-          file: ./coverage/lcov.info
+          file: ./client/coverage/lcov.info
           flags: unittests
           name: codecov-coverage
           fail_ci_if_error: false
@@ -93,23 +93,23 @@ jobs:
         uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: ./coverage/lcov.info
+          path-to-lcov: ./client/coverage/lcov.info
 
       - name: Comment PR with coverage report
         if: github.event_name == 'pull_request'
         uses: romeovs/lcov-reporter-action@v0.3.1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          lcov-file: ./coverage/lcov.info
+          lcov-file: ./client/coverage/lcov.info
           delete-old-comments: true
-          title: '📊 Test Coverage Report'
+          title: "📊 Test Coverage Report"
 
       - name: Archive coverage artifacts
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: |
-            coverage/
+            client/coverage/
             coverage-badge.svg
           retention-days: 30
 
@@ -130,8 +130,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
-          cache: 'pnpm'
+          node-version: "20.x"
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -143,7 +143,7 @@ jobs:
 
       - name: Store PR coverage
         run: |
-          cp coverage/coverage-summary.json coverage-pr.json
+          cp client/coverage/coverage-summary.json coverage-pr.json
 
       - name: Checkout base branch
         uses: actions/checkout@v4
@@ -161,10 +161,10 @@ jobs:
       - name: Compare coverage
         run: |
           # Get coverage from base branch
-          BASE_STMT=$(node -p "JSON.parse(require('fs').readFileSync('./coverage/coverage-summary.json', 'utf8')).total.statements.pct")
-          BASE_BRANCH=$(node -p "JSON.parse(require('fs').readFileSync('./coverage/coverage-summary.json', 'utf8')).total.branches.pct")
-          BASE_FUNC=$(node -p "JSON.parse(require('fs').readFileSync('./coverage/coverage-summary.json', 'utf8')).total.functions.pct")
-          BASE_LINE=$(node -p "JSON.parse(require('fs').readFileSync('./coverage/coverage-summary.json', 'utf8')).total.lines.pct")
+          BASE_STMT=$(node -p "JSON.parse(require('fs').readFileSync('./client/coverage/coverage-summary.json', 'utf8')).total.statements.pct")
+          BASE_BRANCH=$(node -p "JSON.parse(require('fs').readFileSync('./client/coverage/coverage-summary.json', 'utf8')).total.branches.pct")
+          BASE_FUNC=$(node -p "JSON.parse(require('fs').readFileSync('./client/coverage/coverage-summary.json', 'utf8')).total.functions.pct")
+          BASE_LINE=$(node -p "JSON.parse(require('fs').readFileSync('./client/coverage/coverage-summary.json', 'utf8')).total.lines.pct")
 
           # Get coverage from PR branch
           PR_STMT=$(node -p "JSON.parse(require('fs').readFileSync('./coverage-pr.json', 'utf8')).total.statements.pct")
