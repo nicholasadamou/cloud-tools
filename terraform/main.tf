@@ -99,12 +99,11 @@ module "sqs" {
 module "cloudwatch" {
   source = "./modules/cloudwatch"
 
-  project_name               = var.project_name
-  environment                = var.environment
-  resource_suffix            = local.resource_suffix
-  log_retention_in_days      = var.log_retention_in_days
-  enable_detailed_monitoring = var.enable_detailed_monitoring
-  kms_key_id                 = aws_kms_key.main.arn
+  project_name          = var.project_name
+  environment           = var.environment
+  resource_suffix       = local.resource_suffix
+  log_retention_in_days = var.log_retention_in_days
+  kms_key_id            = aws_kms_key.main.arn
 
   # Lambda function names for log groups
   lambda_function_names = [
@@ -158,21 +157,17 @@ module "lambda" {
 module "api_gateway" {
   source = "./modules/api-gateway"
 
-  project_name         = var.project_name
-  environment          = var.environment
-  resource_suffix      = local.resource_suffix
-  allowed_cors_origins = var.allowed_cors_origins
-  enable_waf           = var.enable_waf
-  kms_key_id           = aws_kms_key.main.arn
+  project_name    = var.project_name
+  environment     = var.environment
+  resource_suffix = local.resource_suffix
+  kms_key_id      = aws_kms_key.main.arn
 
   # Lambda function integration
   convert_lambda_arn  = module.lambda.convert_function_arn
   compress_lambda_arn = module.lambda.compress_function_arn
-  process_lambda_arn  = module.lambda.process_function_arn
 
   convert_lambda_name  = module.lambda.convert_function_name
   compress_lambda_name = module.lambda.compress_function_name
-  process_lambda_name  = module.lambda.process_function_name
 
   tags = local.common_tags
 
