@@ -177,8 +177,8 @@ pnpm run dev
 
 - **Node.js 18+**: Runtime environment
 - **Docker Desktop**: For LocalStack AWS services
-- **Sharp**: Image processing (auto-installed via npm)
-- **PDF-lib**: PDF processing (auto-installed via npm)
+- **Sharp**: Image processing (auto-installed via pnpm)
+- **PDF-lib**: PDF processing (auto-installed via pnpm)
 
 ### Optional (Enhanced Features)
 

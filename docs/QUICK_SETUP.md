@@ -11,7 +11,7 @@ Get Cloud Tools running locally in under 5 minutes!
 ## One-Command Setup
 
 ```bash
-npm run setup
+pnpm run setup
 ```
 
 That's it! This command will:
@@ -27,23 +27,23 @@ That's it! This command will:
 ## Start Development
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Useful Commands
 
-| Command                     | Description                          |
-| --------------------------- | ------------------------------------ |
-| `npm run setup`             | Complete setup (run once)            |
-| `npm run dev`               | Start development server             |
-| `npm run verify`            | Verify setup is working              |
-| `npm run test:integration`  | Test full AWS/LocalStack integration |
-| `npm run localstack:status` | Check LocalStack status              |
-| `npm run localstack:logs`   | View LocalStack logs                 |
-| `npm run localstack:health` | Check AWS services health            |
-| `npm run localstack:reset`  | Reset LocalStack (clean slate)       |
+| Command                      | Description                          |
+| ---------------------------- | ------------------------------------ |
+| `pnpm run setup`             | Complete setup (run once)            |
+| `pnpm run dev`               | Start development server             |
+| `pnpm run verify`            | Verify setup is working              |
+| `pnpm run test:integration`  | Test full AWS/LocalStack integration |
+| `pnpm run localstack:status` | Check LocalStack status              |
+| `pnpm run localstack:logs`   | View LocalStack logs                 |
+| `pnpm run localstack:health` | Check AWS services health            |
+| `pnpm run localstack:reset`  | Reset LocalStack (clean slate)       |
 
 ## Manual Setup (if needed)
 
@@ -86,7 +86,7 @@ If the automatic setup doesn't work:
 
 - Make sure Docker Desktop is running
 - Check if port 4566 is available: `lsof -i :4566`
-- Reset LocalStack: `npm run localstack:reset`
+- Reset LocalStack: `pnpm run localstack:reset`
 
 ### AWS CLI errors
 
@@ -96,9 +96,9 @@ If the automatic setup doesn't work:
 
 ### Resources not found
 
-- Run verification: `npm run verify`
-- Check LocalStack health: `npm run localstack:health`
-- Reset and recreate: `npm run localstack:reset`
+- Run verification: `pnpm run verify`
+- Check LocalStack health: `pnpm run localstack:health`
+- Reset and recreate: `pnpm run localstack:reset`
 
 ## What's Running?
 

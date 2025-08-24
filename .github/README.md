@@ -108,8 +108,8 @@ This project includes several documentation files to help you get started and co
 👉 **[QUICK_SETUP.md](../docs/QUICK_SETUP.md)** 👈
 
 ```bash
-npm run setup  # One command setup!
-npm run dev    # Start developing
+pnpm run setup  # One command setup!
+pnpm run dev    # Start developing
 ```
 
 ## Getting Started
@@ -121,11 +121,11 @@ For detailed setup instructions, see **[QUICK_SETUP.md](../docs/QUICK_SETUP.md)*
 ### Development Workflow
 
 ```bash
-npm run dev
+pnpm run dev
 # or
 yarn dev
 # or
-pnpm dev
+npm run dev
 # or
 bun dev
 ```
@@ -139,7 +139,7 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 To enable file conversion and compression features, you'll need to run the processing worker:
 
 ```bash
-npm run worker  # Start the file processing worker
+pnpm run worker  # Start the file processing worker
 ```
 
 For complete worker setup instructions, see **[WORKER_SETUP.md](../docs/WORKER_SETUP.md)**.
@@ -171,7 +171,7 @@ You can emulate most of the AWS services used by this project locally with [Loca
 
 - Docker Desktop 4.x+
 - AWS CLI v2
-- Node.js and pnpm/yarn/npm for the Next.js app
+- Node.js and pnpm/yarn for the Next.js app
 
 ### Start LocalStack
 

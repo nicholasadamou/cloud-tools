@@ -1,6 +1,6 @@
 # ACT - Local GitHub Actions Execution Guide
 
-This comprehensive guide shows you how to run GitHub Actions workflows locally using [ACT](https://github.com/nektos/act) with the provided npm scripts and interactive tools.
+This comprehensive guide shows you how to run GitHub Actions workflows locally using [ACT](https://github.com/nektos/act) with the provided pnpm scripts and interactive tools.
 
 ## Table of Contents
 
