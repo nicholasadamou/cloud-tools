@@ -19,6 +19,7 @@ That's it! This command will:
 - ✅ Check all prerequisites
 - ✅ Create `.env.local` configuration
 - ✅ Install dependencies
+- ✅ Install pre-commit hooks for code quality
 - ✅ Start LocalStack with all AWS services
 - ✅ Configure AWS CLI profile
 - ✅ Create all required AWS resources (S3, DynamoDB, SQS)
@@ -31,6 +32,26 @@ pnpm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Code Quality & Pre-commit Hooks
+
+Cloud Tools uses [pre-commit](https://pre-commit.com/) hooks to ensure code quality and consistency. These hooks automatically run when you commit code and include:
+
+- 🔧 **Terraform formatting** (`terraform fmt`)
+- 📏 **Terraform linting** (tflint)
+- 🎨 **Code formatting** (Prettier for JS/TS/JSON/YAML)
+- ✅ **Basic file checks** (trailing whitespace, end-of-file)
+
+### Pre-commit Commands
+
+| Command                       | Description                 |
+| ----------------------------- | --------------------------- |
+| `pnpm run pre-commit:install` | Install pre-commit hooks    |
+| `pnpm run pre-commit:run`     | Run hooks on all files      |
+| `pnpm run pre-commit:update`  | Update hook versions        |
+| `pnpm run format:terraform`   | Format Terraform files only |
+
+> 💡 Pre-commit hooks run automatically on `git commit`. If they fail, your commit will be blocked until issues are fixed.
 
 ## Useful Commands
 

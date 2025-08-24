@@ -100,6 +100,7 @@ This project includes several documentation files to help you get started and co
 | **[INFRASTRUCTURE.md](../docs/INFRASTRUCTURE.md)** | **🏗️ AWS Infrastructure** - Complete Terraform setup and deployment guide |
 | **[WORKER_SETUP.md](../docs/WORKER_SETUP.md)**     | File processing worker setup and troubleshooting                          |
 | **[ACT_USAGE.md](../docs/ACT_USAGE.md)**           | **⚡ Run GitHub Actions locally** - Complete ACT setup and usage guide    |
+| **[PRE_COMMIT.md](../docs/PRE_COMMIT.md)**         | **🔧 Code quality hooks** - Pre-commit setup and configuration guide      |
 | **[CONTRIBUTING.md](./CONTRIBUTING.md)**           | Complete contributor guide with development workflow                      |
 | **README.md**                                      | This file - project overview and architecture                             |
 

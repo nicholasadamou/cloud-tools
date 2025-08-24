@@ -1,6 +1,6 @@
 # Pre-commit Hooks
 
-This project uses pre-commit hooks to automatically format and validate code before commits. This helps maintain code quality and consistency across the repository.
+This project uses pre-commit hooks to automatically format and validate code before commits. This replaces the previous Husky setup and provides more comprehensive code quality checks.
 
 ## Setup
 
@@ -26,9 +26,12 @@ pre-commit install
 - **YAML validation**: Validates YAML file syntax
 - **JSON validation**: Validates JSON file syntax
 
-### Terraform Formatting
+### Code Formatting
 
-- **terraform_fmt**: Automatically formats all Terraform files (.tf, .tfvars) to canonical format
+- **Terraform formatting**: Automatically formats all Terraform files (.tf, .tfvars) using `terraform fmt`
+  - Excludes: `.terraform/` directories
+- **Prettier formatting**: Formats TypeScript, JavaScript, JSON, CSS, and Markdown files
+  - Excludes: `.terraform/`, `node_modules/`, `*.snap`, `pnpm-lock.yaml`, `package-lock.json`
 
 ## Usage
 
@@ -141,3 +144,30 @@ The same formatting checks that run locally also run in our GitHub Actions workf
 3. Pull requests are automatically validated for formatting
 
 If the pre-commit hooks are working correctly, you should rarely see formatting failures in CI/CD.
+
+## Available Scripts
+
+Here are the npm scripts related to pre-commit:
+
+```bash
+# Run all pre-commit hooks manually
+pnpm run pre-commit:run
+
+# Install pre-commit hooks
+pnpm run pre-commit:install
+
+# Format only Terraform files
+pnpm run terraform:fmt
+
+# Check Terraform formatting without modifying
+pnpm run terraform:fmt:check
+
+# Validate Terraform configuration
+pnpm run terraform:validate
+
+# Format TypeScript/JavaScript/JSON/CSS/Markdown (Prettier)
+pnpm run format
+
+# Check formatting without modifying (Prettier)
+pnpm run format:check
+```
