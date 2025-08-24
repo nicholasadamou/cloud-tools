@@ -40,7 +40,9 @@ jobs:
         uses: tj-actions/coverage-badge-js@v1
         if: github.ref == 'refs/heads/master'
         with:
-          output: coverage-badge.svg
+          path: .
+          output_path: coverage-badge.svg
+          report_path: coverage/coverage-summary.json
 
       - name: Verify coverage thresholds
         run: |

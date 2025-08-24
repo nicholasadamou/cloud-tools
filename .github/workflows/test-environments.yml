@@ -70,14 +70,14 @@ jobs:
           - 4566:4566
         env:
           SERVICES: s3,sqs,dynamodb
-          DEBUG: 1
-          DATA_DIR: /tmp/localstack/data
-          DOCKER_HOST: unix:///var/run/docker.sock
+          DEBUG: 0
+          PERSISTENCE: 0
+          SKIP_INFRA_DOWNLOADS: 1
         options: >-
           --health-cmd="curl -f http://localhost:4566/health || exit 1"
-          --health-interval=30s
-          --health-timeout=10s
-          --health-retries=5
+          --health-interval=15s
+          --health-timeout=5s
+          --health-retries=10
 
     steps:
       - name: Checkout code
@@ -157,7 +157,7 @@ jobs:
               g++
 
           # Copy package files
-          COPY package*.json ./
+          COPY package*.json pnpm-lock.yaml ./
 
           # Install pnpm
           RUN corepack enable && corepack prepare pnpm@latest --activate
@@ -206,22 +206,24 @@ jobs:
 
       - name: Run performance tests
         run: |
-          # Run tests with timing information
-          time pnpm test -- --reporter=json > test-results.json
-
-          # Extract test timing data
-          node -e "
-            const results = JSON.parse(require('fs').readFileSync('test-results.json', 'utf8'));
-            console.log('Test Performance Summary:');
-            console.log('Total tests:', results.stats.tests);
-            console.log('Total time:', results.stats.duration + 'ms');
-            console.log('Average per test:', Math.round(results.stats.duration / results.stats.tests) + 'ms');
-          "
+          # Run tests with timing information and capture output
+          start_time=$(date +%s%3N)
+          pnpm test -- --run
+          end_time=$(date +%s%3N)
+          
+          # Calculate test duration
+          DURATION=$((end_time - start_time))
+          
+          echo "📊 Test Performance Summary:"
+          echo "Total time: ${DURATION}ms"
+          
+          # Store duration for next step
+          echo "$DURATION" > test-duration.txt
 
       - name: Check test performance
         run: |
           # Fail if tests take longer than 30 seconds
-          DURATION=$(node -e "console.log(JSON.parse(require('fs').readFileSync('test-results.json', 'utf8')).stats.duration)")
+          DURATION=$(cat test-duration.txt)
           if [ $DURATION -gt 30000 ]; then
             echo "❌ Tests are too slow: ${DURATION}ms (max: 30000ms)"
             exit 1
