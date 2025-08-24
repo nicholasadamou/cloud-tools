@@ -149,6 +149,29 @@ resource "aws_wafv2_web_acl" "main" {
     }
   }
 
+  # CKV2_AWS_77: Add Log4j vulnerability protection
+  rule {
+    name     = "AWSManagedRulesKnownBadInputsRuleSet"
+    priority = 3
+
+    override_action {
+      none {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesKnownBadInputsRuleSet"
+        vendor_name = "AWS"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "KnownBadInputsRuleSetMetric"
+      sampled_requests_enabled   = true
+    }
+  }
+
   tags = merge(var.tags, {
     Name = "${var.project_name}-${var.environment}-api-waf"
     Type = "WAF"
@@ -158,6 +181,37 @@ resource "aws_wafv2_web_acl" "main" {
     cloudwatch_metrics_enabled = true
     metric_name                = "${var.project_name}${var.environment}WAF"
     sampled_requests_enabled   = true
+  }
+}
+
+# CKV2_AWS_31: WAF logging configuration
+resource "aws_cloudwatch_log_group" "waf_logs" {
+  count             = var.environment == "production" ? 1 : 0
+  name              = "/aws/wafv2/${var.project_name}-${var.environment}-waf"
+  retention_in_days = 365
+  kms_key_id        = var.kms_key_id
+
+  tags = merge(var.tags, {
+    Name = "${var.project_name}-${var.environment}-waf-logs"
+    Type = "WAFLogs"
+  })
+}
+
+resource "aws_wafv2_web_acl_logging_configuration" "main" {
+  count                   = var.environment == "production" ? 1 : 0
+  resource_arn            = aws_wafv2_web_acl.main[0].arn
+  log_destination_configs = [aws_cloudwatch_log_group.waf_logs[0].arn]
+
+  redacted_fields {
+    single_header {
+      name = "authorization"
+    }
+  }
+
+  redacted_fields {
+    single_header {
+      name = "cookie"
+    }
   }
 }
 
@@ -415,9 +469,26 @@ resource "aws_api_gateway_stage" "main" {
     })
   }
 
-  # CKV2_AWS_4: Set appropriate logging level
+  # Enable detailed CloudWatch metrics
   variables = {
-    "logging_level" = var.environment == "production" ? "ERROR" : "INFO"
+    "loggingLevel" = var.environment == "production" ? "ERROR" : "INFO"
+  }
+
+  # Enable CloudWatch logging
+  dynamic "method_settings" {
+    for_each = ["*/*"]
+    content {
+      method_path                             = method_settings.value
+      logging_level                           = var.environment == "production" ? "ERROR" : "INFO"
+      data_trace_enabled                      = var.environment != "production"
+      metrics_enabled                         = true
+      throttling_rate_limit                   = 1000
+      throttling_burst_limit                  = 2000
+      caching_enabled                         = cache_cluster_enabled
+      cache_ttl_in_seconds                    = 300
+      cache_key_parameters                    = []
+      require_authorization_for_cache_control = false
+    }
   }
 
   tags = merge(var.tags, {

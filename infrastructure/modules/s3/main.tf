@@ -3,8 +3,9 @@ terraform {
 
   required_providers {
     aws = {
-      source  = "hashicorp/aws"
-      version = ">= 5.0"
+      source                = "hashicorp/aws"
+      version               = ">= 5.0"
+      configuration_aliases = [aws.replica]
     }
   }
 }
@@ -163,5 +164,201 @@ resource "aws_s3_bucket_intelligent_tiering_configuration" "main" {
   tiering {
     access_tier = "DEEP_ARCHIVE_ACCESS"
     days        = 180
+  }
+}
+
+# CKV_AWS_18: S3 access logging bucket
+resource "aws_s3_bucket" "access_logs" {
+  count  = var.environment == "production" ? 1 : 0
+  bucket = "${var.bucket_prefix}-${var.environment}-access-logs-${var.resource_suffix}"
+
+  tags = merge(var.tags, {
+    Name = "${var.project_name}-${var.environment}-access-logs-bucket"
+    Type = "AccessLogs"
+  })
+}
+
+resource "aws_s3_bucket_public_access_block" "access_logs" {
+  count  = var.environment == "production" ? 1 : 0
+  bucket = aws_s3_bucket.access_logs[0].id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "access_logs" {
+  count  = var.environment == "production" ? 1 : 0
+  bucket = aws_s3_bucket.access_logs[0].id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = "aws:kms"
+      kms_master_key_id = var.kms_key_id
+    }
+    bucket_key_enabled = true
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "access_logs" {
+  count  = var.environment == "production" ? 1 : 0
+  bucket = aws_s3_bucket.access_logs[0].id
+
+  rule {
+    id     = "access_logs_cleanup"
+    status = "Enabled"
+
+    expiration {
+      days = 90
+    }
+  }
+}
+
+# S3 access logging configuration
+resource "aws_s3_bucket_logging" "main" {
+  count  = var.environment == "production" ? 1 : 0
+  bucket = aws_s3_bucket.main.id
+
+  target_bucket = aws_s3_bucket.access_logs[0].id
+  target_prefix = "access-logs/"
+
+  depends_on = [aws_s3_bucket_public_access_block.access_logs]
+}
+
+# CKV_AWS_144: Cross-region replication for production
+resource "aws_s3_bucket" "replica" {
+  count    = var.environment == "production" ? 1 : 0
+  provider = aws.replica
+  bucket   = "${var.bucket_prefix}-${var.environment}-replica-${var.resource_suffix}"
+
+  tags = merge(var.tags, {
+    Name = "${var.project_name}-${var.environment}-replica-bucket"
+    Type = "ReplicaBucket"
+  })
+}
+
+resource "aws_s3_bucket_versioning" "replica" {
+  count    = var.environment == "production" ? 1 : 0
+  provider = aws.replica
+  bucket   = aws_s3_bucket.replica[0].id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "replica" {
+  count    = var.environment == "production" ? 1 : 0
+  provider = aws.replica
+  bucket   = aws_s3_bucket.replica[0].id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+    bucket_key_enabled = true
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "replica" {
+  count    = var.environment == "production" ? 1 : 0
+  provider = aws.replica
+  bucket   = aws_s3_bucket.replica[0].id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# IAM role for S3 replication
+resource "aws_iam_role" "replication" {
+  count = var.environment == "production" ? 1 : 0
+  name  = "${var.project_name}-${var.environment}-s3-replication-role-${var.resource_suffix}"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "s3.amazonaws.com"
+        }
+      }
+    ]
+  })
+
+  tags = merge(var.tags, {
+    Name = "${var.project_name}-${var.environment}-s3-replication-role"
+    Type = "S3ReplicationRole"
+  })
+}
+
+resource "aws_iam_role_policy" "replication" {
+  count = var.environment == "production" ? 1 : 0
+  name  = "${var.project_name}-${var.environment}-s3-replication-policy-${var.resource_suffix}"
+  role  = aws_iam_role.replication[0].id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "s3:GetReplicationConfiguration",
+          "s3:ListBucket"
+        ]
+        Effect = "Allow"
+        Resource = [
+          aws_s3_bucket.main.arn
+        ]
+      },
+      {
+        Action = [
+          "s3:GetObjectVersionForReplication",
+          "s3:GetObjectVersionAcl",
+          "s3:GetObjectVersionTagging"
+        ]
+        Effect = "Allow"
+        Resource = [
+          "${aws_s3_bucket.main.arn}/*"
+        ]
+      },
+      {
+        Action = [
+          "s3:ReplicateObject",
+          "s3:ReplicateDelete",
+          "s3:ReplicateTags"
+        ]
+        Effect = "Allow"
+        Resource = [
+          "${aws_s3_bucket.replica[0].arn}/*"
+        ]
+      }
+    ]
+  })
+}
+
+# S3 replication configuration
+resource "aws_s3_bucket_replication_configuration" "main" {
+  count      = var.environment == "production" ? 1 : 0
+  depends_on = [aws_s3_bucket_versioning.main]
+
+  role   = aws_iam_role.replication[0].arn
+  bucket = aws_s3_bucket.main.id
+
+  rule {
+    id     = "replicate_all"
+    status = "Enabled"
+
+    filter {
+      prefix = ""
+    }
+
+    destination {
+      bucket        = aws_s3_bucket.replica[0].arn
+      storage_class = "STANDARD_IA"
+    }
   }
 }

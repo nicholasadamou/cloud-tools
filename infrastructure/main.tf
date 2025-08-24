@@ -117,9 +117,20 @@ module "iam" {
   depends_on = [module.s3, module.sqs]
 }
 
+# Replica provider for cross-region replication (us-west-2)
+provider "aws" {
+  alias  = "replica"
+  region = "us-west-2"
+}
+
 # S3 bucket for file storage
 module "s3" {
   source = "./modules/s3"
+
+  providers = {
+    aws         = aws
+    aws.replica = aws.replica
+  }
 
   project_name              = var.project_name
   environment               = var.environment
