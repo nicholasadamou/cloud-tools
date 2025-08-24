@@ -474,22 +474,6 @@ resource "aws_api_gateway_stage" "main" {
     "loggingLevel" = var.environment == "production" ? "ERROR" : "INFO"
   }
 
-  # Enable CloudWatch logging
-  dynamic "method_settings" {
-    for_each = ["*/*"]
-    content {
-      method_path                             = method_settings.value
-      logging_level                           = var.environment == "production" ? "ERROR" : "INFO"
-      data_trace_enabled                      = var.environment != "production"
-      metrics_enabled                         = true
-      throttling_rate_limit                   = 1000
-      throttling_burst_limit                  = 2000
-      caching_enabled                         = cache_cluster_enabled
-      cache_ttl_in_seconds                    = 300
-      cache_key_parameters                    = []
-      require_authorization_for_cache_control = false
-    }
-  }
 
   tags = merge(var.tags, {
     Name = "${var.project_name}-${var.environment}-api-stage"
@@ -498,6 +482,25 @@ resource "aws_api_gateway_stage" "main" {
 
   lifecycle {
     create_before_destroy = true
+  }
+}
+
+# CKV2_AWS_4: API Gateway method settings for logging and monitoring
+resource "aws_api_gateway_method_settings" "main" {
+  rest_api_id = aws_api_gateway_rest_api.main.id
+  stage_name  = aws_api_gateway_stage.main.stage_name
+  method_path = "*/*"
+
+  settings {
+    logging_level                           = var.environment == "production" ? "ERROR" : "INFO"
+    data_trace_enabled                      = var.environment != "production"
+    metrics_enabled                         = true
+    throttling_rate_limit                   = 1000
+    throttling_burst_limit                  = 2000
+    caching_enabled                         = true
+    cache_ttl_in_seconds                    = 300
+    cache_data_encrypted                    = true
+    require_authorization_for_cache_control = false
   }
 }
 
