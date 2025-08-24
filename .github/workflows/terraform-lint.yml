@@ -65,6 +65,21 @@ jobs:
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
+      - name: Create Lambda build artifacts for validation
+        run: |
+          echo "📦 Creating dummy Lambda zip files for validation..."
+          mkdir -p terraform/modules/lambda/.build/lambda
+          
+          # Create empty zip files to satisfy validation
+          cd terraform/modules/lambda/.build/lambda
+          echo "console.log('dummy');" > dummy.js
+          zip -q convert-lambda.zip dummy.js
+          zip -q compress-lambda.zip dummy.js
+          zip -q process-lambda.zip dummy.js
+          rm dummy.js
+          
+          echo "✅ Created dummy Lambda packages for validation"
+
       - name: Terraform Init
         run: |
           echo "🔧 Initializing Terraform for ${{ matrix.environment }}..."
