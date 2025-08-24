@@ -66,6 +66,12 @@ resource "aws_dynamodb_table" "main" {
     enabled = var.enable_point_in_time_recovery
   }
 
+  # Server-side encryption with customer managed KMS key
+  server_side_encryption {
+    enabled     = true
+    kms_key_arn = var.kms_key_id
+  }
+
   tags = merge(var.tags, {
     Name = "${var.project_name}-${var.environment}-jobs-table"
     Type = "JobTracking"
