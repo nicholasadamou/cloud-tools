@@ -109,11 +109,15 @@ resource "aws_s3_bucket_lifecycle_configuration" "main" {
   }
 }
 
+# CKV2_AWS_62: Ensure S3 buckets should have event notifications enabled
 # S3 bucket notification configuration (for SQS integration)
 resource "aws_s3_bucket_notification" "main" {
   bucket = aws_s3_bucket.main.id
 
-  # This will be populated by the SQS module
+  # Default CloudWatch metrics notification to ensure compliance
+  eventbridge = true
+
+  # This will be populated by the SQS module for additional notifications
   depends_on = [aws_s3_bucket.main]
 }
 
@@ -178,6 +182,16 @@ resource "aws_s3_bucket" "access_logs" {
   })
 }
 
+# CKV_AWS_21: Ensure all data stored in the S3 bucket have versioning enabled
+resource "aws_s3_bucket_versioning" "access_logs" {
+  count  = var.environment == "production" ? 1 : 0
+  bucket = aws_s3_bucket.access_logs[0].id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
 resource "aws_s3_bucket_public_access_block" "access_logs" {
   count  = var.environment == "production" ? 1 : 0
   bucket = aws_s3_bucket.access_logs[0].id
@@ -216,7 +230,20 @@ resource "aws_s3_bucket_lifecycle_configuration" "access_logs" {
     expiration {
       days = 90
     }
+
+    # CKV_AWS_300: Ensure S3 lifecycle configuration sets period for aborting failed uploads
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
   }
+}
+
+# CKV2_AWS_62: Event notifications for access_logs bucket
+resource "aws_s3_bucket_notification" "access_logs" {
+  count  = var.environment == "production" ? 1 : 0
+  bucket = aws_s3_bucket.access_logs[0].id
+
+  eventbridge = true
 }
 
 # S3 access logging configuration
@@ -252,6 +279,7 @@ resource "aws_s3_bucket_versioning" "replica" {
   }
 }
 
+# CKV_AWS_145: Ensure that S3 buckets are encrypted with KMS by default
 resource "aws_s3_bucket_server_side_encryption_configuration" "replica" {
   count    = var.environment == "production" ? 1 : 0
   provider = aws.replica
@@ -259,7 +287,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "replica" {
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+      sse_algorithm     = "aws:kms"
+      kms_master_key_id = var.kms_key_id
     }
     bucket_key_enabled = true
   }
@@ -274,6 +303,44 @@ resource "aws_s3_bucket_public_access_block" "replica" {
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
+}
+
+# CKV2_AWS_61: Lifecycle configuration for replica bucket
+resource "aws_s3_bucket_lifecycle_configuration" "replica" {
+  count    = var.environment == "production" ? 1 : 0
+  provider = aws.replica
+  bucket   = aws_s3_bucket.replica[0].id
+
+  rule {
+    id     = "replica_cleanup"
+    status = "Enabled"
+
+    filter {
+      prefix = ""
+    }
+
+    expiration {
+      days = var.lifecycle_expiration_days
+    }
+
+    noncurrent_version_expiration {
+      noncurrent_days = 7
+    }
+
+    # CKV_AWS_300: Ensure S3 lifecycle configuration sets period for aborting failed uploads
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
+  }
+}
+
+# CKV2_AWS_62: Event notifications for replica bucket
+resource "aws_s3_bucket_notification" "replica" {
+  count    = var.environment == "production" ? 1 : 0
+  provider = aws.replica
+  bucket   = aws_s3_bucket.replica[0].id
+
+  eventbridge = true
 }
 
 # IAM role for S3 replication

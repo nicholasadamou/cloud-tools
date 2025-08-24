@@ -459,9 +459,10 @@ resource "aws_api_gateway_method_settings" "main" {
 }
 
 # CloudWatch log group for API Gateway
+# CKV_AWS_338: Ensure CloudWatch log groups retains logs for at least 1 year
 resource "aws_cloudwatch_log_group" "api_gateway" {
   name              = "/aws/apigateway/${var.project_name}-${var.environment}"
-  retention_in_days = var.environment == "production" ? 365 : 14
+  retention_in_days = 365 # Ensure minimum 1 year retention for all environments
   kms_key_id        = var.kms_key_id
 
   tags = merge(var.tags, {

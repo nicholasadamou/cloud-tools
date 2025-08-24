@@ -195,9 +195,10 @@ resource "aws_lambda_function" "process" {
 }
 
 # CloudWatch log groups for Lambda functions
+# CKV_AWS_338: Ensure CloudWatch log groups retains logs for at least 1 year
 resource "aws_cloudwatch_log_group" "convert" {
   name              = "/aws/lambda/${aws_lambda_function.convert.function_name}"
-  retention_in_days = var.environment == "production" ? 365 : 30
+  retention_in_days = 365 # Ensure minimum 1 year retention for all environments
   kms_key_id        = var.kms_key_id
 
   tags = merge(var.tags, {
@@ -207,7 +208,7 @@ resource "aws_cloudwatch_log_group" "convert" {
 
 resource "aws_cloudwatch_log_group" "compress" {
   name              = "/aws/lambda/${aws_lambda_function.compress.function_name}"
-  retention_in_days = var.environment == "production" ? 365 : 30
+  retention_in_days = 365 # Ensure minimum 1 year retention for all environments
   kms_key_id        = var.kms_key_id
 
   tags = merge(var.tags, {
@@ -217,7 +218,7 @@ resource "aws_cloudwatch_log_group" "compress" {
 
 resource "aws_cloudwatch_log_group" "process" {
   name              = "/aws/lambda/${aws_lambda_function.process.function_name}"
-  retention_in_days = var.environment == "production" ? 365 : 30
+  retention_in_days = 365 # Ensure minimum 1 year retention for all environments
   kms_key_id        = var.kms_key_id
 
   tags = merge(var.tags, {
