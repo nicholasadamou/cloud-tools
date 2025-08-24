@@ -59,8 +59,18 @@ resource "aws_budgets_budget" "prod_budget" {
   limit_unit   = "USD"
   time_unit    = "MONTHLY"
 
-  cost_filters = {
-    TagKeyValue = ["Environment$production", "Project$cloud-tools"]
+  cost_filter {
+    dimension {
+      key   = "TagKeyValue"
+      values = ["Environment$production"]
+    }
+  }
+
+  cost_filter {
+    dimension {
+      key   = "TagKeyValue"
+      values = ["Project$cloud-tools"]
+    }
   }
 
   notification {
