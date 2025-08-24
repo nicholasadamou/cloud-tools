@@ -8,8 +8,8 @@ on:
 
 env:
   NODE_ENV: test
-  TF_VERSION: '1.6.0'
-  TFLINT_VERSION: 'v0.48.0'
+  TF_VERSION: "1.6.0"
+  TFLINT_VERSION: "v0.48.0"
 
 jobs:
   lint-and-format:
@@ -28,11 +28,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
-          cache: 'pnpm'
+          node-version: "20.x"
+          cache: "pnpm"
 
-      - name: Install dependencies
+      - name: Install root dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Install client dependencies
+        run: cd client && pnpm install --frozen-lockfile
 
       - name: Run ESLint
         run: pnpm run lint
@@ -45,8 +48,8 @@ jobs:
           npm install -g eslint
 
           # Lint Lambda template files
-          if find terraform/modules/lambda/lambda-templates -name '*.js' | grep -q .; then
-            eslint terraform/modules/lambda/lambda-templates/*.js
+          if find infrastructure/modules/lambda/lambda-templates -name '*.js' | grep -q .; then
+            eslint infrastructure/modules/lambda/lambda-templates/*.js
             echo "✅ Lambda template linting completed"
           else
             echo "⚠️ No Lambda template JavaScript files found"
@@ -72,8 +75,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
-          cache: 'pnpm'
+          node-version: "20.x"
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -103,7 +106,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -122,7 +125,7 @@ jobs:
         if: matrix.node-version == '20.x'
         uses: codecov/codecov-action@v3
         with:
-          file: ./coverage/lcov.info
+          file: ./client/coverage/lcov.info
           flags: unittests
           name: node-${{ matrix.node-version }}
           fail_ci_if_error: false
@@ -144,8 +147,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
-          cache: 'pnpm'
+          node-version: "20.x"
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -157,11 +160,11 @@ jobs:
 
       - name: Check for build artifacts
         run: |
-          if [ ! -d ".next" ]; then
-            echo "Build failed: .next directory not found"
+          if [ ! -d "client/.next" ]; then
+            echo "Build failed: client/.next directory not found"
             exit 1
           fi
-          echo "Build successful: .next directory exists"
+          echo "Build successful: client/.next directory exists"
 
   security:
     name: Security Audit
@@ -179,8 +182,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
-          cache: 'pnpm'
+          node-version: "20.x"
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -203,16 +206,16 @@ jobs:
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@master
         with:
-          scandir: './scripts'
+          scandir: "./scripts"
           format: gcc
           severity: error
         env:
           SHELLCHECK_OPTS: -e SC1091 -S style
 
-      - name: Run ShellCheck on Terraform scripts
+      - name: Run ShellCheck on Infrastructure scripts
         uses: ludeeus/action-shellcheck@master
         with:
-          scandir: './terraform/scripts'
+          scandir: "./infrastructure/scripts"
           format: gcc
           severity: error
         env:
@@ -229,7 +232,7 @@ jobs:
       - name: Check for Terraform files
         id: check-terraform
         run: |
-          if find terraform/ -name '*.tf' -type f | grep -q .; then
+          if find infrastructure/ -name '*.tf' -type f | grep -q .; then
             echo "terraform_files=true" >> $GITHUB_OUTPUT
             echo "Found Terraform files, proceeding with linting"
           else
@@ -248,7 +251,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.tflint.d/plugins
-          key: tflint-${{ hashFiles('terraform/.tflint.hcl') }}
+          key: tflint-${{ hashFiles('infrastructure/.tflint.hcl') }}
 
       - name: Setup TFLint
         if: steps.check-terraform.outputs.terraform_files == 'true'
@@ -261,11 +264,11 @@ jobs:
         run: |
           echo "🎨 Checking Terraform file formatting..."
 
-          if ! terraform fmt -check -recursive terraform/; then
+          if ! terraform fmt -check -recursive infrastructure/; then
             echo "❌ Terraform files are not properly formatted!"
             echo "Files that need formatting:"
-            terraform fmt -check -recursive -diff terraform/
-            echo "To fix, run: terraform fmt -recursive terraform/"
+            terraform fmt -check -recursive -diff infrastructure/
+            echo "To fix, run: terraform fmt -recursive infrastructure/"
             exit 1
           else
             echo "✅ All Terraform files are properly formatted!"
@@ -274,7 +277,7 @@ jobs:
       - name: Initialize TFLint
         if: steps.check-terraform.outputs.terraform_files == 'true'
         run: |
-          cd terraform
+          cd infrastructure
           tflint --init
 
       - name: Run TFLint Analysis
@@ -285,7 +288,7 @@ jobs:
           failed_modules=0
 
           # Lint each module
-          for module_dir in terraform/modules/*/; do
+          for module_dir in infrastructure/modules/*/; do
             if [[ -d "$module_dir" ]]; then
               module_name=$(basename "$module_dir")
               echo "📄 Linting module: $module_name"
@@ -300,7 +303,7 @@ jobs:
           done
 
           # Lint environments
-          for env_dir in terraform/environments/*/; do
+          for env_dir in infrastructure/environments/*/; do
             if [[ -d "$env_dir" ]]; then
               env_name=$(basename "$env_dir")
               echo "📄 Linting environment: $env_name"
@@ -325,7 +328,7 @@ jobs:
         if: steps.check-terraform.outputs.terraform_files == 'true'
         uses: bridgecrewio/checkov-action@master
         with:
-          directory: terraform/
+          directory: infrastructure/
           quiet: true
           soft_fail: true
           framework: terraform
@@ -335,7 +338,16 @@ jobs:
   summary:
     name: CI Summary
     runs-on: ubuntu-latest
-    needs: [lint-and-format, type-check, test, build, security, shellcheck, terraform-lint]
+    needs:
+      [
+        lint-and-format,
+        type-check,
+        test,
+        build,
+        security,
+        shellcheck,
+        terraform-lint,
+      ]
     if: always()
 
     steps:

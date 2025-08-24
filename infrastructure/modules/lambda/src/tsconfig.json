@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "lib": ["ES2022"],
+    "outDir": "./dist",
+    "rootDir": "../../../../",
+    "strict": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": false,
+    "sourceMap": false,
+    "removeComments": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "noImplicitAny": false,
+    "noImplicitReturns": false,
+    "noImplicitThis": false,
+    "paths": {
+      "@/lib/*": ["../../../../lib/*"],
+      "@/root-lib/*": ["../../../../lib/*"],
+      "@/handlers/*": ["./handlers/*"],
+      "@/adapters/*": ["./adapters/*"]
+    }
+  },
+  "include": ["../../../../lib/**/*", "./handlers/**/*", "./adapters/**/*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "../../../../**/*.test.ts",
+    "../../../../**/*.spec.ts",
+    "../../../../**/tests/**/*",
+    "../../../../client/.next/**/*",
+    "../../../../client/test/**/*"
+  ]
+}

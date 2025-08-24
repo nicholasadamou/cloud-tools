@@ -2,6 +2,8 @@
 
 # dependencies
 /node_modules
+/client/node_modules/
+/infrastructure/modules/lambda/src/node_modules/
 terraform/modules/lambda/src/node_modules/
 /.pnp
 .pnp.js
@@ -23,11 +25,15 @@ terraform/modules/lambda/src/node_modules/
 
 # next.js
 /.next/
+/client/.next/
 /out/
 
 # production
 /build
 .build
+/dist
+/client/dist
+/infrastructure/modules/lambda/src/dist
 
 # misc
 .DS_Store

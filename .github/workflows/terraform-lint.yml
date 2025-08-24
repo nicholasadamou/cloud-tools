@@ -4,19 +4,19 @@ on:
   push:
     branches: [master]
     paths:
-      - 'terraform/**/*.tf'
-      - 'terraform/**/*.tfvars'
-      - '.github/workflows/terraform-lint.yml'
+      - "infrastructure/**/*.tf"
+      - "infrastructure/**/*.tfvars"
+      - ".github/workflows/terraform-lint.yml"
   pull_request:
     branches: [master]
     paths:
-      - 'terraform/**/*.tf'
-      - 'terraform/**/*.tfvars'
-      - '.github/workflows/terraform-lint.yml'
+      - "infrastructure/**/*.tf"
+      - "infrastructure/**/*.tfvars"
+      - ".github/workflows/terraform-lint.yml"
 
 env:
-  TF_VERSION: '1.6.0'
-  TFLINT_VERSION: 'v0.48.0'
+  TF_VERSION: "1.6.0"
+  TFLINT_VERSION: "v0.48.0"
 
 jobs:
   terraform-fmt:
@@ -37,13 +37,13 @@ jobs:
           echo "🎨 Checking Terraform file formatting..."
 
           # Check if all .tf files are properly formatted
-          if ! terraform fmt -check -recursive terraform/; then
+          if ! terraform fmt -check -recursive infrastructure/; then
             echo "❌ Terraform files are not properly formatted!"
             echo ""
             echo "Files that need formatting:"
-            terraform fmt -check -recursive -diff terraform/
+            terraform fmt -check -recursive -diff infrastructure/
             echo ""
-            echo "To fix, run: terraform fmt -recursive terraform/"
+            echo "To fix, run: terraform fmt -recursive infrastructure/"
             exit 1
           else
             echo "✅ All Terraform files are properly formatted!"
@@ -68,10 +68,10 @@ jobs:
       - name: Create Lambda build artifacts for validation
         run: |
           echo "📦 Creating dummy Lambda zip files for validation..."
-          mkdir -p terraform/modules/lambda/.build/lambda
+          mkdir -p infrastructure/modules/lambda/.build/lambda
 
           # Create empty zip files to satisfy validation
-          cd terraform/modules/lambda/.build/lambda
+          cd infrastructure/modules/lambda/.build/lambda
           echo "console.log('dummy');" > dummy.js
           zip -q convert-lambda.zip dummy.js
           zip -q compress-lambda.zip dummy.js
@@ -83,7 +83,7 @@ jobs:
       - name: Terraform Init
         run: |
           echo "🔧 Initializing Terraform for ${{ matrix.environment }}..."
-          cd terraform/environments/${{ matrix.environment }}
+          cd infrastructure/environments/${{ matrix.environment }}
 
           # Create a temporary backend config for validation
           cat > backend-temp.tf << EOF
@@ -99,7 +99,7 @@ jobs:
       - name: Terraform Validate
         run: |
           echo "✅ Validating Terraform configuration for ${{ matrix.environment }}..."
-          cd terraform/environments/${{ matrix.environment }}
+          cd infrastructure/environments/${{ matrix.environment }}
 
           if terraform validate; then
             echo "✅ Terraform configuration is valid for ${{ matrix.environment }}!"
@@ -111,7 +111,7 @@ jobs:
       - name: Cleanup
         if: always()
         run: |
-          cd terraform/environments/${{ matrix.environment }}
+          cd infrastructure/environments/${{ matrix.environment }}
           rm -f backend-temp.tf .terraform.lock.hcl
           rm -rf .terraform/
 
@@ -327,7 +327,14 @@ jobs:
   summary:
     name: Terraform Quality Summary
     runs-on: ubuntu-latest
-    needs: [terraform-fmt, terraform-validate, tflint, terraform-security, terraform-docs]
+    needs:
+      [
+        terraform-fmt,
+        terraform-validate,
+        tflint,
+        terraform-security,
+        terraform-docs,
+      ]
     if: always()
 
     steps:

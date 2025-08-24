@@ -1,0 +1,23 @@
+{
+  "name": "@cloud-tools/lambda",
+  "version": "1.0.0",
+  "description": "Lambda functions for Cloud Tools file processing",
+  "private": true,
+  "engines": {
+    "node": ">=18.x"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "esbuild": "^0.19.0"
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "compile": "tsc",
+    "build": "npm run clean && npm run compile",
+    "bundle": "npm run build && node build.js",
+    "package": "npm run bundle && ./package.sh",
+    "build-ts": "../scripts/build-lambda-ts.sh",
+    "type-check": "tsc --noEmit",
+    "dev": "tsc --watch --noEmit"
+  }
+}

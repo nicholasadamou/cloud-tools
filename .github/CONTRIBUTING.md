@@ -42,9 +42,16 @@ Your app will be running at [http://localhost:3000](http://localhost:3000)
 | Command                       | Description                             |
 | ----------------------------- | --------------------------------------- |
 | `pnpm run setup`              | Complete setup (run once after cloning) |
-| `pnpm run dev`                | Start development server                |
-| `pnpm run build`              | Build for production                    |
+| `pnpm run dev`                | Start client development server         |
+| `pnpm run build`              | Build client for production             |
 | `pnpm run verify`             | Verify local setup is working           |
+| **Monorepo Commands**         | **Workspace Management**                |
+| `pnpm run type-check:all`     | Type check all workspaces               |
+| `pnpm run lambda:type-check`  | Type check Lambda functions only        |
+| `pnpm run lambda:build`       | Build Lambda functions                  |
+| `pnpm run lambda:clean`       | Clean Lambda dist directory             |
+| `pnpm run build:all`          | Build both client and Lambda            |
+| **LocalStack Management**     | **Local AWS Services**                  |
 | `pnpm run localstack:status`  | Check LocalStack container status       |
 | `pnpm run localstack:logs`    | View LocalStack logs                    |
 | `pnpm run localstack:health`  | Check AWS services health               |
@@ -52,18 +59,30 @@ Your app will be running at [http://localhost:3000](http://localhost:3000)
 | `pnpm run localstack:reset`   | Reset LocalStack (clean slate)          |
 | `pnpm run localstack:stop`    | Stop LocalStack                         |
 
-### Project Structure
+### Monorepo Structure
 
 ```
 cloud-tools/
-├── app/                 # Next.js app directory
-├── components/          # React components
-├── lib/                 # Utilities and AWS configuration
-├── scripts/             # Development scripts
-├── .localstack/         # LocalStack initialization scripts
-├── docker-compose.yml   # LocalStack service definition
-├── .env.local.example   # Environment variables template
-└── .env.local          # Your local environment (auto-created)
+├── client/                     # 🖥️ Next.js web application (@cloud-tools/client)
+│   ├── app/                   # Next.js app directory
+│   ├── components/            # React components
+│   ├── lib/                   # Client-specific utilities
+│   └── test/                  # Client tests
+├── infrastructure/             # 🏗️ Terraform and AWS infrastructure
+│   └── modules/lambda/src/    # 📦 Lambda functions (@cloud-tools/lambda)
+│       ├── handlers/          # Lambda function handlers
+│       ├── adapters/          # AWS service adapters
+│       └── tsconfig.json      # Lambda TypeScript config
+├── lib/                       # 📚 Shared libraries and utilities
+│   ├── aws-config.ts         # AWS configuration
+│   └── worker.ts             # File processing logic
+├── docs/                      # 📖 Documentation
+├── scripts/                   # 🔧 Development scripts
+├── .localstack/               # LocalStack initialization scripts
+├── docker-compose.yml         # LocalStack service definition
+├── pnpm-workspace.yaml        # PNPM workspace configuration
+├── .env.local.example         # Environment variables template
+└── .env.local                # Your local environment (auto-created)
 ```
 
 ## 🔧 Working with AWS Services
@@ -107,8 +126,54 @@ aws --profile localstack --endpoint-url=http://localhost:4566 sqs list-queues
 
 3. Import and use in your code:
    ```typescript
-   import { s3Client, uploadFileToS3 } from '@/lib/aws-config';
+   import { s3Client, uploadFileToS3 } from "@/lib/aws-config";
    ```
+
+## 🏗️ Working with the Monorepo
+
+### Workspace Commands
+
+**Client workspace (`@cloud-tools/client`):**
+
+```bash
+# Work specifically with the client
+pnpm --filter client dev         # Start client dev server
+pnpm --filter client build       # Build client
+pnpm --filter client test        # Run client tests
+pnpm --filter client type-check  # Type check client
+```
+
+**Lambda workspace (`@cloud-tools/lambda`):**
+
+```bash
+# Work specifically with Lambda functions
+pnpm --filter @cloud-tools/lambda build       # Build Lambda functions
+pnpm --filter @cloud-tools/lambda type-check  # Type check Lambda
+pnpm --filter @cloud-tools/lambda clean       # Clean Lambda dist
+```
+
+### Shared Dependencies
+
+The `lib/` directory contains shared code used by both workspaces:
+
+- **`lib/aws-config.ts`**: AWS service configuration
+- **`lib/worker.ts`**: File processing logic
+
+### Path Aliases
+
+Both workspaces use path aliases for cleaner imports:
+
+**Client paths:**
+
+- `@/lib/*` → `./lib/*` (client-specific)
+- `@/root-lib/*` → `../lib/*` (shared root lib)
+- `@/*` → `./*` (client root)
+
+**Lambda paths:**
+
+- `@/lib/*` → `../../../../lib/*` (shared root lib)
+- `@/handlers/*` → `./handlers/*` (Lambda handlers)
+- `@/adapters/*` → `./adapters/*` (AWS adapters)
 
 ## 🐛 Troubleshooting
 

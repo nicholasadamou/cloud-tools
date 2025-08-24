@@ -53,7 +53,7 @@ case "$1" in
         if is_localstack_running; then
             print_warning "LocalStack is already running"
         else
-            docker compose up -d
+            docker compose -f client/docker-compose.yml up -d
             print_success "LocalStack started successfully!"
 
             # Wait for LocalStack to be ready
@@ -79,7 +79,7 @@ case "$1" in
     stop)
         print_status "Stopping LocalStack..."
         if is_localstack_running; then
-            docker compose down
+            docker compose -f client/docker-compose.yml down
             print_success "LocalStack stopped successfully!"
         else
             print_warning "LocalStack is not running"
@@ -87,7 +87,7 @@ case "$1" in
         ;;
     restart)
         print_status "Restarting LocalStack..."
-        docker compose restart
+        docker compose -f client/docker-compose.yml restart
         print_success "LocalStack restarted successfully!"
         ;;
     status)
@@ -102,7 +102,7 @@ case "$1" in
     logs)
         print_status "Showing LocalStack logs..."
         if is_localstack_running; then
-            docker compose logs -f localstack
+            docker compose -f client/docker-compose.yml logs -f localstack
         else
             print_error "LocalStack is not running"
             exit 1
@@ -114,8 +114,8 @@ case "$1" in
         read -p "Are you sure? (y/N): " -n 1 -r
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
-            docker compose down -v
-            docker compose up -d
+            docker compose -f client/docker-compose.yml down -v
+            docker compose -f client/docker-compose.yml up -d
 
             # Wait for LocalStack to be ready
             print_status "Waiting for LocalStack to be ready..."

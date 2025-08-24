@@ -64,8 +64,8 @@ print_success "Prerequisites check completed!"
 # Create .env.local if it doesn't exist
 print_status "Setting up environment configuration..."
 if [ ! -f ".env.local" ]; then
-    cp .env.local.example .env.local
-    print_success "Created .env.local from .env.local.example"
+    cp client/.env.local.example .env.local
+    print_success "Created .env.local from client/.env.local.example"
 else
     print_warning ".env.local already exists, skipping..."
 fi
@@ -86,7 +86,7 @@ print_status "Starting LocalStack services..."
 if docker ps --format 'table {{.Names}}' | grep -q "cloud-tools-localstack"; then
     print_warning "LocalStack container is already running"
 else
-    docker compose up -d
+    docker compose -f client/docker-compose.yml up -d
     print_success "LocalStack started!"
 fi
 

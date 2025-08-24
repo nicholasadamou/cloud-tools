@@ -16,6 +16,20 @@
 
 ```
 cloud-tools/
+├── client/                     # 🖥️ Next.js web application (@cloud-tools/client)
+│   ├── app/                   # Next.js app directory
+│   ├── components/            # React components
+│   └── lib/                   # Client-specific utilities
+├── infrastructure/             # 🏗️ Terraform and Lambda functions
+│   ├── modules/
+│   │   └── lambda/src/         # 📦 Lambda workspace (@cloud-tools/lambda)
+│   │       ├── handlers/      # Lambda function handlers
+│   │       ├── adapters/      # AWS service adapters
+│   │       └── tsconfig.json  # Lambda TypeScript config
+│   └── environments/          # Environment-specific configs
+│       ├── dev/               # Development environment
+│       ├── staging/           # Staging environment
+│       └── production/        # Production environment
 ├── terraform/                  # 🆕 Complete Terraform infrastructure
 │   ├── README.md              # Detailed infrastructure docs
 │   ├── main.tf                # Main configuration
@@ -29,17 +43,15 @@ cloud-tools/
 │   │   ├── api-gateway/       # REST API
 │   │   ├── cloudwatch/        # Monitoring
 │   │   └── iam/               # Security & permissions
-│   ├── environments/          # Environment-specific configs
-│   │   ├── dev/               # Development environment
-│   │   ├── staging/           # Staging environment
-│   │   └── production/        # Production environment
 │   └── scripts/               # Deployment utilities
 │       └── deploy.sh          # Automated deployment
-├── app/                       # Next.js application
-├── components/                # React components
-├── lib/                       # Utility libraries
-├── docs/                      # Existing documentation
-└── ... (existing files)
+├── lib/                       # 📚 Shared libraries and utilities
+│   ├── aws-config.ts         # AWS configuration
+│   └── worker.ts             # File processing logic
+├── docs/                      # 📖 Documentation
+├── scripts/                   # 🔧 Development scripts
+├── pnpm-workspace.yaml        # PNPM workspace configuration
+└── ... (config files)
 ```
 
 ## 🚀 Quick Infrastructure Deployment
@@ -240,6 +252,45 @@ cd terraform/modules/lambda
 - **AWS-Native**: Leverages Lambda environment optimizations
 - **Type-Safe**: Full TypeScript support with your existing types
 
+## 🏗️ Monorepo Integration
+
+### Lambda Workspace (`@cloud-tools/lambda`)
+
+The Lambda functions are now part of the monorepo workspace system:
+
+```bash
+# Build Lambda functions using workspace commands
+pnpm run lambda:build       # Build TypeScript Lambda functions
+pnpm run lambda:type-check   # Type check Lambda code
+pnpm run lambda:clean        # Clean Lambda dist directory
+
+# Or work directly in the Lambda workspace
+pnpm --filter @cloud-tools/lambda build
+pnpm --filter @cloud-tools/lambda type-check
+```
+
+### Shared Library Integration
+
+The Lambda functions use the shared `lib/` directory with path aliases:
+
+```typescript
+// Lambda handlers can import shared code cleanly
+import { QueueWorker, SharpImageConverter } from "@/lib/worker";
+import { JobStatus, AWS_RESOURCES } from "@/lib/aws-config";
+
+// AWS adapters provide Lambda-optimized implementations
+import { createLambdaWorkerDependencies } from "@/adapters/aws-lambda-adapter";
+```
+
+### Build Integration
+
+The Terraform infrastructure automatically builds the Lambda workspace:
+
+1. **TypeScript Compilation**: Uses the Lambda workspace's `tsconfig.json`
+2. **Dependency Resolution**: Resolves shared dependencies from `lib/`
+3. **Bundle Creation**: Creates optimized Lambda deployment packages
+4. **Deployment**: Deploys to AWS with proper IAM roles and permissions
+
 ### 3. Update Frontend Configuration
 
 Your Next.js app can now use the deployed infrastructure:
@@ -248,7 +299,10 @@ Your Next.js app can now use the deployed infrastructure:
 // lib/aws-config.ts - Update with infrastructure outputs
 const awsConfig = {
   region: process.env.AWS_REGION,
-  endpoint: process.env.NODE_ENV === 'development' ? process.env.AWS_ENDPOINT_URL : undefined, // Use real AWS in production
+  endpoint:
+    process.env.NODE_ENV === "development"
+      ? process.env.AWS_ENDPOINT_URL
+      : undefined, // Use real AWS in production
   // ... rest of config
 };
 
