@@ -49,6 +49,21 @@ resource "aws_lambda_function" "convert" {
 
   depends_on = [null_resource.build_lambda_packages]
 
+  # CKV_AWS_115: Configure function-level concurrent execution limit
+  reserved_concurrent_executions = var.environment == "production" ? 100 : 10
+
+  # CKV_AWS_272: Configure code-signing
+  code_signing_config_arn = var.code_signing_config_arn
+
+  # CKV_AWS_117: Configure Lambda inside VPC for production
+  dynamic "vpc_config" {
+    for_each = var.environment == "production" ? [1] : []
+    content {
+      subnet_ids         = var.private_subnet_ids
+      security_group_ids = [var.lambda_security_group_id]
+    }
+  }
+
   environment {
     variables = merge(var.environment_variables, {
       FUNCTION_NAME = "convert"
@@ -88,6 +103,21 @@ resource "aws_lambda_function" "compress" {
 
   depends_on = [null_resource.build_lambda_packages]
 
+  # CKV_AWS_115: Configure function-level concurrent execution limit
+  reserved_concurrent_executions = var.environment == "production" ? 100 : 10
+
+  # CKV_AWS_272: Configure code-signing
+  code_signing_config_arn = var.code_signing_config_arn
+
+  # CKV_AWS_117: Configure Lambda inside VPC for production
+  dynamic "vpc_config" {
+    for_each = var.environment == "production" ? [1] : []
+    content {
+      subnet_ids         = var.private_subnet_ids
+      security_group_ids = [var.lambda_security_group_id]
+    }
+  }
+
   environment {
     variables = merge(var.environment_variables, {
       FUNCTION_NAME = "compress"
@@ -124,6 +154,21 @@ resource "aws_lambda_function" "process" {
   memory_size      = var.lambda_memory_size
 
   depends_on = [null_resource.build_lambda_packages]
+
+  # CKV_AWS_115: Configure function-level concurrent execution limit
+  reserved_concurrent_executions = var.environment == "production" ? 100 : 10
+
+  # CKV_AWS_272: Configure code-signing
+  code_signing_config_arn = var.code_signing_config_arn
+
+  # CKV_AWS_117: Configure Lambda inside VPC for production
+  dynamic "vpc_config" {
+    for_each = var.environment == "production" ? [1] : []
+    content {
+      subnet_ids         = var.private_subnet_ids
+      security_group_ids = [var.lambda_security_group_id]
+    }
+  }
 
   environment {
     variables = merge(var.environment_variables, {

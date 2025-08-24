@@ -52,3 +52,21 @@ variable "kms_key_id" {
   description = "KMS key ID for encryption"
   type        = string
 }
+
+variable "code_signing_config_arn" {
+  description = "ARN of the code signing configuration for Lambda functions (optional)"
+  type        = string
+  default     = null
+}
+
+variable "private_subnet_ids" {
+  description = "List of private subnet IDs for VPC configuration (used in production)"
+  type        = list(string)
+  default     = []
+}
+
+variable "lambda_security_group_id" {
+  description = "Security group ID for Lambda functions in VPC (used in production)"
+  type        = string
+  default     = null
+}

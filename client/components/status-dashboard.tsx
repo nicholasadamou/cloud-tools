@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +33,15 @@ interface SystemMetrics {
   totalRequests: number;
   successRate: number;
   avgResponseTime: number;
+}
+
+interface LocalStackHealthService {
+  services?: {
+    s3?: string;
+    dynamodb?: string;
+    sqs?: string;
+    [key: string]: string | undefined;
+  };
 }
 
 const fadeInUp = {
@@ -136,15 +145,12 @@ export default function StatusDashboard() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
-  const [autoRefresh, setAutoRefresh] = useState(true);
-  const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(
-    null,
-  );
+  const isLoadingRef = useRef(false);
 
   // Optimized version that reuses LocalStack health data
   const checkServiceStatusOptimized = async (
     serviceName: string,
-    localstackHealth: any = {},
+    localstackHealth: LocalStackHealthService = {},
   ): Promise<{ status: ServiceStatus["status"]; responseTime: number }> => {
     const startTime = Date.now();
 
@@ -248,154 +254,11 @@ export default function StatusDashboard() {
     }
   };
 
-  const checkServiceStatus = async (
-    serviceName: string,
-  ): Promise<{ status: ServiceStatus["status"]; responseTime: number }> => {
-    const startTime = Date.now();
-
-    try {
-      switch (serviceName) {
-        case "API Gateway":
-          const apiResponse = await fetch("/api/health", {
-            method: "GET",
-            signal: AbortSignal.timeout(5000),
-          });
-          const apiResponseTime = Date.now() - startTime;
-          return {
-            status: apiResponse.ok ? "operational" : "degraded",
-            responseTime: apiResponseTime,
-          };
-
-        case "File Storage (S3)":
-          try {
-            // Check LocalStack S3 health through our proxy API
-            const s3Response = await fetch("/api/localstack-health", {
-              signal: AbortSignal.timeout(3000),
-            });
-
-            if (s3Response.ok) {
-              const health = await s3Response.json();
-              const s3Status = health.services?.s3;
-              const responseTime = Date.now() - startTime;
-
-              console.log("S3 Status:", s3Status); // Debug log
-
-              if (s3Status === "running" || s3Status === "available") {
-                // Also test our upload API OPTIONS call
-                try {
-                  await fetch("/api/upload", {
-                    method: "OPTIONS",
-                    signal: AbortSignal.timeout(2000),
-                  });
-                  // If both LocalStack S3 and our API work, mark as operational
-                  return { status: "operational", responseTime };
-                } catch {
-                  // LocalStack S3 works but our API doesn't - degraded
-                  return { status: "degraded", responseTime };
-                }
-              } else if (s3Status && s3Status !== "disabled") {
-                return { status: "degraded", responseTime };
-              }
-            }
-
-            return { status: "down", responseTime: Date.now() - startTime };
-          } catch (error) {
-            console.error("S3 check error:", error);
-            return { status: "down", responseTime: Date.now() - startTime };
-          }
-
-        case "Database (DynamoDB)":
-          try {
-            // Check LocalStack DynamoDB health first through our proxy API
-            const dbResponse = await fetch("/api/localstack-health", {
-              signal: AbortSignal.timeout(3000),
-            });
-
-            if (dbResponse.ok) {
-              const health = await dbResponse.json();
-              const dbStatus = health.services?.dynamodb;
-              const responseTime = Date.now() - startTime;
-
-              console.log("DynamoDB Status:", dbStatus); // Debug log
-
-              if (dbStatus === "running" || dbStatus === "available") {
-                // Test our jobs API which uses DynamoDB
-                try {
-                  await fetch("/api/jobs?limit=1", {
-                    method: "GET",
-                    signal: AbortSignal.timeout(2000),
-                  });
-                  // If both LocalStack DynamoDB and our API work, mark as operational
-                  return { status: "operational", responseTime };
-                } catch {
-                  // LocalStack DynamoDB works but our API doesn't - still mark as operational since LocalStack works
-                  return { status: "operational", responseTime };
-                }
-              } else if (dbStatus && dbStatus !== "disabled") {
-                return { status: "degraded", responseTime };
-              }
-            }
-
-            return { status: "down", responseTime: Date.now() - startTime };
-          } catch (error) {
-            console.error("DynamoDB check error:", error);
-            return { status: "down", responseTime: Date.now() - startTime };
-          }
-
-        case "Processing Queue (SQS)":
-          try {
-            // Check LocalStack SQS health first through our proxy API
-            const sqsResponse = await fetch("/api/localstack-health", {
-              signal: AbortSignal.timeout(3000),
-            });
-
-            if (sqsResponse.ok) {
-              const health = await sqsResponse.json();
-              const sqsStatus = health.services?.sqs;
-              const responseTime = Date.now() - startTime;
-
-              console.log("SQS Status:", sqsStatus); // Debug log
-
-              if (sqsStatus === "running" || sqsStatus === "available") {
-                // Also test our process API which uses SQS
-                try {
-                  await fetch("/api/process?action=queue-status", {
-                    method: "GET",
-                    signal: AbortSignal.timeout(2000),
-                  });
-                  // If both LocalStack SQS and our API work, mark as operational
-                  return { status: "operational", responseTime };
-                } catch {
-                  // LocalStack SQS works but our API doesn't - still mark as operational since LocalStack works
-                  return { status: "operational", responseTime };
-                }
-              } else if (sqsStatus && sqsStatus !== "disabled") {
-                return { status: "degraded", responseTime };
-              }
-            }
-
-            return { status: "down", responseTime: Date.now() - startTime };
-          } catch (error) {
-            console.error("SQS check error:", error);
-            return { status: "down", responseTime: Date.now() - startTime };
-          }
-
-        default:
-          return {
-            status: "operational",
-            responseTime: Date.now() - startTime,
-          };
-      }
-    } catch (error) {
-      console.error(`Error checking ${serviceName}:`, error);
-      return { status: "down", responseTime: Date.now() - startTime };
-    }
-  };
-
-  const checkAllServices = useCallback(async () => {
+  const checkAllServices = async () => {
     // Use a ref to track loading state to prevent race conditions
-    if (isLoading) return; // Prevent concurrent checks
+    if (isLoadingRef.current) return; // Prevent concurrent checks
 
+    isLoadingRef.current = true;
     setIsLoading(true);
 
     try {
@@ -409,7 +272,7 @@ export default function StatusDashboard() {
         ]);
 
       // Parse LocalStack health data
-      let localstackHealth: any = {};
+      let localstackHealth: LocalStackHealthService = {};
       if (
         localstackHealthResponse.status === "fulfilled" &&
         localstackHealthResponse.value.ok
@@ -531,9 +394,10 @@ export default function StatusDashboard() {
         avgResponseTime,
       });
     } finally {
+      isLoadingRef.current = false;
       setIsLoading(false);
     }
-  }, []); // Remove isLoading dependency to prevent infinite loop
+  };
 
   // Run initial status check on mount
   useEffect(() => {

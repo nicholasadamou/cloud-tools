@@ -178,7 +178,10 @@ resource "aws_iam_role_policy" "lambda_cloudwatch_insights" {
           "logs:StopQuery",
           "logs:GetQueryResults"
         ]
-        Resource = "*"
+        Resource = [
+          "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${var.project_name}-*",
+          "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/apigateway/${var.project_name}-*"
+        ]
       },
       {
         Effect = "Allow"
@@ -186,7 +189,9 @@ resource "aws_iam_role_policy" "lambda_cloudwatch_insights" {
           "xray:PutTraceSegments",
           "xray:PutTelemetryRecords"
         ]
-        Resource = "*"
+        Resource = [
+          "arn:aws:xray:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:trace/*"
+        ]
       }
     ]
   })

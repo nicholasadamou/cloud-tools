@@ -100,7 +100,11 @@ resource "aws_api_gateway_method" "convert_post" {
   rest_api_id   = aws_api_gateway_rest_api.main.id
   resource_id   = aws_api_gateway_resource.convert.id
   http_method   = "POST"
-  authorization = "NONE"
+  authorization = "AWS_IAM" # CKV_AWS_59: Prevent open access to backend resources
+
+  request_parameters = {
+    "method.request.header.Authorization" = true
+  }
 }
 
 resource "aws_api_gateway_method" "convert_options" {
@@ -115,7 +119,11 @@ resource "aws_api_gateway_method" "compress_post" {
   rest_api_id   = aws_api_gateway_rest_api.main.id
   resource_id   = aws_api_gateway_resource.compress.id
   http_method   = "POST"
-  authorization = "NONE"
+  authorization = "AWS_IAM" # CKV_AWS_59: Prevent open access to backend resources
+
+  request_parameters = {
+    "method.request.header.Authorization" = true
+  }
 }
 
 resource "aws_api_gateway_method" "compress_options" {
@@ -278,9 +286,9 @@ resource "aws_api_gateway_stage" "main" {
   # Enable X-Ray tracing
   xray_tracing_enabled = true
 
-  # Enable API Gateway caching for production
-  cache_cluster_enabled = var.environment == "production"
-  cache_cluster_size    = var.environment == "production" ? "0.5" : null
+  # CKV_AWS_120: Enable API Gateway caching for all environments
+  cache_cluster_enabled = true
+  cache_cluster_size    = var.environment == "production" ? "1.6" : "0.5"
 
   access_log_settings {
     destination_arn = aws_cloudwatch_log_group.api_gateway.arn

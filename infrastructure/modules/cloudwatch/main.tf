@@ -66,7 +66,7 @@ data "aws_region" "current" {}
 resource "aws_cloudwatch_log_group" "lambda_logs" {
   count             = length(var.lambda_function_names)
   name              = "/aws/lambda/${var.lambda_function_names[count.index]}"
-  retention_in_days = var.log_retention_in_days
+  retention_in_days = var.environment == "production" ? 365 : var.log_retention_in_days # CKV_AWS_338: Ensure at least 1 year retention for production
   kms_key_id        = var.kms_key_id
 
   tags = merge(var.tags, {
