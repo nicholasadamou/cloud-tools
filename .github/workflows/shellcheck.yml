@@ -38,7 +38,7 @@ jobs:
           disable_matcher: false
         env:
           SHELLCHECK_OPTS: -e SC1091 -S style
-      
+
       - name: Run ShellCheck on terraform/scripts/
         uses: ludeeus/action-shellcheck@master
         with:

@@ -45,13 +45,13 @@ module "lambda" {
   environment               = "dev"
   resource_suffix           = "001"
   lambda_execution_role_arn = aws_iam_role.lambda_execution.arn
-  
+
   environment_variables = {
     S3_BUCKET_NAME     = "my-files-bucket"
     SQS_QUEUE_URL      = "https://sqs.region.amazonaws.com/account/queue-name"
     DYNAMODB_TABLE_NAME = "jobs-table"  # Note: _NAME suffix required
   }
-  
+
   tags = {
     Environment = "dev"
     Project     = "cloud-tools"
@@ -61,41 +61,43 @@ module "lambda" {
 
 ## Variables
 
-| Variable | Type | Default | Description |
-|----------|------|---------|-------------|
-| `project_name` | string | - | Name of the project |
-| `environment` | string | - | Environment (dev, staging, prod) |
-| `resource_suffix` | string | - | Suffix for resource naming |
-| `lambda_execution_role_arn` | string | - | ARN of Lambda execution role |
-| `lambda_runtime` | string | `"nodejs18.x"` | Lambda runtime |
-| `lambda_timeout` | number | `900` | Lambda timeout in seconds (15 min for processing) |
-| `lambda_memory_size` | number | `3008` | Lambda memory in MB (max for processing) |
-| `environment_variables` | map(string) | `{}` | Environment variables |
-| `tags` | map(string) | `{}` | Resource tags |
+| Variable                    | Type        | Default        | Description                                       |
+| --------------------------- | ----------- | -------------- | ------------------------------------------------- |
+| `project_name`              | string      | -              | Name of the project                               |
+| `environment`               | string      | -              | Environment (dev, staging, prod)                  |
+| `resource_suffix`           | string      | -              | Suffix for resource naming                        |
+| `lambda_execution_role_arn` | string      | -              | ARN of Lambda execution role                      |
+| `lambda_runtime`            | string      | `"nodejs18.x"` | Lambda runtime                                    |
+| `lambda_timeout`            | number      | `900`          | Lambda timeout in seconds (15 min for processing) |
+| `lambda_memory_size`        | number      | `3008`         | Lambda memory in MB (max for processing)          |
+| `environment_variables`     | map(string) | `{}`           | Environment variables                             |
+| `tags`                      | map(string) | `{}`           | Resource tags                                     |
 
 ## Outputs
 
-| Output | Description |
-|--------|-------------|
-| `convert_function_arn` | ARN of the convert Lambda function |
-| `compress_function_arn` | ARN of the compress Lambda function |
-| `process_function_arn` | ARN of the process Lambda function |
-| `convert_function_name` | Name of the convert Lambda function |
+| Output                   | Description                          |
+| ------------------------ | ------------------------------------ |
+| `convert_function_arn`   | ARN of the convert Lambda function   |
+| `compress_function_arn`  | ARN of the compress Lambda function  |
+| `process_function_arn`   | ARN of the process Lambda function   |
+| `convert_function_name`  | Name of the convert Lambda function  |
 | `compress_function_name` | Name of the compress Lambda function |
-| `process_function_name` | Name of the process Lambda function |
+| `process_function_name`  | Name of the process Lambda function  |
 
 ## Lambda Functions
 
 ### Convert Lambda (`src/handlers/convert.ts`)
+
 - **Purpose**: Real-time file format conversion using your worker.ts logic
 - **Trigger**: API Gateway POST requests
-- **Features**: 
+- **Features**:
   - All conversion types (image, video, audio, PDF, eBook)
   - CORS support for web applications
   - Progress tracking via DynamoDB
   - S3 integration for file storage
 
-### Compress Lambda (`src/handlers/compress.ts`)  
+### Compress Lambda (`src/handlers/compress.ts`)
+
 - **Purpose**: File compression and optimization using your worker.ts logic
 - **Trigger**: API Gateway POST requests
 - **Features**:
@@ -104,6 +106,7 @@ module "lambda" {
   - Quality control parameters
 
 ### Process Lambda (`src/handlers/process.ts`)
+
 - **Purpose**: Background processing via SQS using your worker.ts logic
 - **Trigger**: SQS messages
 - **Features**:
@@ -116,7 +119,7 @@ module "lambda" {
 The Lambda functions expect these environment variables:
 
 - `S3_BUCKET_NAME`: S3 bucket for file storage
-- `SQS_QUEUE_URL`: SQS queue URL for job processing  
+- `SQS_QUEUE_URL`: SQS queue URL for job processing
 - `DYNAMODB_TABLE_NAME`: DynamoDB table for job status tracking
 - `FUNCTION_NAME`: Set automatically (convert/compress/process)
 - `AWS_REGION`: Set automatically by Lambda
@@ -162,6 +165,7 @@ To modify the Lambda functions:
 ### Dependencies
 
 Required tools for building:
+
 - Node.js >= 18.x
 - TypeScript (`npm install -g typescript`)
 - esbuild (`npm install -g esbuild`)
@@ -180,15 +184,17 @@ Required tools for building:
 This module now uses real TypeScript handlers instead of JavaScript templates:
 
 ### Before (Template-Based):
+
 ```
 lambda-templates/
 ├── convert.js      # Basic placeholder code
-├── compress.js     # Basic placeholder code  
+├── compress.js     # Basic placeholder code
 ├── process.js      # Basic placeholder code
 └── package.json    # Simple dependencies
 ```
 
 ### After (TypeScript Integration):
+
 ```
 src/
 ├── handlers/       # Production TypeScript handlers
@@ -198,6 +204,7 @@ src/
 ```
 
 ### Benefits:
+
 - **Real Processing**: Actual file conversion/compression using your worker.ts
 - **Type Safety**: Full TypeScript support with compile-time checks
 - **Code Reuse**: Same logic for local development and Lambda

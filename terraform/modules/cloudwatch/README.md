@@ -14,15 +14,18 @@ This Terraform module creates comprehensive CloudWatch monitoring infrastructure
 ## Resources Created
 
 ### Logging Resources
+
 - `aws_cloudwatch_log_group.lambda_logs` - Log groups for each Lambda function
 - Configurable log retention policies
 
 ### Monitoring and Alerting
+
 - `aws_cloudwatch_metric_alarm.lambda_errors` - Error rate alarms for Lambda functions
-- `aws_cloudwatch_metric_alarm.lambda_duration` - Duration alarms for Lambda functions  
+- `aws_cloudwatch_metric_alarm.lambda_duration` - Duration alarms for Lambda functions
 - `aws_sns_topic.alerts` - SNS topic for alert notifications
 
 ### Visualization
+
 - `aws_cloudwatch_dashboard.main` - Comprehensive monitoring dashboard with:
   - Lambda invocation metrics
   - SQS message flow metrics
@@ -39,18 +42,18 @@ module "cloudwatch" {
   project_name      = "cloud-tools"
   environment      = "production"
   resource_suffix  = "abc123"
-  
+
   # Lambda functions to monitor
   lambda_function_names = [
     "cloud-tools-convert-function",
-    "cloud-tools-compress-function", 
+    "cloud-tools-compress-function",
     "cloud-tools-process-function"
   ]
-  
+
   # Resources to monitor
   sqs_queue_name      = "cloud-tools-job-queue"
   dynamodb_table_name = "cloud-tools-jobs"
-  
+
   tags = {
     Environment = "production"
     Owner       = "platform-team"
@@ -68,22 +71,22 @@ module "cloudwatch" {
   project_name      = "cloud-tools"
   environment      = "production"
   resource_suffix  = "abc123"
-  
+
   # Lambda monitoring configuration
   lambda_function_names = [
     "cloud-tools-convert-function",
     "cloud-tools-compress-function",
     "cloud-tools-process-function"
   ]
-  
+
   # Log retention and monitoring settings
   log_retention_in_days      = 30
   enable_detailed_monitoring = true
-  
+
   # Resources to monitor
   sqs_queue_name      = "cloud-tools-job-queue"
   dynamodb_table_name = "cloud-tools-jobs"
-  
+
   # Resource tagging
   tags = {
     Environment   = "production"
@@ -105,20 +108,20 @@ module "cloudwatch_dev" {
   project_name      = "cloud-tools"
   environment      = "development"
   resource_suffix  = random_id.suffix.hex
-  
+
   lambda_function_names = [
     module.lambda.convert_lambda_name,
     module.lambda.compress_lambda_name,
     module.lambda.process_lambda_name
   ]
-  
+
   sqs_queue_name      = module.sqs.queue_name
   dynamodb_table_name = module.dynamodb.table_name
-  
+
   # Development-specific settings
   log_retention_in_days      = 7   # Shorter retention for cost savings
   enable_detailed_monitoring = false
-  
+
   tags = {
     Environment = "development"
     Project     = "cloud-tools"
@@ -129,41 +132,44 @@ module "cloudwatch_dev" {
 
 ## Variables
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| `project_name` | Name of the project | `string` | n/a | yes |
-| `environment` | Environment name | `string` | n/a | yes |
-| `resource_suffix` | Random suffix for resource naming | `string` | n/a | yes |
-| `lambda_function_names` | List of Lambda function names for log groups | `list(string)` | `[]` | no |
-| `sqs_queue_name` | SQS queue name for monitoring | `string` | n/a | yes |
-| `dynamodb_table_name` | DynamoDB table name for monitoring | `string` | n/a | yes |
-| `log_retention_in_days` | CloudWatch logs retention period in days | `number` | `14` | no |
-| `enable_detailed_monitoring` | Enable detailed CloudWatch monitoring | `bool` | `false` | no |
-| `tags` | Tags to apply to resources | `map(string)` | `{}` | no |
+| Name                         | Description                                  | Type           | Default | Required |
+| ---------------------------- | -------------------------------------------- | -------------- | ------- | :------: |
+| `project_name`               | Name of the project                          | `string`       | n/a     |   yes    |
+| `environment`                | Environment name                             | `string`       | n/a     |   yes    |
+| `resource_suffix`            | Random suffix for resource naming            | `string`       | n/a     |   yes    |
+| `lambda_function_names`      | List of Lambda function names for log groups | `list(string)` | `[]`    |    no    |
+| `sqs_queue_name`             | SQS queue name for monitoring                | `string`       | n/a     |   yes    |
+| `dynamodb_table_name`        | DynamoDB table name for monitoring           | `string`       | n/a     |   yes    |
+| `log_retention_in_days`      | CloudWatch logs retention period in days     | `number`       | `14`    |    no    |
+| `enable_detailed_monitoring` | Enable detailed CloudWatch monitoring        | `bool`         | `false` |    no    |
+| `tags`                       | Tags to apply to resources                   | `map(string)`  | `{}`    |    no    |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| `log_groups` | CloudWatch log groups created |
-| `dashboard_url` | CloudWatch dashboard URL |
-| `alerts_topic_arn` | SNS topic ARN for alerts |
+| Name               | Description                   |
+| ------------------ | ----------------------------- |
+| `log_groups`       | CloudWatch log groups created |
+| `dashboard_url`    | CloudWatch dashboard URL      |
+| `alerts_topic_arn` | SNS topic ARN for alerts      |
 
 ## Monitoring Features
 
 ### Lambda Function Monitoring
 
 **Error Rate Alarms**
+
 - Monitors Lambda function errors
 - Threshold: 5 errors within 2 evaluation periods (2 minutes)
 - Sends alerts to SNS topic when triggered
 
-**Duration Alarms**  
+**Duration Alarms**
+
 - Monitors Lambda execution time
 - Threshold: 30 seconds average duration
 - Helps identify performance issues
 
 **Log Groups**
+
 - Automatic log group creation for each Lambda function
 - Configurable retention periods (default: 14 days)
 - Standardized naming: `/aws/lambda/{function-name}`
@@ -171,6 +177,7 @@ module "cloudwatch_dev" {
 ### SQS Queue Monitoring
 
 Dashboard metrics include:
+
 - **NumberOfMessagesSent**: Messages added to queue
 - **NumberOfMessagesReceived**: Messages processed from queue
 - Time-series visualization with 5-minute periods
@@ -178,6 +185,7 @@ Dashboard metrics include:
 ### DynamoDB Table Monitoring
 
 Dashboard metrics include:
+
 - **ConsumedReadCapacityUnits**: Read capacity utilization
 - **ConsumedWriteCapacityUnits**: Write capacity utilization
 - Helps monitor capacity planning and costs
@@ -206,6 +214,7 @@ The module creates a comprehensive dashboard with three main sections:
 ### SNS Topic Setup
 
 The module creates an SNS topic for alert notifications:
+
 - **Topic Name**: `{project_name}-{environment}-alerts-{resource_suffix}`
 - **Usage**: Connected to all CloudWatch alarms
 - **Integration**: Ready for email, SMS, or webhook subscriptions
@@ -214,10 +223,10 @@ The module creates an SNS topic for alert notifications:
 
 Current alarm configurations:
 
-| Metric | Threshold | Evaluation Period | Action |
-|--------|-----------|-------------------|---------|
-| Lambda Errors | > 5 errors | 2 minutes | SNS Alert |
-| Lambda Duration | > 30 seconds avg | 2 minutes | SNS Alert |
+| Metric          | Threshold        | Evaluation Period | Action    |
+| --------------- | ---------------- | ----------------- | --------- |
+| Lambda Errors   | > 5 errors       | 2 minutes         | SNS Alert |
+| Lambda Duration | > 30 seconds avg | 2 minutes         | SNS Alert |
 
 ### Customizing Thresholds
 
@@ -297,15 +306,18 @@ When updating this module:
 ### Common Issues
 
 **Log Groups Not Created**
+
 - Verify Lambda function names are correct
 - Check IAM permissions for CloudWatch Logs
 
 **Alarms Not Triggering**
+
 - Verify Lambda functions are generating metrics
 - Check alarm threshold settings
 - Ensure SNS topic has valid subscriptions
 
 **Dashboard Not Loading**
+
 - Verify resource names match actual AWS resources
 - Check CloudWatch dashboard permissions
 - Ensure region consistency

@@ -136,8 +136,9 @@ terraform apply tfplan
 ## 📋 Modules Overview
 
 ### 🗄️ S3 Module (`modules/s3/`)
+
 - **Purpose**: File storage for uploads and processed files
-- **Features**: 
+- **Features**:
   - Encryption at rest (AES256)
   - Versioning and lifecycle policies
   - Public access blocked
@@ -145,6 +146,7 @@ terraform apply tfplan
   - Automatic cleanup of old files
 
 ### 🏪 DynamoDB Module (`modules/dynamodb/`)
+
 - **Purpose**: Job tracking and metadata storage
 - **Features**:
   - Pay-per-request billing (scalable)
@@ -154,6 +156,7 @@ terraform apply tfplan
   - Backup configuration
 
 ### 📬 SQS Module (`modules/sqs/`)
+
 - **Purpose**: Asynchronous job processing queue
 - **Features**:
   - Dead letter queue for failed messages
@@ -162,6 +165,7 @@ terraform apply tfplan
   - Configurable visibility timeout
 
 ### ⚡ Lambda Module (`modules/lambda/`)
+
 - **Purpose**: Serverless file processing functions
 - **Functions**:
   - `convert`: Handles file conversion requests
@@ -173,6 +177,7 @@ terraform apply tfplan
   - Environment-specific configuration
 
 ### 🌐 API Gateway Module (`modules/api-gateway/`)
+
 - **Purpose**: RESTful API for frontend integration
 - **Features**:
   - CORS configuration
@@ -181,6 +186,7 @@ terraform apply tfplan
   - Regional endpoint
 
 ### 📊 CloudWatch Module (`modules/cloudwatch/`)
+
 - **Purpose**: Monitoring, logging, and alerting
 - **Features**:
   - CloudWatch dashboard
@@ -189,6 +195,7 @@ terraform apply tfplan
   - Log retention policies
 
 ### 🔐 IAM Module (`modules/iam/`)
+
 - **Purpose**: Security and access management
 - **Features**:
   - Least privilege principle
@@ -199,11 +206,13 @@ terraform apply tfplan
 ## 🌍 Environments
 
 ### Development (`environments/dev/`)
+
 - **Purpose**: Development and testing
 - **Cost-optimized**: Lower timeouts, reduced retention, basic monitoring
 - **Security relaxed**: WAF disabled, localhost CORS
 
 ### Production (`environments/production/`)
+
 - **Purpose**: Live production workloads
 - **High availability**: Enhanced monitoring, alerting, backup
 - **Security hardened**: WAF enabled, restrictive CORS
@@ -212,14 +221,14 @@ terraform apply tfplan
 
 ### Global Variables (`variables.tf`)
 
-| Variable | Description | Default | Environment Override |
-|----------|-------------|---------|---------------------|
-| `environment` | Environment name | - | ✅ Required |
-| `aws_region` | AWS region | `us-east-1` | ✅ |
-| `lambda_timeout` | Lambda timeout (seconds) | `300` | ✅ |
-| `lambda_memory_size` | Lambda memory (MB) | `1024` | ✅ |
-| `log_retention_in_days` | Log retention period | `14` | ✅ |
-| `enable_waf` | Enable WAF protection | `true` | ✅ |
+| Variable                | Description              | Default     | Environment Override |
+| ----------------------- | ------------------------ | ----------- | -------------------- |
+| `environment`           | Environment name         | -           | ✅ Required          |
+| `aws_region`            | AWS region               | `us-east-1` | ✅                   |
+| `lambda_timeout`        | Lambda timeout (seconds) | `300`       | ✅                   |
+| `lambda_memory_size`    | Lambda memory (MB)       | `1024`      | ✅                   |
+| `log_retention_in_days` | Log retention period     | `14`        | ✅                   |
+| `enable_waf`            | Enable WAF protection    | `true`      | ✅                   |
 
 ### Environment-Specific Overrides
 
@@ -238,6 +247,7 @@ terraform output api_gateway_url
 ```
 
 ### Key Outputs
+
 - `api_gateway_url`: API endpoint for frontend integration
 - `s3_bucket_name`: Bucket name for file storage
 - `dynamodb_table_name`: Table name for job tracking
@@ -246,6 +256,7 @@ terraform output api_gateway_url
 ## 🔒 Security
 
 ### IAM Permissions
+
 The infrastructure follows the principle of least privilege:
 
 - **Lambda functions**: Only access to required S3 buckets, DynamoDB tables, and SQS queues
@@ -253,6 +264,7 @@ The infrastructure follows the principle of least privilege:
 - **Cross-service**: Minimal permissions for service-to-service communication
 
 ### Data Protection
+
 - **Encryption**: All data encrypted at rest and in transit
 - **Network security**: VPC configuration for production (optional)
 - **Access controls**: Public access blocked on S3 buckets
@@ -288,12 +300,14 @@ Your AWS credentials need these permissions for deployment:
 ## 💰 Cost Management
 
 ### Cost Optimization Features
+
 - **S3 Intelligent Tiering**: Automatic cost optimization
-- **DynamoDB On-Demand**: Pay only for what you use  
+- **DynamoDB On-Demand**: Pay only for what you use
 - **Lambda Right-sizing**: Environment-specific memory allocation
 - **Log Retention**: Automatic cleanup of old logs
 
 ### Budget Monitoring
+
 - **Development**: $10/month budget with 80% alert
 - **Production**: $100/month budget with 50% and 80% alerts
 - **Anomaly Detection**: Production cost anomaly detection
@@ -314,6 +328,7 @@ The `scripts/deploy.sh` script provides convenient deployment automation:
 ```
 
 ### Script Features
+
 - ✅ Prerequisite checking (Terraform, AWS CLI, credentials)
 - ✅ Automatic backend configuration
 - ✅ Environment validation
@@ -325,21 +340,27 @@ The `scripts/deploy.sh` script provides convenient deployment automation:
 ### Common Issues
 
 1. **Backend bucket doesn't exist**
+
    ```bash
    Error: Failed to get existing workspaces: S3 bucket does not exist
    ```
+
    **Solution**: Create the backend S3 bucket first (see setup instructions)
 
 2. **DynamoDB table doesn't exist for locking**
+
    ```bash
    Error acquiring the state lock
    ```
+
    **Solution**: Create the DynamoDB table for state locking
 
 3. **Insufficient permissions**
+
    ```bash
    Error: AccessDenied
    ```
+
    **Solution**: Ensure your AWS credentials have the required permissions
 
 4. **Lambda ARN format issues**
@@ -351,6 +372,7 @@ The `scripts/deploy.sh` script provides convenient deployment automation:
 ### Debug Mode
 
 Enable Terraform debug logging:
+
 ```bash
 export TF_LOG=DEBUG
 terraform plan
@@ -359,6 +381,7 @@ terraform plan
 ### State Management
 
 If you need to manage Terraform state:
+
 ```bash
 # List resources
 terraform state list

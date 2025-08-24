@@ -117,6 +117,7 @@
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^14.3.1",
     "@testing-library/user-event": "^14.6.1",
+    "@types/aws-lambda": "^8.10.152",
     "@types/fluent-ffmpeg": "^2.1.27",
     "@types/node": "22.10.4",
     "@types/react": "^18.3.18",

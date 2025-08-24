@@ -94,14 +94,14 @@ This architecture leverages Vercel for hosting the frontend, providing seamless 
 
 This project includes several documentation files to help you get started and contribute:
 
-| Document                                         | Description                                                            |
-| ------------------------------------------------ | ---------------------------------------------------------------------- |
-| **[QUICK_SETUP.md](../docs/QUICK_SETUP.md)**     | **🚀 Start here!** One-command setup guide to get running in 5 minutes |
+| Document                                           | Description                                                               |
+| -------------------------------------------------- | ------------------------------------------------------------------------- |
+| **[QUICK_SETUP.md](../docs/QUICK_SETUP.md)**       | **🚀 Start here!** One-command setup guide to get running in 5 minutes    |
 | **[INFRASTRUCTURE.md](../docs/INFRASTRUCTURE.md)** | **🏗️ AWS Infrastructure** - Complete Terraform setup and deployment guide |
-| **[WORKER_SETUP.md](../docs/WORKER_SETUP.md)**   | File processing worker setup and troubleshooting                       |
-| **[ACT_USAGE.md](../docs/ACT_USAGE.md)**         | **⚡ Run GitHub Actions locally** - Complete ACT setup and usage guide |
-| **[CONTRIBUTING.md](./CONTRIBUTING.md)**         | Complete contributor guide with development workflow                   |
-| **README.md**                                    | This file - project overview and architecture                          |
+| **[WORKER_SETUP.md](../docs/WORKER_SETUP.md)**     | File processing worker setup and troubleshooting                          |
+| **[ACT_USAGE.md](../docs/ACT_USAGE.md)**           | **⚡ Run GitHub Actions locally** - Complete ACT setup and usage guide    |
+| **[CONTRIBUTING.md](./CONTRIBUTING.md)**           | Complete contributor guide with development workflow                      |
+| **README.md**                                      | This file - project overview and architecture                             |
 
 ## 🚀 Quick Start
 

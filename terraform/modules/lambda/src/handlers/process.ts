@@ -1,12 +1,12 @@
 /**
  * Process Lambda Handler
- * 
+ *
  * Handles SQS queue messages for file processing using your actual worker.ts processing logic
  */
 
 import { SQSEvent, SQSRecord, Context } from 'aws-lambda';
 import { createLambdaWorkerDependencies } from '../adapters/aws-lambda-adapter';
-import { 
+import {
   QueueWorker,
   SharpImageConverter,
   FFmpegVideoConverter,
@@ -17,10 +17,7 @@ import {
   JobStatus,
 } from '../../../../../lib/worker';
 
-export const handler = async (
-  event: SQSEvent,
-  context: Context
-): Promise<void> => {
+export const handler = async (event: SQSEvent, context: Context): Promise<void> => {
   console.log('Process Lambda handler started', {
     requestId: context.awsRequestId,
     recordCount: event.Records.length,
@@ -93,10 +90,12 @@ export const handler = async (
       // Get input file path from message (using standard convention)
       const inputKey = `uploads/${processingMessage.jobId}`;
       // TODO: Add inputKey to ProcessingMessage interface if you need it
-      
+
       // Get the file from S3
       const originalBuffer = await dependencies.fileStorage.getFile(inputKey);
-      dependencies.logger.info(`Retrieved file from S3: ${inputKey}, size: ${originalBuffer.length} bytes`);
+      dependencies.logger.info(
+        `Retrieved file from S3: ${inputKey}, size: ${originalBuffer.length} bytes`
+      );
 
       await dependencies.jobStatusUpdater.updateStatus(
         processingMessage.jobId,
@@ -118,7 +117,7 @@ export const handler = async (
       await dependencies.fileStorage.putFile(outputKey, result.buffer, result.contentType);
 
       const downloadUrl = dependencies.fileStorage.generateDownloadUrl(outputKey);
-      
+
       // Mark as completed
       await dependencies.jobStatusUpdater.updateStatus(
         processingMessage.jobId,
@@ -133,10 +132,9 @@ export const handler = async (
         outputSize: result.buffer.length,
         downloadUrl,
       });
-
     } catch (error) {
       dependencies.logger.error(`Failed to process SQS message ${record.messageId}`, error);
-      
+
       // Try to parse message to get job ID for status update
       try {
         const processingMessage: ProcessingMessage = JSON.parse(record.body);

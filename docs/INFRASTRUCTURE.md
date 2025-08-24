@@ -147,12 +147,14 @@ graph TB
 ## 🌍 Environment Configuration
 
 ### Development Environment
+
 - **Purpose**: Local development and testing
 - **Cost**: ~$5-10/month
 - **Features**: Basic monitoring, localhost CORS, reduced retention
 - **Security**: Relaxed (no WAF, simplified policies)
 
 ### Production Environment
+
 - **Purpose**: Live application workloads
 - **Cost**: ~$20-100/month (usage-based)
 - **Features**: Full monitoring, alerting, backups, enhanced security
@@ -184,6 +186,7 @@ API_GATEWAY_URL=https://abc123.execute-api.us-east-1.amazonaws.com/dev
 The Terraform configuration includes **production-ready Lambda functions** with complete TypeScript integration using your existing worker logic:
 
 **✅ What's Included:**
+
 - **Real Processing Logic**: Direct integration with your `lib/worker.ts` processors
 - **Automated Build**: TypeScript compilation with esbuild bundling
 - **AWS SDK v3**: Optimized Lambda implementations for S3, DynamoDB, SQS
@@ -191,6 +194,7 @@ The Terraform configuration includes **production-ready Lambda functions** with 
 - **Auto-deployment**: Functions are built and deployed automatically by Terraform
 
 **🔧 Build Process:**
+
 ```bash
 # Lambda functions are automatically built during terraform apply
 # The build process:
@@ -206,6 +210,7 @@ cd terraform/modules/lambda
 ```
 
 **📁 Lambda Function Architecture:**
+
 - **`convert.ts`**: API Gateway handler for synchronous file conversion
   - Integrates with `SharpImageConverter`, `FFmpegVideoConverter`, `PDFCompressor`
   - Handles CORS, error responses, job status updates
@@ -228,6 +233,7 @@ cd terraform/modules/lambda
   - `LambdaLogger`: CloudWatch-optimized structured logging
 
 **🚀 Key Integration Benefits:**
+
 - **Zero Code Duplication**: Uses your existing worker processors directly
 - **Production-Ready**: Error handling, logging, monitoring built-in
 - **Performance Optimized**: Bundled with esbuild, tree-shaked dependencies
@@ -242,9 +248,7 @@ Your Next.js app can now use the deployed infrastructure:
 // lib/aws-config.ts - Update with infrastructure outputs
 const awsConfig = {
   region: process.env.AWS_REGION,
-  endpoint: process.env.NODE_ENV === 'development'
-    ? process.env.AWS_ENDPOINT_URL
-    : undefined, // Use real AWS in production
+  endpoint: process.env.NODE_ENV === 'development' ? process.env.AWS_ENDPOINT_URL : undefined, // Use real AWS in production
   // ... rest of config
 };
 
@@ -255,6 +259,7 @@ const awsConfig = {
 ## 📊 Cost Breakdown
 
 ### Development Environment (~$5-10/month)
+
 - **Lambda**: $1-3 (based on usage)
 - **API Gateway**: $1-2 (per million requests)
 - **DynamoDB**: $1-2 (on-demand billing)
@@ -263,6 +268,7 @@ const awsConfig = {
 - **Other**: $1-2 (SQS, SNS, etc.)
 
 ### Production Environment (~$20-100/month)
+
 - **Lambda**: $5-20 (higher usage)
 - **API Gateway**: $3-15 (more requests)
 - **DynamoDB**: $5-20 (more data + backups)
@@ -270,11 +276,12 @@ const awsConfig = {
 - **CloudWatch**: $3-10 (enhanced monitoring)
 - **Other**: $2-5 (WAF, enhanced features)
 
-*Costs are estimates based on moderate usage. Actual costs depend on your specific usage patterns.*
+_Costs are estimates based on moderate usage. Actual costs depend on your specific usage patterns._
 
 ## 🔒 Security Features
 
 ### Implemented Security Measures
+
 - ✅ **IAM Roles**: Least privilege access for all services
 - ✅ **Encryption**: All data encrypted at rest and in transit
 - ✅ **Network Security**: Private subnets, security groups (production)
@@ -283,6 +290,7 @@ const awsConfig = {
 - ✅ **Monitoring**: CloudTrail, GuardDuty integration ready
 
 ### Security Best Practices
+
 - 🔐 **Secrets Management**: Use AWS Secrets Manager for sensitive data
 - 🔍 **Audit Logging**: All API calls logged via CloudTrail
 - 🚫 **Principle of Least Privilege**: Each service has minimal required permissions

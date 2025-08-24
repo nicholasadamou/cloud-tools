@@ -40,10 +40,10 @@ jobs:
       - name: Lint Lambda templates
         run: |
           echo "🔍 Linting Lambda template JavaScript files..."
-          
+
           # Install ESLint globally for Lambda template linting
           npm install -g eslint
-          
+
           # Lint Lambda template files
           if find terraform/modules/lambda/lambda-templates -name '*.js' | grep -q .; then
             eslint terraform/modules/lambda/lambda-templates/*.js
@@ -260,7 +260,7 @@ jobs:
         if: steps.check-terraform.outputs.terraform_files == 'true'
         run: |
           echo "🎨 Checking Terraform file formatting..."
-          
+
           if ! terraform fmt -check -recursive terraform/; then
             echo "❌ Terraform files are not properly formatted!"
             echo "Files that need formatting:"
@@ -281,9 +281,9 @@ jobs:
         if: steps.check-terraform.outputs.terraform_files == 'true'
         run: |
           echo "🔍 Running TFLint on Terraform modules..."
-          
+
           failed_modules=0
-          
+
           # Lint each module
           for module_dir in terraform/modules/*/; do
             if [[ -d "$module_dir" ]]; then
@@ -298,7 +298,7 @@ jobs:
               fi
             fi
           done
-          
+
           # Lint environments
           for env_dir in terraform/environments/*/; do
             if [[ -d "$env_dir" ]]; then
@@ -313,7 +313,7 @@ jobs:
               fi
             fi
           done
-          
+
           if [ $failed_modules -gt 0 ]; then
             echo "❌ TFLint found issues in $failed_modules module(s)"
             exit 1

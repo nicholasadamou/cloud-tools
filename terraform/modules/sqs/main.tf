@@ -1,3 +1,17 @@
+terraform {
+  required_version = ">= 1.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.0"
+    }
+  }
+}
+
+# Data source to get current AWS account ID
+data "aws_caller_identity" "current" {}
+
 # Dead Letter Queue
 resource "aws_sqs_queue" "dead_letter" {
   name = "${var.queue_name}-dlq-${var.environment}-${var.resource_suffix}"
@@ -86,5 +100,3 @@ resource "aws_sqs_queue_policy" "main" {
   })
 }
 
-# Data source to get current AWS account ID
-data "aws_caller_identity" "current" {}

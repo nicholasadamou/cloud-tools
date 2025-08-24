@@ -1,12 +1,12 @@
 /**
  * Compress Lambda Handler
- * 
+ *
  * Handles API Gateway requests for file compression using your actual worker.ts processing logic
  */
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import { createLambdaWorkerDependencies } from '../adapters/aws-lambda-adapter';
-import { 
+import {
   QueueWorker,
   SharpImageConverter,
   FFmpegVideoConverter,
@@ -29,7 +29,8 @@ export const handler = async (
   const corsHeaders = {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+    'Access-Control-Allow-Headers':
+      'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
     'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT',
   };
 
@@ -102,7 +103,9 @@ export const handler = async (
     try {
       // Get the file from S3
       const originalBuffer = await dependencies.fileStorage.getFile(s3Key);
-      dependencies.logger.info(`Retrieved file from S3: ${s3Key}, size: ${originalBuffer.length} bytes`);
+      dependencies.logger.info(
+        `Retrieved file from S3: ${s3Key}, size: ${originalBuffer.length} bytes`
+      );
 
       // Find appropriate processor
       const processor = worker['findProcessor'](processingMessage);
@@ -119,14 +122,14 @@ export const handler = async (
       // Calculate compression ratio
       const originalSize = originalBuffer.length;
       const compressedSize = result.buffer.length;
-      const compressionRatio = ((originalSize - compressedSize) / originalSize * 100).toFixed(2);
+      const compressionRatio = (((originalSize - compressedSize) / originalSize) * 100).toFixed(2);
 
       // Generate output key and upload compressed file
       const outputKey = `compressed/${jobId}.${result.fileExtension}`;
       await dependencies.fileStorage.putFile(outputKey, result.buffer, result.contentType);
 
       const downloadUrl = dependencies.fileStorage.generateDownloadUrl(outputKey);
-      
+
       // Mark as completed
       await dependencies.jobStatusUpdater.updateStatus(
         jobId,
@@ -157,15 +160,13 @@ export const handler = async (
           compressionRatio: `${compressionRatio}%`,
         }),
       };
-
     } catch (processingError) {
       dependencies.logger.error(`Processing failed for job ${jobId}`, processingError);
-      
+
       await dependencies.jobStatusUpdater.updateStatus(jobId, JobStatus.FAILED, 0);
-      
+
       throw processingError;
     }
-
   } catch (error) {
     console.error('Compress Lambda error:', error);
 

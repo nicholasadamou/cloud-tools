@@ -1,3 +1,14 @@
+terraform {
+  required_version = ">= 1.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.0"
+    }
+  }
+}
+
 # Variables for API Gateway module
 variable "project_name" {
   description = "Name of the project"
@@ -14,18 +25,6 @@ variable "resource_suffix" {
   type        = string
 }
 
-variable "allowed_cors_origins" {
-  description = "List of allowed CORS origins"
-  type        = list(string)
-  default     = ["*"]
-}
-
-variable "enable_waf" {
-  description = "Enable AWS WAF for API Gateway"
-  type        = bool
-  default     = true
-}
-
 variable "convert_lambda_arn" {
   description = "ARN of the convert Lambda function"
   type        = string
@@ -33,11 +32,6 @@ variable "convert_lambda_arn" {
 
 variable "compress_lambda_arn" {
   description = "ARN of the compress Lambda function"
-  type        = string
-}
-
-variable "process_lambda_arn" {
-  description = "ARN of the process Lambda function"
   type        = string
 }
 
@@ -51,20 +45,11 @@ variable "compress_lambda_name" {
   type        = string
 }
 
-variable "process_lambda_name" {
-  description = "Name of the process Lambda function"
-  type        = string
-}
-
 variable "tags" {
   description = "Tags to apply to resources"
   type        = map(string)
   default     = {}
 }
-
-# Data sources
-data "aws_caller_identity" "current" {}
-data "aws_region" "current" {}
 
 # API Gateway REST API
 resource "aws_api_gateway_rest_api" "main" {

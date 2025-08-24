@@ -5,6 +5,7 @@ This directory contains configuration and scripts for creating Lambda Layers tha
 ## Binary Dependencies Layer
 
 The binary dependencies layer includes:
+
 - Sharp (native image processing binaries)
 - FFmpeg (video/audio processing binaries)
 - Other native dependencies
@@ -12,6 +13,7 @@ The binary dependencies layer includes:
 ### Creating the Layer
 
 1. **Sharp Layer** (for image processing):
+
    ```bash
    mkdir -p layers/sharp/nodejs
    cd layers/sharp/nodejs
@@ -20,6 +22,7 @@ The binary dependencies layer includes:
    ```
 
 2. **FFmpeg Layer** (for video/audio processing):
+
    ```bash
    # Use pre-built FFmpeg Layer ARN or create custom one
    # FFmpeg Layer ARN: arn:aws:lambda:us-east-1:145266761615:layer:ffmpeg:4
@@ -45,7 +48,7 @@ Update your Terraform Lambda functions to use layers:
 ```hcl
 resource "aws_lambda_function" "convert" {
   # ... other configuration ...
-  
+
   layers = [
     "arn:aws:lambda:us-east-1:145266761615:layer:ffmpeg:4",  # FFmpeg
     aws_lambda_layer_version.sharp.arn                       # Custom Sharp layer
@@ -63,6 +66,7 @@ resource "aws_lambda_layer_version" "sharp" {
 ### Environment Variables
 
 Set these environment variables in your Lambda functions:
+
 - `FFMPEG_PATH`: `/opt/ffmpeg/bin/ffmpeg`
 - `FFPROBE_PATH`: `/opt/ffmpeg/bin/ffprobe`
 - `LD_LIBRARY_PATH`: `/opt/lib`
@@ -70,5 +74,6 @@ Set these environment variables in your Lambda functions:
 ### Size Optimization
 
 Using layers helps keep your deployment packages smaller:
+
 - Without layers: ~50-100MB per function
 - With layers: ~5-10MB per function (much faster cold starts)

@@ -1,3 +1,14 @@
+terraform {
+  required_version = ">= 1.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.0"
+    }
+  }
+}
+
 # DynamoDB table for job tracking
 resource "aws_dynamodb_table" "main" {
   name         = "${var.table_name}-${var.environment}-${var.resource_suffix}"

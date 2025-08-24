@@ -1,3 +1,14 @@
+terraform {
+  required_version = ">= 1.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.0"
+    }
+  }
+}
+
 # Variables for CloudWatch module
 variable "project_name" {
   description = "Name of the project"
@@ -18,12 +29,6 @@ variable "log_retention_in_days" {
   description = "CloudWatch logs retention period in days"
   type        = number
   default     = 14
-}
-
-variable "enable_detailed_monitoring" {
-  description = "Enable detailed CloudWatch monitoring"
-  type        = bool
-  default     = false
 }
 
 variable "lambda_function_names" {
@@ -49,7 +54,6 @@ variable "tags" {
 }
 
 # Data sources
-data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 # CloudWatch log groups for Lambda functions

@@ -1,6 +1,6 @@
 /**
  * Lambda-specific adapter for AWS services
- * 
+ *
  * This adapter creates Lambda-optimized implementations of your worker interfaces
  * using the same AWS configuration and services from your existing codebase.
  */
@@ -13,24 +13,15 @@ import {
   ProcessingMessage,
   JobStatus,
 } from '../../../../../lib/worker';
-import {
-  S3Client,
-  GetObjectCommand,
-  PutObjectCommand,
-} from '@aws-sdk/client-s3';
+import { S3Client, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import {
   SQSClient,
   ReceiveMessageCommand,
   DeleteMessageCommand,
   Message,
 } from '@aws-sdk/client-sqs';
-import {
-  DynamoDBClient,
-} from '@aws-sdk/client-dynamodb';
-import {
-  DynamoDBDocumentClient,
-  UpdateCommand,
-} from '@aws-sdk/lib-dynamodb';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 
 /**
  * Lambda-optimized S3 file storage implementation
@@ -50,7 +41,7 @@ export class LambdaS3FileStorage implements FileStorage {
 
   async getFile(key: string): Promise<Buffer> {
     console.log(`🔍 Getting file from S3: ${key}`);
-    
+
     const command = new GetObjectCommand({
       Bucket: this.bucketName,
       Key: key,
@@ -66,7 +57,7 @@ export class LambdaS3FileStorage implements FileStorage {
 
   async putFile(key: string, buffer: Buffer, contentType: string): Promise<void> {
     console.log(`📁 Putting file to S3: ${key} (${contentType})`);
-    
+
     const command = new PutObjectCommand({
       Bucket: this.bucketName,
       Key: key,
@@ -159,7 +150,8 @@ export class LambdaJobStatusUpdater implements JobStatusUpdater {
     const command = new UpdateCommand({
       TableName: this.tableName,
       Key: { jobId },
-      UpdateExpression: 'SET #status = :status, updatedAt = :updatedAt, progress = :progress' +
+      UpdateExpression:
+        'SET #status = :status, updatedAt = :updatedAt, progress = :progress' +
         (downloadUrl ? ', downloadUrl = :downloadUrl' : '') +
         (compressionData?.originalFileSize ? ', originalFileSize = :originalFileSize' : '') +
         (compressionData?.processedFileSize ? ', processedFileSize = :processedFileSize' : '') +
@@ -167,15 +159,21 @@ export class LambdaJobStatusUpdater implements JobStatusUpdater {
       ExpressionAttributeNames: {
         '#status': 'status',
       },
-      ExpressionAttributeValues: updateData.downloadUrl 
+      ExpressionAttributeValues: updateData.downloadUrl
         ? {
             ':status': status,
             ':updatedAt': updateData.updatedAt,
             ':progress': progress,
             ...(downloadUrl && { ':downloadUrl': downloadUrl }),
-            ...(compressionData?.originalFileSize && { ':originalFileSize': compressionData.originalFileSize }),
-            ...(compressionData?.processedFileSize && { ':processedFileSize': compressionData.processedFileSize }),
-            ...(compressionData?.compressionSavings && { ':compressionSavings': compressionData.compressionSavings }),
+            ...(compressionData?.originalFileSize && {
+              ':originalFileSize': compressionData.originalFileSize,
+            }),
+            ...(compressionData?.processedFileSize && {
+              ':processedFileSize': compressionData.processedFileSize,
+            }),
+            ...(compressionData?.compressionSavings && {
+              ':compressionSavings': compressionData.compressionSavings,
+            }),
           }
         : {
             ':status': status,
@@ -193,30 +191,36 @@ export class LambdaJobStatusUpdater implements JobStatusUpdater {
  */
 export class LambdaLogger implements Logger {
   info(message: string, data?: unknown): void {
-    console.log(JSON.stringify({
-      timestamp: new Date().toISOString(),
-      level: 'INFO',
-      message,
-      ...(data ? { data } : {}),
-    }));
+    console.log(
+      JSON.stringify({
+        timestamp: new Date().toISOString(),
+        level: 'INFO',
+        message,
+        ...(data ? { data } : {}),
+      })
+    );
   }
 
   error(message: string, error?: unknown): void {
-    console.error(JSON.stringify({
-      timestamp: new Date().toISOString(),
-      level: 'ERROR',
-      message,
-      ...(error ? { error: error instanceof Error ? error.message : error } : {}),
-    }));
+    console.error(
+      JSON.stringify({
+        timestamp: new Date().toISOString(),
+        level: 'ERROR',
+        message,
+        ...(error ? { error: error instanceof Error ? error.message : error } : {}),
+      })
+    );
   }
 
   warn(message: string, data?: unknown): void {
-    console.warn(JSON.stringify({
-      timestamp: new Date().toISOString(),
-      level: 'WARN',
-      message,
-      ...(data ? { data } : {}),
-    }));
+    console.warn(
+      JSON.stringify({
+        timestamp: new Date().toISOString(),
+        level: 'WARN',
+        message,
+        ...(data ? { data } : {}),
+      })
+    );
   }
 }
 
@@ -229,7 +233,9 @@ export function createLambdaWorkerDependencies() {
   const tableName = process.env.DYNAMODB_TABLE_NAME!;
 
   if (!bucketName || !queueUrl || !tableName) {
-    throw new Error('Missing required environment variables: S3_BUCKET_NAME, SQS_QUEUE_URL, DYNAMODB_TABLE_NAME');
+    throw new Error(
+      'Missing required environment variables: S3_BUCKET_NAME, SQS_QUEUE_URL, DYNAMODB_TABLE_NAME'
+    );
   }
 
   return {

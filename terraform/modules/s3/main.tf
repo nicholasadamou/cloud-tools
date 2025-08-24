@@ -1,3 +1,14 @@
+terraform {
+  required_version = ">= 1.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.0"
+    }
+  }
+}
+
 # S3 bucket for file storage
 resource "aws_s3_bucket" "main" {
   bucket = "${var.bucket_prefix}-${var.environment}-${var.resource_suffix}"
