@@ -1,16 +1,15 @@
 /**
- * @fileoverview SOLID File Processing Worker
+ * @fileoverview File Processing Worker
  *
  * This module provides a comprehensive, extensible file processing worker system
- * that follows SOLID principles. It supports queuing, processing, and monitoring
- * of file conversion and compression jobs for images, videos, audio, PDFs, and eBooks.
+ * for queuing, processing, and monitoring of file conversion and compression jobs
+ * for images, videos, audio, PDFs, and eBooks.
  *
  * Key Features:
- * - SOLID principle compliance for maintainability
- * - Strategy pattern for different file processors
- * - Dependency injection for testability
  * - Extensible architecture for new file types
  * - Comprehensive error handling and logging
+ * - Multiple processor implementations
+ * - Configurable processing strategies
  * - Advanced image compression with format-specific optimizations
  * - PDF compression with metadata removal and structure optimization
  * - Video conversion with quality-based encoding (FFmpeg)
@@ -75,7 +74,7 @@ import { promisify } from 'util';
 const execAsync = promisify(exec);
 
 // ========================================
-// INTERFACES (Dependency Inversion)
+// INTERFACES
 // ========================================
 
 /**
@@ -157,7 +156,7 @@ export interface JobStatusUpdater {
  * Interface for file storage operations.
  *
  * Abstracts file storage to allow different implementations
- * (S3, local filesystem, etc.) following the Strategy pattern.
+ * (S3, local filesystem, etc.).
  *
  * @interface FileStorage
  * @since 1.0.0
@@ -223,8 +222,7 @@ export interface MessageQueue {
 /**
  * Interface for file processing implementations.
  *
- * Follows the Strategy pattern to allow different processing
- * implementations for various file types and operations.
+ * Allows different processing implementations for various file types and operations.
  *
  * @interface FileProcessor
  * @since 1.0.0
@@ -293,7 +291,6 @@ export interface Logger {
  * API-based job status updater.
  *
  * Sends job status updates to the REST API endpoint.
- * Follows Single Responsibility Principle by only handling status updates.
  *
  * @class ApiJobStatusUpdater
  * @implements {JobStatusUpdater}
@@ -369,7 +366,6 @@ export class ApiJobStatusUpdater implements JobStatusUpdater {
  * AWS S3-based file storage handler.
  *
  * Provides file storage operations using AWS S3 or S3-compatible services.
- * Follows the Single Responsibility Principle by only handling file storage operations.
  *
  * @class S3FileStorage
  * @implements {FileStorage}
@@ -482,7 +478,6 @@ export class S3FileStorage implements FileStorage {
  * AWS SQS-based message queue handler.
  *
  * Provides message queue operations using AWS SQS for job processing.
- * Follows Single Responsibility Principle by only handling queue operations.
  *
  * @class SqsMessageQueue
  * @implements {MessageQueue}
@@ -552,7 +547,7 @@ export class SqsMessageQueue implements MessageQueue {
  * Sharp-based image processing handler.
  *
  * Provides image conversion and compression using the Sharp library.
- * Supports multiple formats and follows Single Responsibility Principle.
+ * Supports multiple formats.
  *
  * @class SharpImageConverter
  * @implements {FileProcessor}
@@ -772,7 +767,6 @@ export class SharpImageConverter implements FileProcessor {
  *
  * Provides PDF compression using the pdf-lib library.
  * Supports compression by removing unnecessary elements and optimizing the PDF structure.
- * Follows Single Responsibility Principle by only handling PDF operations.
  *
  * @class PDFCompressor
  * @implements {FileProcessor}
@@ -884,7 +878,6 @@ export class PDFCompressor implements FileProcessor {
  *
  * Provides video conversion using FFmpeg for multiple output formats.
  * Supports conversion between MP4, MOV, AVI, and WebM formats.
- * Follows Single Responsibility Principle by only handling video operations.
  *
  * @class FFmpegVideoConverter
  * @implements {FileProcessor}
@@ -1091,7 +1084,6 @@ export class FFmpegVideoConverter implements FileProcessor {
  *
  * Provides audio conversion using FFmpeg for multiple output formats.
  * Supports conversion between MP3, WAV, OGG, and FLAC formats.
- * Follows Single Responsibility Principle by only handling audio operations.
  *
  * @class FFmpegAudioConverter
  * @implements {FileProcessor}
@@ -1304,7 +1296,6 @@ export class FFmpegAudioConverter implements FileProcessor {
  *
  * Provides eBook conversion using Calibre's ebook-convert command line tool.
  * Supports conversion between EPUB, MOBI, PDF, and AZW3 formats.
- * Follows Single Responsibility Principle by only handling eBook operations.
  *
  * @class CalibreEBookConverter
  * @implements {FileProcessor}
@@ -1561,7 +1552,6 @@ export class CalibreEBookConverter implements FileProcessor {
  *
  * Provides logging operations using the browser/Node.js console.
  * Includes emoji prefixes for better log readability.
- * Follows Single Responsibility Principle by only handling logging.
  *
  * @class ConsoleLogger
  * @implements {Logger}
@@ -1633,8 +1623,7 @@ export class ConsoleLogger implements Logger {
  * Main file processing worker orchestrator.
  *
  * Coordinates message queue polling, file processing, status updates, and logging.
- * Uses dependency injection to maintain loose coupling and enable testing.
- * Follows the Open/Closed Principle by allowing new processors to be added dynamically.
+ * Maintains loose coupling between components and supports extensibility.
  *
  * @class QueueWorker
  * @since 1.0.0
@@ -1688,8 +1677,8 @@ export class QueueWorker {
    * Adds a file processor to the worker.
    *
    * Processors are checked in the order they were added when determining
-   * which processor can handle a specific job. This follows the Open/Closed
-   * Principle by allowing new processors without modifying existing code.
+   * which processor can handle a specific job. Allows extending functionality
+   * without modifying existing code.
    *
    * @param {FileProcessor} processor - File processor implementation to add
    */
@@ -1886,8 +1875,7 @@ export class QueueWorker {
    * Finds a processor capable of handling the specified job.
    *
    * Searches through registered processors in order until it finds one
-   * that can handle the specified operation and target format. This
-   * implements the Chain of Responsibility pattern.
+   * that can handle the specified operation and target format.
    *
    * @private
    * @param {ProcessingMessage} message - Job message containing operation and format requirements
@@ -1987,9 +1975,8 @@ export class QueueWorker {
  * - FFmpeg: Required for video and audio conversion
  * - Calibre: Required for eBook conversion (with fallback for basic formats)
  *
- * This factory function follows the Dependency Injection pattern and
- * provides a convenient way to create a worker without manual dependency
- * wiring.
+ * This factory function provides a convenient way to create a worker
+ * without manual dependency wiring.
  *
  * @returns {Promise<QueueWorker>} Fully configured and ready-to-use queue worker
  * @throws {Error} When AWS configuration is invalid or services are unavailable
