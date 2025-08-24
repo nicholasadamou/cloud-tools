@@ -60,17 +60,13 @@ resource "aws_budgets_budget" "prod_budget" {
   time_unit    = "MONTHLY"
 
   cost_filter {
-    dimension {
-      key    = "TagKeyValue"
-      values = ["Environment$production"]
-    }
+    name   = "TagKeyValue"
+    values = ["Environment$production"]
   }
 
   cost_filter {
-    dimension {
-      key    = "TagKeyValue"
-      values = ["Project$cloud-tools"]
-    }
+    name   = "TagKeyValue"
+    values = ["Project$cloud-tools"]
   }
 
   notification {
