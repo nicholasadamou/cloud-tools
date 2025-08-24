@@ -45,8 +45,8 @@ module "cloud_tools" {
   lambda_timeout     = 300  # Full timeout for prod
   lambda_memory_size = 1024 # More memory for prod
 
-  # CloudWatch Configuration - production settings
-  log_retention_in_days = 30 # Longer retention for prod
+  # CloudWatch Configuration - production settings (CKV_AWS_338 compliance)
+  log_retention_in_days = 365 # 1 year retention required for production security compliance
 }
 
 # Production-specific resources

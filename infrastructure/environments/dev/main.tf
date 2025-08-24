@@ -36,16 +36,16 @@ module "cloud_tools" {
   enable_s3_versioning         = true
   s3_lifecycle_expiration_days = 7 # Shorter retention for dev
 
-  # DynamoDB Configuration - development settings
+  # DynamoDB Configuration - development settings (CKV_AWS_28 compliance)
   dynamodb_billing_mode                  = "PAY_PER_REQUEST"
-  enable_dynamodb_point_in_time_recovery = false # Not needed for dev
+  enable_dynamodb_point_in_time_recovery = true # Required for security compliance
 
   # Lambda Configuration - development settings
   lambda_timeout     = 60  # Shorter timeout for dev
   lambda_memory_size = 512 # Less memory for dev
 
-  # CloudWatch Configuration - development settings
-  log_retention_in_days = 3 # Shorter retention for dev
+  # CloudWatch Configuration - development settings (but ensure minimum compliance)
+  log_retention_in_days = 14 # Minimum acceptable retention for dev
 }
 
 # Development-specific resources

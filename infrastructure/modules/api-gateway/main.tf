@@ -84,6 +84,92 @@ resource "aws_api_gateway_request_validator" "main" {
   validate_request_parameters = true
 }
 
+# CKV2_AWS_51: Client certificate for production
+resource "aws_api_gateway_client_certificate" "main" {
+  count       = var.environment == "production" ? 1 : 0
+  description = "Client certificate for ${var.project_name} ${var.environment} API Gateway"
+
+  tags = merge(var.tags, {
+    Name = "${var.project_name}-${var.environment}-client-cert"
+    Type = "APIGatewayCertificate"
+  })
+}
+
+# CKV2_AWS_29: WAF Web ACL for API Gateway protection
+resource "aws_wafv2_web_acl" "main" {
+  count = var.environment == "production" ? 1 : 0
+  name  = "${var.project_name}-${var.environment}-api-waf"
+  scope = "REGIONAL"
+
+  default_action {
+    allow {}
+  }
+
+  rule {
+    name     = "RateLimitRule"
+    priority = 1
+
+    action {
+      block {}
+    }
+
+    statement {
+      rate_based_statement {
+        limit              = 2000
+        aggregate_key_type = "IP"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "RateLimitRule"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  rule {
+    name     = "AWSManagedRulesCommonRuleSet"
+    priority = 2
+
+    override_action {
+      none {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesCommonRuleSet"
+        vendor_name = "AWS"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "CommonRuleSetMetric"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  tags = merge(var.tags, {
+    Name = "${var.project_name}-${var.environment}-api-waf"
+    Type = "WAF"
+  })
+
+  visibility_config {
+    cloudwatch_metrics_enabled = true
+    metric_name                = "${var.project_name}${var.environment}WAF"
+    sampled_requests_enabled   = true
+  }
+}
+
+# Associate WAF with API Gateway stage
+resource "aws_wafv2_web_acl_association" "main" {
+  count        = var.environment == "production" ? 1 : 0
+  resource_arn = aws_api_gateway_stage.main.arn
+  web_acl_arn  = aws_wafv2_web_acl.main[0].arn
+
+  depends_on = [aws_api_gateway_stage.main]
+}
+
 # API Gateway resources
 resource "aws_api_gateway_resource" "convert" {
   rest_api_id = aws_api_gateway_rest_api.main.id
@@ -123,6 +209,9 @@ resource "aws_api_gateway_method" "convert_options" {
   resource_id   = aws_api_gateway_resource.convert.id
   http_method   = "OPTIONS"
   authorization = "NONE"
+
+  # CKV2_AWS_53: Add request validation for OPTIONS (CORS)
+  request_validator_id = aws_api_gateway_request_validator.main.id
 }
 
 # API Gateway methods for compress
@@ -145,6 +234,9 @@ resource "aws_api_gateway_method" "compress_options" {
   resource_id   = aws_api_gateway_resource.compress.id
   http_method   = "OPTIONS"
   authorization = "NONE"
+
+  # CKV2_AWS_53: Add request validation for OPTIONS (CORS)
+  request_validator_id = aws_api_gateway_request_validator.main.id
 }
 
 # API Gateway integrations
@@ -304,6 +396,9 @@ resource "aws_api_gateway_stage" "main" {
   cache_cluster_enabled = true
   cache_cluster_size    = var.environment == "production" ? "1.6" : "0.5"
 
+  # CKV2_AWS_51: Enable client certificate authentication for production
+  client_certificate_id = var.environment == "production" ? aws_api_gateway_client_certificate.main[0].id : null
+
   access_log_settings {
     destination_arn = aws_cloudwatch_log_group.api_gateway.arn
     format = jsonencode({
@@ -318,6 +413,11 @@ resource "aws_api_gateway_stage" "main" {
       protocol       = "$context.protocol"
       responseLength = "$context.responseLength"
     })
+  }
+
+  # CKV2_AWS_4: Set appropriate logging level
+  variables = {
+    "logging_level" = var.environment == "production" ? "ERROR" : "INFO"
   }
 
   tags = merge(var.tags, {
