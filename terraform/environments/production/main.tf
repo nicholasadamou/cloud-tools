@@ -8,11 +8,6 @@ terraform {
       version = ">= 5.0"
     }
   }
-
-  backend "s3" {
-    # Backend configuration should be provided via backend config file or CLI
-    # Example: terraform init -backend-config=backend-prod.tfvars
-  }
 }
 
 # Provider configuration for production
@@ -51,12 +46,7 @@ module "cloud_tools" {
   lambda_memory_size = 1024 # More memory for prod
 
   # CloudWatch Configuration - production settings
-  log_retention_in_days      = 30 # Longer retention for prod
-  enable_detailed_monitoring = true
-
-  # Security Configuration - production settings
-  enable_waf           = true
-  allowed_cors_origins = var.allowed_cors_origins
+  log_retention_in_days = 30 # Longer retention for prod
 }
 
 # Production-specific resources

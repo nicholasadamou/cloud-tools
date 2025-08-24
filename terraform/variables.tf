@@ -112,24 +112,6 @@ variable "log_retention_in_days" {
   default     = 14
 }
 
-variable "enable_detailed_monitoring" {
-  description = "Enable detailed CloudWatch monitoring"
-  type        = bool
-  default     = false
-}
-
-# Security Configuration
-variable "enable_waf" {
-  description = "Enable AWS WAF for API Gateway"
-  type        = bool
-  default     = true
-}
-
-variable "allowed_cors_origins" {
-  description = "List of allowed CORS origins"
-  type        = list(string)
-  default     = ["https://localhost:3000"]
-}
 
 # Note: Cost management resources are implemented in environment-specific configurations
 # rather than in the main module, as they vary significantly between environments

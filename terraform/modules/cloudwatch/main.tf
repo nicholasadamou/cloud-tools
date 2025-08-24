@@ -58,11 +58,6 @@ variable "kms_key_id" {
   type        = string
 }
 
-variable "enable_detailed_monitoring" {
-  description = "Enable detailed CloudWatch monitoring"
-  type        = bool
-  default     = false
-}
 
 # Data sources
 data "aws_region" "current" {}

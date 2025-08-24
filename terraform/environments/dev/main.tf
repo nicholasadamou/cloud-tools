@@ -8,11 +8,6 @@ terraform {
       version = ">= 5.0"
     }
   }
-
-  backend "s3" {
-    # Backend configuration should be provided via backend config file or CLI
-    # Example: terraform init -backend-config=backend-dev.tfvars
-  }
 }
 
 # Provider configuration for development
@@ -50,12 +45,7 @@ module "cloud_tools" {
   lambda_memory_size = 512 # Less memory for dev
 
   # CloudWatch Configuration - development settings
-  log_retention_in_days      = 3 # Shorter retention for dev
-  enable_detailed_monitoring = false
-
-  # Security Configuration - development settings
-  enable_waf           = false # WAF not needed for dev
-  allowed_cors_origins = ["http://localhost:3000", "https://localhost:3000"]
+  log_retention_in_days = 3 # Shorter retention for dev
 }
 
 # Development-specific resources

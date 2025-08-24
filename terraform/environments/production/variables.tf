@@ -10,8 +10,3 @@ variable "notification_emails" {
   default     = ["ops-team@example.com", "alerts@example.com"]
 }
 
-variable "allowed_cors_origins" {
-  description = "List of allowed CORS origins for production"
-  type        = list(string)
-  default     = ["https://cloud-tools.example.com"]
-}

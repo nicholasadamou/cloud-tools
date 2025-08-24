@@ -56,17 +56,6 @@ variable "kms_key_id" {
   type        = string
 }
 
-variable "allowed_cors_origins" {
-  description = "List of allowed CORS origins"
-  type        = list(string)
-  default     = ["*"]
-}
-
-variable "enable_waf" {
-  description = "Enable AWS WAF for API Gateway"
-  type        = bool
-  default     = true
-}
 
 # API Gateway REST API
 resource "aws_api_gateway_rest_api" "main" {
