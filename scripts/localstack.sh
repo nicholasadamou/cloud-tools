@@ -114,6 +114,12 @@ case "$1" in
         read -p "Are you sure? (y/N): " -n 1 -r
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
+            container_id=$(docker ps -aq -f name=cloud-tools-localstack)
+            if [ -n "$container_id" ]; then
+                print_status "Removing existing conflicting LocalStack container..."
+                docker rm -f "$container_id"
+                print_success "Conflicting LocalStack container removed."
+            fi
             docker compose -f client/docker-compose.yml down -v
             docker compose -f client/docker-compose.yml up -d
 
