@@ -209,6 +209,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "access_logs" {
     id     = "access_logs_cleanup"
     status = "Enabled"
 
+    filter {
+      prefix = ""
+    }
+
     expiration {
       days = 90
     }
