@@ -5,6 +5,14 @@
 ![Tailwind CSS](https://img.shields.io/badge/-Tailwind%20CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
 ![Framer Motion](https://img.shields.io/badge/-Framer%20Motion-0081C9?style=flat-square&logo=framer&logoColor=white)
 
+## 🚀 Build Status
+
+[![Continuous Integration](https://github.com/nicholasadamou/cloud-tools/actions/workflows/ci.yml/badge.svg)](https://github.com/nicholasadamou/cloud-tools/actions/workflows/ci.yml)
+[![Unit Tests](https://github.com/nicholasadamou/cloud-tools/actions/workflows/test.yml/badge.svg)](https://github.com/nicholasadamou/cloud-tools/actions/workflows/test.yml)
+[![Test Coverage](https://github.com/nicholasadamou/cloud-tools/actions/workflows/coverage.yml/badge.svg)](https://github.com/nicholasadamou/cloud-tools/actions/workflows/coverage.yml)
+[![Test Environments](https://github.com/nicholasadamou/cloud-tools/actions/workflows/test-environments.yml/badge.svg)](https://github.com/nicholasadamou/cloud-tools/actions/workflows/test-environments.yml)
+[![Shell Script Validation](https://github.com/nicholasadamou/cloud-tools/actions/workflows/shellcheck.yml/badge.svg)](https://github.com/nicholasadamou/cloud-tools/actions/workflows/shellcheck.yml)
+
 ![preview](../preview.png)
 
 _Cloud Tools_ is a AWS cloud-based service that provides users with a platform to convert or compress files.
