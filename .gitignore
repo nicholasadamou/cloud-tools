@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+terraform/modules/lambda/src/node_modules/
 /.pnp
 .pnp.js
 .yarn/install-state.gz
@@ -26,6 +27,7 @@
 
 # production
 /build
+.build
 
 # misc
 .DS_Store
@@ -64,3 +66,23 @@ temp-test-files/
 
 # localstack
 .localstack/
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+*.tfplan
+*.tfplan.*
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# Keep terraform lock file but ignore if you prefer to exclude it
+# .terraform.lock.hcl
