@@ -185,7 +185,6 @@ jobs:
           # Copy workspace and package manager files
           COPY package*.json pnpm-lock.yaml pnpm-workspace.yaml ./
           COPY client/package.json ./client/
-          COPY infrastructure/modules/lambda/src/package.json ./infrastructure/modules/lambda/src/ 2>/dev/null || true
 
           # Install pnpm
           RUN corepack enable && corepack prepare pnpm@latest --activate
