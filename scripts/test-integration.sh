@@ -42,27 +42,32 @@ fi
 # Test 2: Check AWS resources exist
 print_info "Test 2: Verifying AWS resources..."
 
+# Use environment variables for AWS credentials (for CI/CD)
+BUCKET_NAME=${S3_BUCKET_NAME:-"test-bucket"}
+TABLE_NAME=${DYNAMODB_TABLE_NAME:-"Jobs"}
+QUEUE_NAME="file-processing-queue"
+
 # Check S3 bucket
-if aws --endpoint-url=http://localhost:4566 --profile localstack s3 ls | grep -q "cloud-tools-local-bucket"; then
-    print_success "S3 bucket exists"
+if aws --endpoint-url=http://localhost:4566 s3 ls | grep -q "$BUCKET_NAME"; then
+    print_success "S3 bucket exists: $BUCKET_NAME"
 else
-    print_error "S3 bucket not found"
+    print_error "S3 bucket not found: $BUCKET_NAME"
     exit 1
 fi
 
-# Check DynamoDB table
-if aws --endpoint-url=http://localhost:4566 --profile localstack dynamodb describe-table --table-name CloudToolsJobs >/dev/null 2>&1; then
-    print_success "DynamoDB table exists"
+# Check DynamoDB table  
+if aws --endpoint-url=http://localhost:4566 dynamodb describe-table --table-name "$TABLE_NAME" >/dev/null 2>&1; then
+    print_success "DynamoDB table exists: $TABLE_NAME"
 else
-    print_error "DynamoDB table not found"
+    print_error "DynamoDB table not found: $TABLE_NAME"
     exit 1
 fi
 
 # Check SQS queue
-if aws --endpoint-url=http://localhost:4566 --profile localstack sqs get-queue-url --queue-name cloud-tools-jobs-queue >/dev/null 2>&1; then
-    print_success "SQS queue exists"
+if aws --endpoint-url=http://localhost:4566 sqs get-queue-url --queue-name "$QUEUE_NAME" >/dev/null 2>&1; then
+    print_success "SQS queue exists: $QUEUE_NAME"
 else
-    print_error "SQS queue not found"
+    print_error "SQS queue not found: $QUEUE_NAME"
     exit 1
 fi
 
@@ -135,9 +140,9 @@ fi
 
 # Test 4: Check SQS message
 print_info "Test 4: Checking SQS queue for messages..."
-QUEUE_URL="http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/cloud-tools-jobs-queue"
+QUEUE_URL="http://localhost:4566/000000000000/file-processing-queue"
 
-MESSAGES=$(aws --endpoint-url=http://localhost:4566 --profile localstack sqs receive-message --queue-url "$QUEUE_URL" --max-number-of-messages 1 2>/dev/null || echo "{}")
+MESSAGES=$(aws --endpoint-url=http://localhost:4566 sqs receive-message --queue-url "$QUEUE_URL" --max-number-of-messages 1 2>/dev/null || echo "{}")
 
 if echo "$MESSAGES" | grep -q "Messages"; then
     print_success "Found messages in SQS queue"
