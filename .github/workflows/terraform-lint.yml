@@ -127,7 +127,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.tflint.d/plugins
-          key: tflint-${{ hashFiles('terraform/.tflint.hcl') }}
+          key: tflint-${{ hashFiles('infrastructure/.tflint.hcl') }}
 
       - name: Setup TFLint
         uses: terraform-linters/setup-tflint@v4
@@ -139,7 +139,7 @@ jobs:
 
       - name: Initialize TFLint
         run: |
-          cd terraform
+          cd infrastructure
           tflint --init
 
       - name: Run TFLint on modules
@@ -155,7 +155,7 @@ jobs:
           mkdir -p tflint-results
 
           # Lint each module
-          for module_dir in terraform/modules/*/; do
+          for module_dir in infrastructure/modules/*/; do
             if [[ -d "$module_dir" ]]; then
               module_name=$(basename "$module_dir")
               echo "📄 Linting module: $module_name"
@@ -175,7 +175,7 @@ jobs:
           done
 
           # Lint environments
-          for env_dir in terraform/environments/*/; do
+          for env_dir in infrastructure/environments/*/; do
             if [[ -d "$env_dir" ]]; then
               env_name=$(basename "$env_dir")
               echo "📄 Linting environment: $env_name"
@@ -235,7 +235,7 @@ jobs:
         id: checkov
         uses: bridgecrewio/checkov-action@master
         with:
-          directory: terraform/
+          directory: infrastructure/
           quiet: true
           soft_fail: true
           framework: terraform
@@ -281,7 +281,7 @@ jobs:
           # Check if modules have proper documentation
           missing_docs=0
 
-          for module_dir in terraform/modules/*/; do
+          for module_dir in infrastructure/modules/*/; do
             if [[ -d "$module_dir" ]]; then
               module_name=$(basename "$module_dir")
               echo "📄 Checking documentation for module: $module_name"
