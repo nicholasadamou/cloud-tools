@@ -76,6 +76,14 @@ resource "aws_api_gateway_rest_api" "main" {
   }
 }
 
+# CKV2_AWS_53: API Gateway request validator
+resource "aws_api_gateway_request_validator" "main" {
+  name                        = "${var.project_name}-${var.environment}-request-validator"
+  rest_api_id                 = aws_api_gateway_rest_api.main.id
+  validate_request_body       = true
+  validate_request_parameters = true
+}
+
 # API Gateway resources
 resource "aws_api_gateway_resource" "convert" {
   rest_api_id = aws_api_gateway_rest_api.main.id
@@ -105,6 +113,9 @@ resource "aws_api_gateway_method" "convert_post" {
   request_parameters = {
     "method.request.header.Authorization" = true
   }
+
+  # CKV2_AWS_53: Add request validation
+  request_validator_id = aws_api_gateway_request_validator.main.id
 }
 
 resource "aws_api_gateway_method" "convert_options" {
@@ -124,6 +135,9 @@ resource "aws_api_gateway_method" "compress_post" {
   request_parameters = {
     "method.request.header.Authorization" = true
   }
+
+  # CKV2_AWS_53: Add request validation
+  request_validator_id = aws_api_gateway_request_validator.main.id
 }
 
 resource "aws_api_gateway_method" "compress_options" {

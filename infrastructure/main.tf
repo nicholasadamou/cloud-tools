@@ -168,15 +168,11 @@ module "cloudwatch" {
   project_name          = var.project_name
   environment           = var.environment
   resource_suffix       = local.resource_suffix
-  log_retention_in_days = var.log_retention_in_days
+  log_retention_in_days = var.environment == "production" ? 365 : var.log_retention_in_days # CKV_AWS_338: Ensure 1 year retention for production
   kms_key_id            = aws_kms_key.main.arn
 
-  # Lambda function names for log groups
-  lambda_function_names = [
-    module.lambda.convert_function_name,
-    module.lambda.compress_function_name,
-    module.lambda.process_function_name
-  ]
+  # Don't create duplicate log groups - Lambda module handles these
+  lambda_function_names = []
 
   # SQS queue for monitoring
   sqs_queue_name = module.sqs.queue_name
