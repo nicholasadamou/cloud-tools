@@ -111,7 +111,7 @@
     "lambda:lint:fix": "eslint terraform/modules/lambda/lambda-templates/*.js --fix",
     "pre-commit:run": "pre-commit run --all-files",
     "pre-commit:install": "pre-commit install",
-    "prepare": "pre-commit install"
+    "prepare": "command -v pre-commit >/dev/null 2>&1 && pre-commit install || echo 'pre-commit not found, skipping installation (this is normal in CI environments)'"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
