@@ -15,7 +15,7 @@ Thank you for your interest in contributing to Cloud Tools! This guide will help
 ```bash
 git clone <repository-url>
 cd cloud-tools
-npm run setup
+pnpm run setup
 ```
 
 This will:
@@ -30,7 +30,7 @@ This will:
 ### Start Development
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 Your app will be running at [http://localhost:3000](http://localhost:3000)
@@ -39,18 +39,18 @@ Your app will be running at [http://localhost:3000](http://localhost:3000)
 
 ### Available Scripts
 
-| Command                      | Description                             |
-| ---------------------------- | --------------------------------------- |
-| `npm run setup`              | Complete setup (run once after cloning) |
-| `npm run dev`                | Start development server                |
-| `npm run build`              | Build for production                    |
-| `npm run verify`             | Verify local setup is working           |
-| `npm run localstack:status`  | Check LocalStack container status       |
-| `npm run localstack:logs`    | View LocalStack logs                    |
-| `npm run localstack:health`  | Check AWS services health               |
-| `npm run localstack:restart` | Restart LocalStack                      |
-| `npm run localstack:reset`   | Reset LocalStack (clean slate)          |
-| `npm run localstack:stop`    | Stop LocalStack                         |
+| Command                       | Description                             |
+| ----------------------------- | --------------------------------------- |
+| `pnpm run setup`              | Complete setup (run once after cloning) |
+| `pnpm run dev`                | Start development server                |
+| `pnpm run build`              | Build for production                    |
+| `pnpm run verify`             | Verify local setup is working           |
+| `pnpm run localstack:status`  | Check LocalStack container status       |
+| `pnpm run localstack:logs`    | View LocalStack logs                    |
+| `pnpm run localstack:health`  | Check AWS services health               |
+| `pnpm run localstack:restart` | Restart LocalStack                      |
+| `pnpm run localstack:reset`   | Reset LocalStack (clean slate)          |
+| `pnpm run localstack:stop`    | Stop LocalStack                         |
 
 ### Project Structure
 
@@ -96,7 +96,7 @@ aws --profile localstack --endpoint-url=http://localhost:4566 sqs list-queues
 1. Install required AWS SDK packages:
 
    ```bash
-   npm install @aws-sdk/client-s3 @aws-sdk/client-dynamodb @aws-sdk/client-sqs @aws-sdk/lib-dynamodb
+   pnpm install @aws-sdk/client-s3 @aws-sdk/client-dynamodb @aws-sdk/client-sqs @aws-sdk/lib-dynamodb
    ```
 
 2. Use the example configuration:
@@ -116,20 +116,20 @@ aws --profile localstack --endpoint-url=http://localhost:4566 sqs list-queues
 
 ```bash
 # Check if LocalStack is running
-npm run localstack:status
+pnpm run localstack:status
 
 # View logs for errors
-npm run localstack:logs
+pnpm run localstack:logs
 
 # Reset everything (nuclear option)
-npm run localstack:reset
+pnpm run localstack:reset
 ```
 
 ### Environment Issues
 
 ```bash
 # Verify setup
-npm run verify
+pnpm run verify
 
 # Recreate .env.local
 rm .env.local && cp .env.local.example .env.local
@@ -154,10 +154,10 @@ aws configure --profile localstack
 
 ### Testing Changes
 
-1. Verify setup: `npm run verify`
+1. Verify setup: `pnpm run verify`
 2. Test functionality manually
-3. Check LocalStack logs: `npm run localstack:logs`
-4. Reset if needed: `npm run localstack:reset`
+3. Check LocalStack logs: `pnpm run localstack:logs`
+4. Reset if needed: `pnpm run localstack:reset`
 
 ### Before Submitting PR
 
@@ -178,14 +178,14 @@ aws configure --profile localstack
 - Check the [QUICK_SETUP.md](../QUICK_SETUP.md) guide
 - Review the main [README.md](../README.md)
 - Open an issue on GitHub
-- Check LocalStack health: `npm run localstack:health`
+- Check LocalStack health: `pnpm run localstack:health`
 
 ## 💡 Development Tips
 
-1. **Use the verification script often**: `npm run verify`
-2. **Monitor LocalStack logs**: `npm run localstack:logs` (in separate terminal)
-3. **Reset when things get weird**: `npm run localstack:reset`
-4. **Check service health**: `npm run localstack:health`
+1. **Use the verification script often**: `pnpm run verify`
+2. **Monitor LocalStack logs**: `pnpm run localstack:logs` (in separate terminal)
+3. **Reset when things get weird**: `pnpm run localstack:reset`
+4. **Check service health**: `pnpm run localstack:health`
 5. **Use AWS CLI with LocalStack**: Always include `--profile localstack --endpoint-url=http://localhost:4566`
 
 Happy coding! 🚀

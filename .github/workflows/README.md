@@ -29,7 +29,7 @@ This directory contains GitHub Actions workflows for automated CI/CD processes.
   - **Type Check**: TypeScript compilation
   - **Test Matrix**: Tests across Node 18.x, 20.x, 22.x
   - **Build Check**: Verifies Next.js build succeeds
-  - **Security Audit**: npm audit for vulnerabilities
+  - **Security Audit**: pnpm audit for vulnerabilities
   - **Summary**: Aggregates results
 
 #### [`coverage.yml`](./coverage.yml)
@@ -125,7 +125,7 @@ Add these badges to your main README.md:
 - **ESLint**: Code quality and style enforcement
 - **Prettier**: Code formatting consistency
 - **TypeScript**: Type safety verification
-- **npm audit**: Security vulnerability scanning
+- **pnpm audit**: Security vulnerability scanning
 
 ### 🚀 Performance Monitoring
 
@@ -154,10 +154,10 @@ Add these badges to your main README.md:
 2. Review logs for specific job failures
 3. Local reproduction:
    ```bash
-   npm run lint        # Check linting
-   npm run type-check  # Check TypeScript
-   npm test           # Run unit tests
-   npm run build      # Verify build
+   pnpm run lint        # Check linting
+   pnpm run type-check  # Check TypeScript
+   pnpm test           # Run unit tests
+   pnpm run build      # Verify build
    ```
 
 ## Best Practices
