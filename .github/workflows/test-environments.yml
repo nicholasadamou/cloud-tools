@@ -109,7 +109,7 @@ jobs:
             echo "⏳ Attempt $i/30: LocalStack not ready yet, waiting..."
             sleep 3
           done
-          
+
           # Final check
           curl -s http://localhost:4566/_localstack/health || exit 1
 
