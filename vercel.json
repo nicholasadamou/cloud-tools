@@ -1,8 +1,9 @@
 {
-  "buildCommand": "pnpm --filter client build",
-  "outputDirectory": "client/.next",
-  "installCommand": "pnpm install",
+  "buildCommand": "pnpm build",
+  "outputDirectory": ".next",
+  "installCommand": "cd .. && pnpm install && cd client",
   "framework": "nextjs",
+  "rootDirectory": "client",
   "rewrites": [
     {
       "source": "/api/(.*)",
