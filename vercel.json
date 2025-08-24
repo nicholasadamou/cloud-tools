@@ -3,11 +3,10 @@
   "outputDirectory": "client/.next",
   "installCommand": "pnpm install",
   "framework": "nextjs",
-  "nodeVersion": "18.x",
   "regions": ["iad1"],
   "functions": {
     "client/app/api/**/*.ts": {
-      "runtime": "@vercel/node"
+      "runtime": "nodejs20.x"
     }
   },
   "rewrites": [

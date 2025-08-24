@@ -4,7 +4,7 @@
   "description": "Lambda functions for Cloud Tools file processing",
   "private": true,
   "engines": {
-    "node": ">=18.x"
+    "node": ">=20.x"
   },
   "dependencies": {},
   "devDependencies": {

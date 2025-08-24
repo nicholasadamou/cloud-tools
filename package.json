@@ -2,6 +2,10 @@
   "name": "cloud-tools-monorepo",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": ">=20.x",
+    "pnpm": ">=8.0.0"
+  },
   "workspaces": [
     "client",
     "infrastructure/modules/lambda/src"
