@@ -2,13 +2,7 @@
   "buildCommand": "pnpm --filter client build",
   "outputDirectory": "client/.next",
   "installCommand": "pnpm install --no-frozen-lockfile",
-  "framework": null,
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
-    }
-  ],
+  "framework": "nextjs",
   "headers": [
     {
       "source": "/api/(.*)",
