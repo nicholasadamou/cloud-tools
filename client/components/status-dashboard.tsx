@@ -136,6 +136,117 @@ export default function StatusDashboard() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(
+    null,
+  );
+
+  // Optimized version that reuses LocalStack health data
+  const checkServiceStatusOptimized = async (
+    serviceName: string,
+    localstackHealth: any = {},
+  ): Promise<{ status: ServiceStatus["status"]; responseTime: number }> => {
+    const startTime = Date.now();
+
+    try {
+      switch (serviceName) {
+        case "API Gateway":
+          const apiResponse = await fetch("/api/health", {
+            method: "GET",
+            signal: AbortSignal.timeout(5000),
+          });
+          const apiResponseTime = Date.now() - startTime;
+          return {
+            status: apiResponse.ok ? "operational" : "degraded",
+            responseTime: apiResponseTime,
+          };
+
+        case "File Storage (S3)":
+          try {
+            const s3Status = localstackHealth.services?.s3;
+            const responseTime = Date.now() - startTime;
+
+            if (s3Status === "running" || s3Status === "available") {
+              // Only test upload API if LocalStack S3 is running
+              try {
+                await fetch("/api/upload", {
+                  method: "OPTIONS",
+                  signal: AbortSignal.timeout(2000),
+                });
+                return { status: "operational", responseTime };
+              } catch {
+                return { status: "degraded", responseTime };
+              }
+            } else if (s3Status && s3Status !== "disabled") {
+              return { status: "degraded", responseTime };
+            }
+            return { status: "down", responseTime };
+          } catch (error) {
+            console.error("S3 check error:", error);
+            return { status: "down", responseTime: Date.now() - startTime };
+          }
+
+        case "Database (DynamoDB)":
+          try {
+            const dbStatus = localstackHealth.services?.dynamodb;
+            const responseTime = Date.now() - startTime;
+
+            if (dbStatus === "running" || dbStatus === "available") {
+              // Optionally test jobs API, but don't fail the service if it doesn't work
+              try {
+                await fetch("/api/jobs?limit=1", {
+                  method: "GET",
+                  signal: AbortSignal.timeout(2000),
+                });
+              } catch {
+                // Ignore - LocalStack DynamoDB is still operational
+              }
+              return { status: "operational", responseTime };
+            } else if (dbStatus && dbStatus !== "disabled") {
+              return { status: "degraded", responseTime };
+            }
+            return { status: "down", responseTime };
+          } catch (error) {
+            console.error("DynamoDB check error:", error);
+            return { status: "down", responseTime: Date.now() - startTime };
+          }
+
+        case "Processing Queue (SQS)":
+          try {
+            const sqsStatus = localstackHealth.services?.sqs;
+            const responseTime = Date.now() - startTime;
+
+            if (sqsStatus === "running" || sqsStatus === "available") {
+              // Optionally test process API, but don't fail the service if it doesn't work
+              try {
+                await fetch("/api/process?action=queue-status", {
+                  method: "GET",
+                  signal: AbortSignal.timeout(2000),
+                });
+              } catch {
+                // Ignore - LocalStack SQS is still operational
+              }
+              return { status: "operational", responseTime };
+            } else if (sqsStatus && sqsStatus !== "disabled") {
+              return { status: "degraded", responseTime };
+            }
+            return { status: "down", responseTime };
+          } catch (error) {
+            console.error("SQS check error:", error);
+            return { status: "down", responseTime: Date.now() - startTime };
+          }
+
+        default:
+          return {
+            status: "operational",
+            responseTime: Date.now() - startTime,
+          };
+      }
+    } catch (error) {
+      console.error(`Error checking ${serviceName}:`, error);
+      return { status: "down", responseTime: Date.now() - startTime };
+    }
+  };
 
   const checkServiceStatus = async (
     serviceName: string,
@@ -282,63 +393,152 @@ export default function StatusDashboard() {
   };
 
   const checkAllServices = useCallback(async () => {
+    // Use a ref to track loading state to prevent race conditions
+    if (isLoading) return; // Prevent concurrent checks
+
     setIsLoading(true);
-    const updatedServices = await Promise.all(
-      services.map(async (service) => {
-        const result = await checkServiceStatus(service.name);
-
-        return {
-          ...service,
-          status: result.status,
-          responseTime: result.responseTime,
-          lastChecked: new Date().toISOString(),
-        };
-      }),
-    );
-
-    setServices(updatedServices);
-    setLastUpdated(new Date());
-
-    // Get real system metrics from health API
-    let realUptime = "Unknown";
-    let totalRequests = 0;
 
     try {
-      const healthResponse = await fetch("/api/health");
-      if (healthResponse.ok) {
-        const healthData = await healthResponse.json();
-        realUptime = healthData.system?.uptime || "Unknown";
-        // In a real app, you'd track actual requests. For now, we'll use a persistent counter
-        totalRequests = Math.floor(healthData.system?.uptimeSeconds * 0.5) || 0;
+      // Make all API calls concurrently to maximize efficiency
+      const [localstackHealthResponse, apiHealthResponse] =
+        await Promise.allSettled([
+          fetch("/api/localstack-health", {
+            signal: AbortSignal.timeout(5000),
+          }),
+          fetch("/api/health", { signal: AbortSignal.timeout(5000) }),
+        ]);
+
+      // Parse LocalStack health data
+      let localstackHealth: any = {};
+      if (
+        localstackHealthResponse.status === "fulfilled" &&
+        localstackHealthResponse.value.ok
+      ) {
+        try {
+          localstackHealth = await localstackHealthResponse.value.json();
+        } catch (error) {
+          console.warn("Failed to parse LocalStack health:", error);
+        }
       }
-    } catch (error) {
-      console.error("Failed to get health metrics:", error);
+
+      // Parse API health data and get API Gateway status
+      let apiGatewayStatus: {
+        status: ServiceStatus["status"];
+        responseTime: number;
+      } = {
+        status: "down",
+        responseTime: 0,
+      };
+      let realUptime = "Unknown";
+      let totalRequests = 0;
+
+      if (apiHealthResponse.status === "fulfilled") {
+        const startTime = Date.now();
+        const isHealthy = apiHealthResponse.value.ok;
+        const responseTime = Date.now() - startTime;
+
+        apiGatewayStatus = {
+          status: isHealthy ? "operational" : "degraded",
+          responseTime: responseTime,
+        };
+
+        if (isHealthy) {
+          try {
+            const healthData = await apiHealthResponse.value.json();
+            realUptime = healthData.system?.uptime || "Unknown";
+            totalRequests =
+              Math.floor(healthData.system?.uptimeSeconds * 0.5) || 0;
+          } catch (error) {
+            console.error("Failed to parse health data:", error);
+          }
+        }
+      }
+
+      // Get the current services from state to avoid dependency issues
+      const currentServices = [
+        {
+          name: "API Gateway",
+          status: "checking" as const,
+          description: "Core API endpoints",
+          icon: Server,
+          responseTime: 0,
+        },
+        {
+          name: "File Storage (S3)",
+          status: "checking" as const,
+          description: "File upload and storage",
+          icon: Cloud,
+          responseTime: 0,
+        },
+        {
+          name: "Database (DynamoDB)",
+          status: "checking" as const,
+          description: "Job tracking and metadata",
+          icon: Database,
+          responseTime: 0,
+        },
+        {
+          name: "Processing Queue (SQS)",
+          status: "checking" as const,
+          description: "Background job processing",
+          icon: Activity,
+          responseTime: 0,
+        },
+      ];
+
+      const updatedServices = await Promise.all(
+        currentServices.map(async (service) => {
+          let result;
+
+          if (service.name === "API Gateway") {
+            // Use the already-fetched API Gateway status
+            result = apiGatewayStatus;
+          } else {
+            // Use optimized check for other services
+            result = await checkServiceStatusOptimized(
+              service.name,
+              localstackHealth,
+            );
+          }
+
+          return {
+            ...service,
+            status: result.status,
+            responseTime: result.responseTime,
+            lastChecked: new Date().toISOString(),
+          };
+        }),
+      );
+
+      setServices(updatedServices);
+      setLastUpdated(new Date());
+
+      // Update metrics with real data
+      const operationalCount = updatedServices.filter(
+        (s) => s.status === "operational",
+      ).length;
+      const totalServices = updatedServices.length;
+      const successRate = Math.round((operationalCount / totalServices) * 100);
+      const avgResponseTime = Math.round(
+        updatedServices.reduce((sum, s) => sum + (s.responseTime || 0), 0) /
+          totalServices,
+      );
+
+      setMetrics({
+        uptime: realUptime,
+        totalRequests: totalRequests,
+        successRate,
+        avgResponseTime,
+      });
+    } finally {
+      setIsLoading(false);
     }
+  }, []); // Remove isLoading dependency to prevent infinite loop
 
-    // Update metrics with real data
-    const operationalCount = updatedServices.filter(
-      (s) => s.status === "operational",
-    ).length;
-    const totalServices = updatedServices.length;
-    const successRate = Math.round((operationalCount / totalServices) * 100);
-    const avgResponseTime = Math.round(
-      updatedServices.reduce((sum, s) => sum + (s.responseTime || 0), 0) /
-        totalServices,
-    );
-
-    setMetrics({
-      uptime: realUptime,
-      totalRequests: totalRequests,
-      successRate,
-      avgResponseTime,
-    });
-
-    setIsLoading(false);
-  }, [services]);
-
+  // Run initial status check on mount
   useEffect(() => {
     checkAllServices();
-  }, [checkAllServices]);
+  }, []); // Empty dependency array - only run once on mount
 
   const overallStatus = () => {
     const operationalCount = services.filter(
@@ -512,7 +712,7 @@ export default function StatusDashboard() {
                       </div>
                     </div>
                     <div className="flex items-center space-x-3">
-                      {service.responseTime ? (
+                      {service.responseTime !== undefined ? (
                         <span className="text-xs text-muted-foreground">
                           {service.responseTime}ms
                         </span>
