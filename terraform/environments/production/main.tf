@@ -61,14 +61,14 @@ resource "aws_budgets_budget" "prod_budget" {
 
   cost_filter {
     dimension {
-      key   = "TagKeyValue"
+      key    = "TagKeyValue"
       values = ["Environment$production"]
     }
   }
 
   cost_filter {
     dimension {
-      key   = "TagKeyValue"
+      key    = "TagKeyValue"
       values = ["Project$cloud-tools"]
     }
   }

@@ -55,7 +55,7 @@ case "$1" in
         else
             docker compose up -d
             print_success "LocalStack started successfully!"
-            
+
             # Wait for LocalStack to be ready
             print_status "Waiting for LocalStack to be ready..."
             max_attempts=30
@@ -69,7 +69,7 @@ case "$1" in
                 attempt=$((attempt + 1))
                 echo -n "."
             done
-            
+
             if [ $attempt -eq $max_attempts ]; then
                 print_error "LocalStack failed to start within timeout"
                 exit 1
@@ -116,7 +116,7 @@ case "$1" in
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             docker compose down -v
             docker compose up -d
-            
+
             # Wait for LocalStack to be ready
             print_status "Waiting for LocalStack to be ready..."
             max_attempts=30
@@ -130,7 +130,7 @@ case "$1" in
                 attempt=$((attempt + 1))
                 echo -n "."
             done
-            
+
             # Run initialization script to recreate AWS resources
             if [ -f ".localstack/01-create-resources.sh" ]; then
                 print_status "Recreating AWS resources..."
@@ -140,7 +140,7 @@ case "$1" in
             else
                 print_warning "Initialization script not found, you may need to create AWS resources manually"
             fi
-            
+
             print_success "LocalStack reset completed!"
         else
             print_status "Reset cancelled"

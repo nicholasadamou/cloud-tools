@@ -30,14 +30,14 @@ info() {
 # Check if required tools are installed
 check_prerequisites() {
     log "Checking prerequisites..."
-    
+
     # Check if terraform is installed
     if ! command -v terraform &> /dev/null; then
         error "Terraform is not installed or not in PATH"
         echo "Install from: https://www.terraform.io/downloads"
         exit 1
     fi
-    
+
     # Check if tflint is installed (optional)
     if ! command -v tflint &> /dev/null; then
         warn "TFLint is not installed - only basic validation will be performed"
@@ -46,14 +46,14 @@ check_prerequisites() {
     else
         TFLINT_AVAILABLE=true
     fi
-    
+
     log "Prerequisites check completed"
 }
 
 # Format Terraform files
 format_terraform() {
     log "Formatting Terraform files..."
-    
+
     if terraform fmt -recursive .; then
         info "✅ Terraform files formatted successfully"
     else
@@ -65,7 +65,7 @@ format_terraform() {
 # Check Terraform formatting
 check_format() {
     log "Checking Terraform file formatting..."
-    
+
     if terraform fmt -check -recursive .; then
         info "✅ All Terraform files are properly formatted"
     else
@@ -82,17 +82,17 @@ check_format() {
 # Validate Terraform configurations
 validate_terraform() {
     log "Validating Terraform configurations..."
-    
+
     local validation_errors=0
-    
+
     # Validate each environment
     for env_dir in environments/*/; do
         if [[ -d "$env_dir" ]]; then
             env_name=$(basename "$env_dir")
             info "📄 Validating environment: $env_name"
-            
+
             cd "$env_dir"
-            
+
             # Create temporary backend config for validation
             cat > backend-temp.tf << EOF
 terraform {
@@ -101,7 +101,7 @@ terraform {
   }
 }
 EOF
-            
+
             # Initialize and validate
             if terraform init -backend=false > /dev/null 2>&1 && terraform validate > /dev/null 2>&1; then
                 info "✅ $env_name - VALID"
@@ -110,15 +110,15 @@ EOF
                 terraform validate
                 validation_errors=$((validation_errors + 1))
             fi
-            
+
             # Cleanup
             rm -f backend-temp.tf .terraform.lock.hcl
             rm -rf .terraform/
-            
+
             cd - > /dev/null
         fi
     done
-    
+
     if [ $validation_errors -eq 0 ]; then
         info "✅ All Terraform configurations are valid"
     else
@@ -133,23 +133,23 @@ run_tflint() {
         warn "Skipping TFLint - not installed"
         return 0
     fi
-    
+
     log "Running TFLint analysis..."
-    
+
     # Initialize TFLint
     if ! tflint --init > /dev/null 2>&1; then
         warn "TFLint initialization failed - skipping advanced linting"
         return 0
     fi
-    
+
     local tflint_errors=0
-    
+
     # Lint each module
     for module_dir in modules/*/; do
         if [[ -d "$module_dir" ]]; then
             module_name=$(basename "$module_dir")
             info "📄 Linting module: $module_name"
-            
+
             if tflint --chdir="$module_dir" > /dev/null 2>&1; then
                 info "✅ $module_name - PASSED"
             else
@@ -159,13 +159,13 @@ run_tflint() {
             fi
         fi
     done
-    
+
     # Lint environments
     for env_dir in environments/*/; do
         if [[ -d "$env_dir" ]]; then
             env_name=$(basename "$env_dir")
             info "📄 Linting environment: $env_name"
-            
+
             if tflint --chdir="$env_dir" > /dev/null 2>&1; then
                 info "✅ $env_name - PASSED"
             else
@@ -175,7 +175,7 @@ run_tflint() {
             fi
         fi
     done
-    
+
     if [ $tflint_errors -eq 0 ]; then
         info "✅ All modules and environments passed TFLint analysis"
     else
@@ -206,16 +206,16 @@ print_usage() {
 main() {
     # Navigate to terraform directory
     cd "$(dirname "$0")/.."
-    
+
     # Check prerequisites
     check_prerequisites
-    
+
     local format_files=false
     local check_format_only=false
     local validate_configs=false
     local run_linting=false
     local run_all=false
-    
+
     # Parse command line arguments
     while [[ $# -gt 0 ]]; do
         case $1 in
@@ -250,45 +250,45 @@ main() {
                 ;;
         esac
     done
-    
+
     # If no arguments, show usage
     if [[ "$format_files" == "false" && "$check_format_only" == "false" && "$validate_configs" == "false" && "$run_linting" == "false" && "$run_all" == "false" ]]; then
         print_usage
         exit 1
     fi
-    
+
     local exit_code=0
-    
+
     # Run requested operations
     if [[ "$run_all" == "true" ]]; then
         check_format_only=true
         validate_configs=true
         run_linting=true
     fi
-    
+
     if [[ "$format_files" == "true" ]]; then
         format_terraform || exit_code=1
     fi
-    
+
     if [[ "$check_format_only" == "true" ]]; then
         check_format || exit_code=1
     fi
-    
+
     if [[ "$validate_configs" == "true" ]]; then
         validate_terraform || exit_code=1
     fi
-    
+
     if [[ "$run_linting" == "true" ]]; then
         run_tflint || exit_code=1
     fi
-    
+
     # Summary
     if [ $exit_code -eq 0 ]; then
         log "🎉 All Terraform linting checks passed!"
     else
         error "❌ Some linting checks failed - please review and fix the issues above"
     fi
-    
+
     exit $exit_code
 }
 

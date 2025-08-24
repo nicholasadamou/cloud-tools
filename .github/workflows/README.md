@@ -100,7 +100,7 @@ Add these badges to your main README.md:
 
 ```markdown
 [![Tests](https://github.com/nicholasadamou/cloud-tools/workflows/Unit%20Tests/badge.svg)](https://github.com/nicholasadamou/cloud-tools/actions/workflows/test.yml)
-[![CI](https://github.com/nicholasadamou/cloud-tools/workflows/Continuous%20Integration/badge.svg)](https://github.com/nicholasadamou/cloud-tools/actions/workflows/ci.yml)  
+[![CI](https://github.com/nicholasadamou/cloud-tools/workflows/Continuous%20Integration/badge.svg)](https://github.com/nicholasadamou/cloud-tools/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/nicholasadamou/cloud-tools/branch/master/graph/badge.svg)](https://codecov.io/gh/nicholasadamou/cloud-tools)
 [![Coverage Status](https://coveralls.io/repos/github/nicholasadamou/cloud-tools/badge.svg?branch=master)](https://coveralls.io/github/nicholasadamou/cloud-tools?branch=master)
 ```

@@ -61,34 +61,34 @@ validate_action() {
 
 check_prerequisites() {
     log "Checking prerequisites..."
-    
+
     # Check if terraform is installed
     if ! command -v terraform &> /dev/null; then
         error "Terraform is not installed or not in PATH"
     fi
-    
+
     # Check if AWS CLI is installed
     if ! command -v aws &> /dev/null; then
         error "AWS CLI is not installed or not in PATH"
     fi
-    
+
     # Check AWS credentials
     if ! aws sts get-caller-identity &> /dev/null; then
         error "AWS credentials not configured or invalid"
     fi
-    
+
     log "Prerequisites check passed"
 }
 
 setup_backend() {
     local env=$1
     log "Setting up Terraform backend for $env environment..."
-    
+
     local backend_file="environments/$env/backend-$env.tfvars"
     if [[ ! -f "$backend_file" ]]; then
         error "Backend configuration file not found: $backend_file"
     fi
-    
+
     # Initialize terraform with backend configuration
     cd "environments/$env"
     terraform init -backend-config="backend-$env.tfvars" -upgrade
@@ -98,9 +98,9 @@ setup_backend() {
 run_terraform_action() {
     local env=$1
     local action=$2
-    
+
     cd "environments/$env"
-    
+
     case $action in
         validate)
             log "Validating Terraform configuration for $env..."
@@ -115,7 +115,7 @@ run_terraform_action() {
             if [[ "$SKIP_PLAN" == "false" ]]; then
                 terraform plan -out="tfplan-$env"
             fi
-            
+
             if [[ "$AUTO_APPROVE" == "true" ]]; then
                 terraform apply -auto-approve "tfplan-$env"
             else
@@ -131,7 +131,7 @@ run_terraform_action() {
                     exit 0
                 fi
             fi
-            
+
             log "Destroying Terraform resources for $env..."
             if [[ "$AUTO_APPROVE" == "true" ]]; then
                 terraform destroy -auto-approve
@@ -140,7 +140,7 @@ run_terraform_action() {
             fi
             ;;
     esac
-    
+
     cd - > /dev/null
 }
 

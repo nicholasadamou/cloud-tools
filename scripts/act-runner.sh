@@ -66,10 +66,10 @@ check_docker_running() {
 show_workflows() {
     print_header "Available GitHub Actions Workflows"
     cd "$PROJECT_ROOT"
-    
+
     echo "📋 Listing all workflows and jobs..."
     echo ""
-    
+
     if command -v pnpm &> /dev/null; then
         pnpm act:list
     else
@@ -81,7 +81,7 @@ show_workflows() {
 run_quick_check() {
     print_header "Quick Validation (Type Check)"
     cd "$PROJECT_ROOT"
-    
+
     if command -v pnpm &> /dev/null; then
         print_info "Running: pnpm act:quick"
         pnpm act:quick
@@ -89,7 +89,7 @@ run_quick_check() {
         print_info "Running: act -W .github/workflows/ci.yml -j type-check"
         act -W .github/workflows/ci.yml -j type-check
     fi
-    
+
     print_success "Quick validation completed!"
 }
 
@@ -97,11 +97,11 @@ run_quick_check() {
 run_full_ci() {
     print_header "Full CI Pipeline"
     cd "$PROJECT_ROOT"
-    
+
     print_warning "This will take several minutes to complete..."
     echo "Do you want to continue? (y/N)"
     read -r response
-    
+
     if [[ "$response" =~ ^[Yy]$ ]]; then
         if command -v pnpm &> /dev/null; then
             print_info "Running: pnpm act:ci"
@@ -119,10 +119,10 @@ run_full_ci() {
 # Function to run specific job
 run_specific_job() {
     print_header "Run Specific Job"
-    
+
     echo "Available CI jobs:"
     echo "1. lint-and-format - Linting and code formatting"
-    echo "2. type-check - TypeScript type checking" 
+    echo "2. type-check - TypeScript type checking"
     echo "3. test - Unit tests with coverage"
     echo "4. build - Next.js build verification"
     echo "5. security - Security audit"
@@ -130,7 +130,7 @@ run_specific_job() {
     echo ""
     echo "Enter job number (1-6): "
     read -r job_choice
-    
+
     case $job_choice in
         1)
             job_name="lint-and-format"
@@ -161,16 +161,16 @@ run_specific_job() {
             return 1
             ;;
     esac
-    
+
     print_info "Running job: $job_name"
     cd "$PROJECT_ROOT"
-    
+
     if command -v pnpm &> /dev/null; then
         pnpm "$script_name"
     else
         act -W .github/workflows/ci.yml -j "$job_name"
     fi
-    
+
     print_success "Job '$job_name' completed!"
 }
 
@@ -178,11 +178,11 @@ run_specific_job() {
 run_verbose() {
     print_header "Verbose CI Execution"
     cd "$PROJECT_ROOT"
-    
+
     print_warning "This will show detailed execution logs..."
     echo "Do you want to continue? (y/N)"
     read -r response
-    
+
     if [[ "$response" =~ ^[Yy]$ ]]; then
         if command -v pnpm &> /dev/null; then
             pnpm act:verbose
@@ -199,15 +199,15 @@ run_verbose() {
 run_dry_run() {
     print_header "Dry Run (No Execution)"
     cd "$PROJECT_ROOT"
-    
+
     print_info "This will show what would be executed without running it..."
-    
+
     if command -v pnpm &> /dev/null; then
         pnpm act:dry
     else
         act -W .github/workflows/ci.yml --dryrun
     fi
-    
+
     print_success "Dry run completed!"
 }
 
@@ -215,7 +215,7 @@ run_dry_run() {
 run_shellcheck() {
     print_header "Shell Script Validation"
     cd "$PROJECT_ROOT"
-    
+
     echo "Choose shellcheck validation:"
     echo "1. Basic ShellCheck (quick)"
     echo "2. Detailed analysis"
@@ -225,7 +225,7 @@ run_shellcheck() {
     echo ""
     echo "Enter choice (1-5): "
     read -r choice
-    
+
     case $choice in
         1)
             print_info "Running: pnpm act:shellcheck:basic"
@@ -277,14 +277,14 @@ run_shellcheck() {
             return 1
             ;;
     esac
-    
+
     print_success "ShellCheck validation completed!"
 }
 
 # Function to show system info
 show_system_info() {
     print_header "System Information"
-    
+
     echo "🖥️  Operating System: $(uname -s)"
     echo "🏗️  Architecture: $(uname -m)"
     echo "🐳 Docker Version: $(docker --version 2>/dev/null || echo 'Not available')"
@@ -305,7 +305,7 @@ show_system_info() {
 show_main_menu() {
     clear
     print_header "🚀 ACT Local Runner - Cloud Tools Project"
-    
+
     echo ""
     echo "Select an option:"
     echo ""
@@ -332,10 +332,10 @@ show_main_menu() {
 # Function to open documentation
 open_documentation() {
     local doc_file="$PROJECT_ROOT/docs/ACT_USAGE.md"
-    
+
     if [[ -f "$doc_file" ]]; then
         print_info "Opening ACT usage documentation..."
-        
+
         if command -v code &> /dev/null; then
             code "$doc_file"
         elif [[ "$OSTYPE" == "darwin"* ]]; then
@@ -355,13 +355,13 @@ main() {
     # Initial checks
     check_act_installed
     check_docker_running
-    
+
     while true; do
         show_main_menu
         read -r choice
-        
+
         echo ""
-        
+
         case $choice in
             1)
                 show_workflows
@@ -398,7 +398,7 @@ main() {
                 print_error "Invalid option. Please try again."
                 ;;
         esac
-        
+
         echo ""
         echo "Press Enter to continue..."
         read -r

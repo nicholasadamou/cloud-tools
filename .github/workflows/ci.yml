@@ -289,7 +289,7 @@ jobs:
             if [[ -d "$module_dir" ]]; then
               module_name=$(basename "$module_dir")
               echo "📄 Linting module: $module_name"
-              
+
               if ! tflint --chdir="$module_dir"; then
                 echo "❌ $module_name - FAILED"
                 failed_modules=$((failed_modules + 1))
@@ -304,7 +304,7 @@ jobs:
             if [[ -d "$env_dir" ]]; then
               env_name=$(basename "$env_dir")
               echo "📄 Linting environment: $env_name"
-              
+
               if ! tflint --chdir="$env_dir"; then
                 echo "❌ $env_name - FAILED"
                 failed_modules=$((failed_modules + 1))
@@ -349,11 +349,11 @@ jobs:
           echo "ShellCheck: ${{ needs.shellcheck.result }}"
           echo "Terraform Lint: ${{ needs.terraform-lint.result }}"
 
-          if [[ "${{ needs.lint-and-format.result }}" == "failure" || 
-                "${{ needs.type-check.result }}" == "failure" || 
-                "${{ needs.test.result }}" == "failure" || 
-                "${{ needs.build.result }}" == "failure" || 
-                "${{ needs.shellcheck.result }}" == "failure" || 
+          if [[ "${{ needs.lint-and-format.result }}" == "failure" ||
+                "${{ needs.type-check.result }}" == "failure" ||
+                "${{ needs.test.result }}" == "failure" ||
+                "${{ needs.build.result }}" == "failure" ||
+                "${{ needs.shellcheck.result }}" == "failure" ||
                 "${{ needs.terraform-lint.result }}" == "failure" ]]; then
             echo "❌ CI pipeline failed"
             exit 1

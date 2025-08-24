@@ -88,7 +88,7 @@ jobs:
             if [[ -f "$script" ]]; then
               echo "📄 Checking: $script"
               total_files=$((total_files + 1))
-              
+
               # Run shellcheck and capture output
               if shellcheck -f gcc -e SC1091 -S style "$script" > "shellcheck-results/$(basename "$script").txt" 2>&1; then
                 echo "✅ $script - PASSED"
@@ -187,7 +187,7 @@ jobs:
 
           for script in $scripts; do
             echo "📄 Checking syntax: $script"
-            
+
             # Check syntax with bash
             if bash -n "$script"; then
               echo "✅ $script - syntax OK"
@@ -233,7 +233,7 @@ jobs:
 
           for script in $scripts; do
             echo "📄 Security scan: $script"
-            
+
             if ! shellcheck $security_rules "$script"; then
               security_issues=$((security_issues + 1))
             fi
@@ -263,23 +263,23 @@ jobs:
 
           for script in $scripts; do
             echo "📄 Analyzing: $script"
-            
+
             # Check for shebang
             if ! head -n1 "$script" | grep -q '^#!/'; then
               echo "❌ Missing shebang in $script"
               issues=$((issues + 1))
             fi
-            
+
             # Check for 'set -e' or error handling
             if ! grep -q 'set -e\|set -euo pipefail' "$script"; then
               echo "⚠️  No 'set -e' found in $script (consider adding for error handling)"
             fi
-            
+
             # Check for variable quoting (basic check)
             if grep -q '\$[A-Za-z_][A-Za-z0-9_]*[^"]' "$script" && ! grep -q '".*\$' "$script"; then
               echo "⚠️  Potential unquoted variables in $script"
             fi
-            
+
             # Check for hardcoded paths that might be problematic
             if grep -q '/tmp/[^"]*[^"]' "$script"; then
               echo "⚠️  Potential hardcoded /tmp path in $script"
@@ -321,11 +321,11 @@ jobs:
           echo "Best Practices: ${{ needs.best-practices.result }}"
 
           # Determine overall status
-          if [[ "${{ needs.shellcheck.result }}" == "success" && 
-                "${{ needs.shellcheck-detailed.result }}" == "success" && 
-                "${{ needs.validate-executable.result }}" == "success" && 
-                "${{ needs.syntax-check.result }}" == "success" && 
-                "${{ needs.security-scan.result }}" == "success" && 
+          if [[ "${{ needs.shellcheck.result }}" == "success" &&
+                "${{ needs.shellcheck-detailed.result }}" == "success" &&
+                "${{ needs.validate-executable.result }}" == "success" &&
+                "${{ needs.syntax-check.result }}" == "success" &&
+                "${{ needs.security-scan.result }}" == "success" &&
                 "${{ needs.best-practices.result }}" == "success" ]]; then
             echo "✅ Overall Status: ALL CHECKS PASSED"
             echo "🎉 All shell scripts meet quality standards!"

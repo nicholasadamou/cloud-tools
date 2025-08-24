@@ -160,7 +160,7 @@ jobs:
               module_name=$(basename "$module_dir")
               echo "📄 Linting module: $module_name"
               total_modules=$((total_modules + 1))
-              
+
               if tflint --chdir="$module_dir" > "tflint-results/$module_name.txt" 2>&1; then
                 echo "✅ $module_name - PASSED"
                 passed_modules=$((passed_modules + 1))
@@ -180,7 +180,7 @@ jobs:
               env_name=$(basename "$env_dir")
               echo "📄 Linting environment: $env_name"
               total_modules=$((total_modules + 1))
-              
+
               if tflint --chdir="$env_dir" > "tflint-results/$env_name.txt" 2>&1; then
                 echo "✅ $env_name - PASSED"
                 passed_modules=$((passed_modules + 1))
@@ -285,15 +285,15 @@ jobs:
             if [[ -d "$module_dir" ]]; then
               module_name=$(basename "$module_dir")
               echo "📄 Checking documentation for module: $module_name"
-              
+
               # Check if README exists
               if [[ ! -f "$module_dir/README.md" ]]; then
                 echo "⚠️  Missing README.md in $module_name module"
-                
+
                 # Generate basic documentation
                 echo "📝 Generating documentation for $module_name..."
                 terraform-docs markdown table --output-file README.md "$module_dir"
-                
+
                 if [[ -f "$module_dir/README.md" ]]; then
                   echo "✅ Generated README.md for $module_name"
                 else
@@ -302,7 +302,7 @@ jobs:
                 fi
               else
                 echo "✅ Documentation exists for $module_name"
-                
+
                 # Update existing documentation
                 terraform-docs markdown table --output-file README.md "$module_dir"
                 echo "🔄 Updated documentation for $module_name"
@@ -343,9 +343,9 @@ jobs:
           echo "Documentation: ${{ needs.terraform-docs.result }}"
 
           # Determine overall status (security scan is informational, so don't block on it)
-          if [[ "${{ needs.terraform-fmt.result }}" == "success" && 
-                "${{ needs.terraform-validate.result }}" == "success" && 
-                "${{ needs.tflint.result }}" == "success" && 
+          if [[ "${{ needs.terraform-fmt.result }}" == "success" &&
+                "${{ needs.terraform-validate.result }}" == "success" &&
+                "${{ needs.tflint.result }}" == "success" &&
                 "${{ needs.terraform-docs.result }}" == "success" ]]; then
             echo "✅ Overall Status: CORE CHECKS PASSED"
             echo "🎉 All essential Terraform quality checks passed!"

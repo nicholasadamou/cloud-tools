@@ -67,7 +67,7 @@ aws_local() {
 print_status "Checking environment configuration..."
 if [ -f ".env.local" ]; then
     print_success ".env.local file exists"
-    
+
     # Check if required variables are set
     if grep -q "AWS_ENDPOINT_URL=http://localhost:4566" .env.local; then
         print_success "LocalStack endpoint configured correctly"

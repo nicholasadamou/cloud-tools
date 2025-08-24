@@ -109,7 +109,9 @@
     "lambda:build": "./scripts/build-lambda.sh",
     "lambda:lint": "eslint terraform/modules/lambda/lambda-templates/*.js",
     "lambda:lint:fix": "eslint terraform/modules/lambda/lambda-templates/*.js --fix",
-    "prepare": "husky"
+    "pre-commit:run": "pre-commit run --all-files",
+    "pre-commit:install": "pre-commit install",
+    "prepare": "pre-commit install"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

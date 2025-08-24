@@ -36,12 +36,12 @@ echo "📦 Building Lambda bundles with esbuild..."
 build_lambda_function() {
     local function_name="$1"
     local function_dir="$LAMBDA_BUILD_DIR/$function_name"
-    
+
     echo "🔧 Building $function_name function..."
-    
+
     cd "$PROJECT_ROOT"
-    
-    # Bundle with esbuild  
+
+    # Bundle with esbuild
     esbuild "terraform/modules/lambda/src/handlers/$function_name.ts" \
         --bundle \
         --platform=node \
@@ -57,7 +57,7 @@ build_lambda_function() {
         --minify \
         --sourcemap \
         --log-level=info
-    
+
     # Create package.json for this function
     cat > "$function_dir/package.json" << EOF
 {
@@ -79,12 +79,12 @@ build_lambda_function() {
   }
 }
 EOF
-    
+
     # Install production dependencies
     cd "$function_dir"
     echo "📥 Installing dependencies for $function_name..."
     npm install --production --no-optional --silent
-    
+
     # Create deployment zip
     echo "📁 Creating deployment package for $function_name..."
     zip -r "../$function_name-lambda.zip" . \
@@ -92,9 +92,9 @@ EOF
         -x "package-lock.json" \
         -x "node_modules/sharp/vendor/*" \
         > /dev/null
-    
+
     cd "$PROJECT_ROOT"
-    
+
     # Get package size
     local zip_path="$BUILD_DIR/$function_name-lambda.zip"
     if [[ -f "$zip_path" ]]; then
