@@ -56,10 +56,19 @@ resource "aws_budgets_budget" "dev_budget" {
   limit_unit   = "USD"
   time_unit    = "MONTHLY"
 
-  cost_filters = {
-    Tag = {
-      Environment = ["dev"]
-      Project     = ["cloud-tools"]
+  cost_filter {
+    dimension {
+      key           = "Environment"
+      values        = ["dev"]
+      match_options = ["EQUALS"]
+    }
+  }
+
+  cost_filter {
+    dimension {
+      key           = "Project"
+      values        = ["cloud-tools"]
+      match_options = ["EQUALS"]
     }
   }
 

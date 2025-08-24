@@ -59,10 +59,19 @@ resource "aws_budgets_budget" "prod_budget" {
   limit_unit   = "USD"
   time_unit    = "MONTHLY"
 
-  cost_filters = {
-    Tag = {
-      Environment = ["production"]
-      Project     = ["cloud-tools"]
+  cost_filter {
+    dimension {
+      key           = "Environment"
+      values        = ["production"]
+      match_options = ["EQUALS"]
+    }
+  }
+
+  cost_filter {
+    dimension {
+      key           = "Project"
+      values        = ["cloud-tools"]
+      match_options = ["EQUALS"]
     }
   }
 
@@ -80,23 +89,6 @@ resource "aws_budgets_budget" "prod_budget" {
     threshold_type             = "PERCENTAGE"
     notification_type          = "FORECASTED"
     subscriber_email_addresses = var.notification_emails
-  }
-}
-
-# Cost anomaly detection for production
-resource "aws_ce_anomaly_detector" "prod_anomaly_detector" {
-  name = "cloud-tools-prod-anomaly-detector"
-  type = "DIMENSIONAL"
-
-  specification = jsonencode({
-    Dimension    = "SERVICE"
-    MatchOptions = ["EQUALS"]
-    Values       = ["Amazon Simple Storage Service", "AWS Lambda", "Amazon DynamoDB", "Amazon Simple Queue Service"]
-  })
-
-  tags = {
-    Environment = "production"
-    Project     = "cloud-tools"
   }
 }
 
