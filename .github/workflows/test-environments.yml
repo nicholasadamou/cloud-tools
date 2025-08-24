@@ -72,12 +72,12 @@ jobs:
           SERVICES: s3,sqs,dynamodb
           DEBUG: 0
           PERSISTENCE: 0
-          SKIP_INFRA_DOWNLOADS: 1
+          LS_LOG: warn
         options: >-
-          --health-cmd="curl -f http://localhost:4566/health || exit 1"
-          --health-interval=15s
+          --health-cmd="curl -s http://localhost:4566/_localstack/health | grep -q '\"s3\": \"available\"' || exit 1"
+          --health-interval=10s
           --health-timeout=5s
-          --health-retries=10
+          --health-retries=12
 
     steps:
       - name: Checkout code
@@ -99,7 +99,19 @@ jobs:
 
       - name: Wait for LocalStack
         run: |
-          timeout 60 bash -c 'until curl -f http://localhost:4566/health; do sleep 2; done'
+          echo "Waiting for LocalStack to be ready..."
+          for i in {1..30}; do
+            if curl -s http://localhost:4566/_localstack/health | grep -q '"s3": "available"'; then
+              echo "✅ LocalStack is ready!"
+              curl -s http://localhost:4566/_localstack/health | jq .
+              break
+            fi
+            echo "⏳ Attempt $i/30: LocalStack not ready yet, waiting..."
+            sleep 3
+          done
+          
+          # Final check
+          curl -s http://localhost:4566/_localstack/health || exit 1
 
       - name: Setup LocalStack resources
         run: |
@@ -161,6 +173,9 @@ jobs:
 
           # Install pnpm
           RUN corepack enable && corepack prepare pnpm@latest --activate
+
+          # Create empty .env.local to avoid postinstall script failure
+          RUN touch .env.local
 
           # Install dependencies
           RUN pnpm install --frozen-lockfile
