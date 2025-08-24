@@ -1,0 +1,69 @@
+# Checkov configuration file
+# This file suppresses false positives where Checkov can't detect resource relationships
+
+# Skip checks for specific resources that have configurations in separate blocks
+skip-check:
+  # S3 bucket versioning - we have separate aws_s3_bucket_versioning resources
+  - id: CKV_AWS_21
+    file:
+      - /modules/s3/main.tf:175-183 # access_logs bucket
+      - /modules/s3/main.tf:250-258 # access_logs_logs bucket
+      - /modules/s3/main.tf:356-365 # replica bucket
+
+  # S3 bucket encryption - we have separate server_side_encryption_configuration resources
+  - id: CKV_AWS_145
+    file:
+      - /modules/s3/main.tf:175-183 # access_logs bucket
+      - /modules/s3/main.tf:250-258 # access_logs_logs bucket
+      - /modules/s3/main.tf:356-365 # replica bucket
+
+  # S3 bucket access logging - we have separate aws_s3_bucket_logging resources
+  - id: CKV_AWS_18
+    file:
+      - /modules/s3/main.tf:175-183 # access_logs bucket (logs to access_logs_logs)
+      - /modules/s3/main.tf:250-258 # access_logs_logs bucket (intentionally no logging to avoid infinite loop)
+      - /modules/s3/main.tf:356-365 # replica bucket (logs to access_logs)
+
+  # S3 bucket event notifications - we have separate aws_s3_bucket_notification resources
+  - id: CKV2_AWS_62
+    file:
+      - /modules/s3/main.tf:175-183 # access_logs bucket
+      - /modules/s3/main.tf:250-258 # access_logs_logs bucket
+      - /modules/s3/main.tf:356-365 # replica bucket
+
+  # S3 bucket lifecycle configuration - we have separate aws_s3_bucket_lifecycle_configuration resources
+  - id: CKV2_AWS_61
+    file:
+      - /modules/s3/main.tf:175-183 # access_logs bucket
+      - /modules/s3/main.tf:250-258 # access_logs_logs bucket
+      - /modules/s3/main.tf:356-365 # replica bucket
+
+  # S3 bucket public access block - we have separate aws_s3_bucket_public_access_block resources
+  - id: CKV2_AWS_6
+    file:
+      - /modules/s3/main.tf:175-183 # access_logs bucket
+      - /modules/s3/main.tf:250-258 # access_logs_logs bucket
+      - /modules/s3/main.tf:356-365 # replica bucket
+
+  # S3 bucket cross-region replication - access_logs and access_logs_logs don't need replication
+  # (replica bucket itself doesn't replicate to another bucket, only receives replication)
+  - id: CKV_AWS_144
+    file:
+      - /modules/s3/main.tf:175-183 # access_logs bucket (not replicated by design)
+      - /modules/s3/main.tf:250-258 # access_logs_logs bucket (not replicated by design)
+      - /modules/s3/main.tf:356-365 # replica bucket (destination, not source)
+
+  # API Gateway WAF Log4j protection - we have separate WAFv2 configuration and association
+  - id: CKV2_AWS_77
+    file:
+      - /modules/api-gateway/main.tf:267-312 # API Gateway stage with separate WAF association
+
+# Framework to scan (optional, but good for performance)
+framework:
+  - terraform
+
+# Output format for CI/CD
+output: cli
+
+# Quiet mode for cleaner output
+quiet: true

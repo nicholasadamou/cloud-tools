@@ -173,6 +173,13 @@ resource "aws_s3_bucket_intelligent_tiering_configuration" "main" {
 
 # CKV_AWS_18: S3 access logging bucket
 resource "aws_s3_bucket" "access_logs" {
+  #checkov:skip=CKV_AWS_21:Versioning is configured in separate aws_s3_bucket_versioning resource
+  #checkov:skip=CKV_AWS_145:Encryption is configured in separate aws_s3_bucket_server_side_encryption_configuration resource
+  #checkov:skip=CKV_AWS_18:Access logging is configured in separate aws_s3_bucket_logging resource
+  #checkov:skip=CKV2_AWS_62:Event notifications are configured in separate aws_s3_bucket_notification resource
+  #checkov:skip=CKV2_AWS_61:Lifecycle policy is configured in separate aws_s3_bucket_lifecycle_configuration resource
+  #checkov:skip=CKV2_AWS_6:Public access block is configured in separate aws_s3_bucket_public_access_block resource
+  #checkov:skip=CKV_AWS_144:Access logs bucket doesn't need cross-region replication by design
   count  = var.environment == "production" ? 1 : 0
   bucket = "${var.bucket_prefix}-${var.environment}-access-logs-${var.resource_suffix}"
 
@@ -248,6 +255,13 @@ resource "aws_s3_bucket_notification" "access_logs" {
 
 # Create a separate bucket for access logs of the access_logs bucket to avoid circular dependency
 resource "aws_s3_bucket" "access_logs_logs" {
+  #checkov:skip=CKV_AWS_21:Versioning is configured in separate aws_s3_bucket_versioning resource
+  #checkov:skip=CKV_AWS_145:Encryption is configured in separate aws_s3_bucket_server_side_encryption_configuration resource
+  #checkov:skip=CKV_AWS_18:No access logging to prevent infinite circular dependency
+  #checkov:skip=CKV2_AWS_62:Event notifications are configured in separate aws_s3_bucket_notification resource
+  #checkov:skip=CKV2_AWS_61:Lifecycle policy is configured in separate aws_s3_bucket_lifecycle_configuration resource
+  #checkov:skip=CKV2_AWS_6:Public access block is configured in separate aws_s3_bucket_public_access_block resource
+  #checkov:skip=CKV_AWS_144:Access logs logs bucket doesn't need cross-region replication by design
   count  = var.environment == "production" ? 1 : 0
   bucket = "${var.bucket_prefix}-${var.environment}-access-logs-logs-${var.resource_suffix}"
 
@@ -354,6 +368,13 @@ resource "aws_s3_bucket_logging" "replica" {
 
 # CKV_AWS_144: Cross-region replication for production
 resource "aws_s3_bucket" "replica" {
+  #checkov:skip=CKV_AWS_21:Versioning is configured in separate aws_s3_bucket_versioning resource
+  #checkov:skip=CKV_AWS_145:Encryption is configured in separate aws_s3_bucket_server_side_encryption_configuration resource
+  #checkov:skip=CKV_AWS_18:Access logging is configured in separate aws_s3_bucket_logging resource
+  #checkov:skip=CKV2_AWS_62:Event notifications are configured in separate aws_s3_bucket_notification resource
+  #checkov:skip=CKV2_AWS_61:Lifecycle policy is configured in separate aws_s3_bucket_lifecycle_configuration resource
+  #checkov:skip=CKV2_AWS_6:Public access block is configured in separate aws_s3_bucket_public_access_block resource
+  #checkov:skip=CKV_AWS_144:Replica bucket is destination for replication, not source
   count    = var.environment == "production" ? 1 : 0
   provider = aws.replica
   bucket   = "${var.bucket_prefix}-${var.environment}-replica-${var.resource_suffix}"
