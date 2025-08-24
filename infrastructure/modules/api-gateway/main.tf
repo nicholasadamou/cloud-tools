@@ -49,134 +49,6 @@ resource "aws_api_gateway_client_certificate" "main" {
   })
 }
 
-# CKV2_AWS_29: WAF Web ACL for API Gateway protection
-resource "aws_wafv2_web_acl" "main" {
-  count = var.environment == "production" ? 1 : 0
-  name  = "${var.project_name}-${var.environment}-api-waf"
-  scope = "REGIONAL"
-
-  default_action {
-    allow {}
-  }
-
-  rule {
-    name     = "RateLimitRule"
-    priority = 1
-
-    action {
-      block {}
-    }
-
-    statement {
-      rate_based_statement {
-        limit              = 2000
-        aggregate_key_type = "IP"
-      }
-    }
-
-    visibility_config {
-      cloudwatch_metrics_enabled = true
-      metric_name                = "RateLimitRule"
-      sampled_requests_enabled   = true
-    }
-  }
-
-  rule {
-    name     = "AWSManagedRulesCommonRuleSet"
-    priority = 2
-
-    override_action {
-      none {}
-    }
-
-    statement {
-      managed_rule_group_statement {
-        name        = "AWSManagedRulesCommonRuleSet"
-        vendor_name = "AWS"
-      }
-    }
-
-    visibility_config {
-      cloudwatch_metrics_enabled = true
-      metric_name                = "CommonRuleSetMetric"
-      sampled_requests_enabled   = true
-    }
-  }
-
-  # CKV2_AWS_77: Add Log4j vulnerability protection
-  rule {
-    name     = "AWSManagedRulesKnownBadInputsRuleSet"
-    priority = 3
-
-    override_action {
-      none {}
-    }
-
-    statement {
-      managed_rule_group_statement {
-        name        = "AWSManagedRulesKnownBadInputsRuleSet"
-        vendor_name = "AWS"
-      }
-    }
-
-    visibility_config {
-      cloudwatch_metrics_enabled = true
-      metric_name                = "KnownBadInputsRuleSetMetric"
-      sampled_requests_enabled   = true
-    }
-  }
-
-  tags = merge(var.tags, {
-    Name = "${var.project_name}-${var.environment}-api-waf"
-    Type = "WAF"
-  })
-
-  visibility_config {
-    cloudwatch_metrics_enabled = true
-    metric_name                = "${var.project_name}${var.environment}WAF"
-    sampled_requests_enabled   = true
-  }
-}
-
-# CKV2_AWS_31: WAF logging configuration
-resource "aws_cloudwatch_log_group" "waf_logs" {
-  count             = var.environment == "production" ? 1 : 0
-  name              = "/aws/wafv2/${var.project_name}-${var.environment}-waf"
-  retention_in_days = 365
-  kms_key_id        = var.kms_key_id
-
-  tags = merge(var.tags, {
-    Name = "${var.project_name}-${var.environment}-waf-logs"
-    Type = "WAFLogs"
-  })
-}
-
-resource "aws_wafv2_web_acl_logging_configuration" "main" {
-  count                   = var.environment == "production" ? 1 : 0
-  resource_arn            = aws_wafv2_web_acl.main[0].arn
-  log_destination_configs = [aws_cloudwatch_log_group.waf_logs[0].arn]
-
-  redacted_fields {
-    single_header {
-      name = "authorization"
-    }
-  }
-
-  redacted_fields {
-    single_header {
-      name = "cookie"
-    }
-  }
-}
-
-# Associate WAF with API Gateway stage
-resource "aws_wafv2_web_acl_association" "main" {
-  count        = var.environment == "production" ? 1 : 0
-  resource_arn = aws_api_gateway_stage.main.arn
-  web_acl_arn  = aws_wafv2_web_acl.main[0].arn
-
-  depends_on = [aws_api_gateway_stage.main]
-}
 
 # API Gateway resources
 resource "aws_api_gateway_resource" "convert" {
@@ -469,4 +341,132 @@ resource "aws_cloudwatch_log_group" "api_gateway" {
     Name = "${var.project_name}-${var.environment}-api-logs"
     Type = "APIGatewayLogs"
   })
+}
+
+# CKV2_AWS_77: WAFv2 Web ACL for Log4j vulnerability protection
+resource "aws_wafv2_web_acl" "api_gateway" {
+  name  = "${var.project_name}-${var.environment}-api-waf"
+  scope = "REGIONAL"
+
+  default_action {
+    allow {}
+  }
+
+  # Log4j vulnerability protection rules
+  rule {
+    name     = "AWSManagedRulesKnownBadInputsRuleSet"
+    priority = 1
+
+    override_action {
+      none {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesKnownBadInputsRuleSet"
+        vendor_name = "AWS"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "AWSManagedRulesKnownBadInputsRuleSetMetric"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  # Core Rule Set for general protection
+  rule {
+    name     = "AWSManagedRulesCommonRuleSet"
+    priority = 2
+
+    override_action {
+      none {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesCommonRuleSet"
+        vendor_name = "AWS"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "AWSManagedRulesCommonRuleSetMetric"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  # Rate limiting rule
+  rule {
+    name     = "RateLimitRule"
+    priority = 3
+
+    action {
+      block {}
+    }
+
+    statement {
+      rate_based_statement {
+        limit              = 2000
+        aggregate_key_type = "IP"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "RateLimitRuleMetric"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  visibility_config {
+    cloudwatch_metrics_enabled = true
+    metric_name                = "${var.project_name}-${var.environment}-api-waf"
+    sampled_requests_enabled   = true
+  }
+
+  tags = merge(var.tags, {
+    Name = "${var.project_name}-${var.environment}-api-waf"
+    Type = "WAFv2WebACL"
+  })
+}
+
+# Associate WAF with API Gateway stage
+resource "aws_wafv2_web_acl_association" "api_gateway" {
+  resource_arn = aws_api_gateway_stage.main.arn
+  web_acl_arn  = aws_wafv2_web_acl.api_gateway.arn
+
+  depends_on = [aws_api_gateway_stage.main]
+}
+
+# CloudWatch log group for WAF
+resource "aws_cloudwatch_log_group" "waf" {
+  name              = "/aws/wafv2/${var.project_name}-${var.environment}"
+  retention_in_days = 365
+  kms_key_id        = var.kms_key_id
+
+  tags = merge(var.tags, {
+    Name = "${var.project_name}-${var.environment}-waf-logs"
+    Type = "WAFLogs"
+  })
+}
+
+# WAF logging configuration
+resource "aws_wafv2_web_acl_logging_configuration" "api_gateway" {
+  resource_arn            = aws_wafv2_web_acl.api_gateway.arn
+  log_destination_configs = [aws_cloudwatch_log_group.waf.arn]
+
+  redacted_fields {
+    single_header {
+      name = "authorization"
+    }
+  }
+
+  redacted_fields {
+    single_header {
+      name = "cookie"
+    }
+  }
 }

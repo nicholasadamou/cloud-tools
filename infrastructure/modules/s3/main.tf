@@ -246,13 +246,108 @@ resource "aws_s3_bucket_notification" "access_logs" {
   eventbridge = true
 }
 
-# S3 access logging configuration
+# Create a separate bucket for access logs of the access_logs bucket to avoid circular dependency
+resource "aws_s3_bucket" "access_logs_logs" {
+  count  = var.environment == "production" ? 1 : 0
+  bucket = "${var.bucket_prefix}-${var.environment}-access-logs-logs-${var.resource_suffix}"
+
+  tags = merge(var.tags, {
+    Name = "${var.project_name}-${var.environment}-access-logs-logs-bucket"
+    Type = "AccessLogsLogs"
+  })
+}
+
+resource "aws_s3_bucket_public_access_block" "access_logs_logs" {
+  count  = var.environment == "production" ? 1 : 0
+  bucket = aws_s3_bucket.access_logs_logs[0].id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_versioning" "access_logs_logs" {
+  count  = var.environment == "production" ? 1 : 0
+  bucket = aws_s3_bucket.access_logs_logs[0].id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "access_logs_logs" {
+  count  = var.environment == "production" ? 1 : 0
+  bucket = aws_s3_bucket.access_logs_logs[0].id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = "aws:kms"
+      kms_master_key_id = var.kms_key_id
+    }
+    bucket_key_enabled = true
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "access_logs_logs" {
+  count  = var.environment == "production" ? 1 : 0
+  bucket = aws_s3_bucket.access_logs_logs[0].id
+
+  rule {
+    id     = "access_logs_logs_cleanup"
+    status = "Enabled"
+
+    filter {
+      prefix = ""
+    }
+
+    expiration {
+      days = 30 # Shorter retention for logs of logs
+    }
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
+  }
+}
+
+resource "aws_s3_bucket_notification" "access_logs_logs" {
+  count  = var.environment == "production" ? 1 : 0
+  bucket = aws_s3_bucket.access_logs_logs[0].id
+
+  eventbridge = true
+}
+
+# S3 access logging configuration for main bucket
 resource "aws_s3_bucket_logging" "main" {
   count  = var.environment == "production" ? 1 : 0
   bucket = aws_s3_bucket.main.id
 
   target_bucket = aws_s3_bucket.access_logs[0].id
   target_prefix = "access-logs/"
+
+  depends_on = [aws_s3_bucket_public_access_block.access_logs]
+}
+
+# S3 access logging configuration for access_logs bucket
+resource "aws_s3_bucket_logging" "access_logs" {
+  count  = var.environment == "production" ? 1 : 0
+  bucket = aws_s3_bucket.access_logs[0].id
+
+  target_bucket = aws_s3_bucket.access_logs_logs[0].id
+  target_prefix = "access-logs-logs/"
+
+  depends_on = [aws_s3_bucket_public_access_block.access_logs_logs]
+}
+
+# S3 access logging configuration for replica bucket
+resource "aws_s3_bucket_logging" "replica" {
+  count    = var.environment == "production" ? 1 : 0
+  provider = aws.replica
+  bucket   = aws_s3_bucket.replica[0].id
+
+  target_bucket = aws_s3_bucket.access_logs[0].id
+  target_prefix = "replica-logs/"
 
   depends_on = [aws_s3_bucket_public_access_block.access_logs]
 }
