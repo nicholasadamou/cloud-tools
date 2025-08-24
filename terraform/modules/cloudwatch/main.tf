@@ -53,6 +53,17 @@ variable "tags" {
   default     = {}
 }
 
+variable "kms_key_id" {
+  description = "KMS key ID for encryption"
+  type        = string
+}
+
+variable "enable_detailed_monitoring" {
+  description = "Enable detailed CloudWatch monitoring"
+  type        = bool
+  default     = false
+}
+
 # Data sources
 data "aws_region" "current" {}
 
@@ -61,6 +72,7 @@ resource "aws_cloudwatch_log_group" "lambda_logs" {
   count             = length(var.lambda_function_names)
   name              = "/aws/lambda/${var.lambda_function_names[count.index]}"
   retention_in_days = var.log_retention_in_days
+  kms_key_id        = var.kms_key_id
 
   tags = merge(var.tags, {
     Name = "${var.project_name}-${var.environment}-${var.lambda_function_names[count.index]}-logs"
@@ -118,7 +130,8 @@ resource "aws_cloudwatch_metric_alarm" "lambda_duration" {
 
 # SNS topic for alerts
 resource "aws_sns_topic" "alerts" {
-  name = "${var.project_name}-${var.environment}-alerts-${var.resource_suffix}"
+  name              = "${var.project_name}-${var.environment}-alerts-${var.resource_suffix}"
+  kms_master_key_id = var.kms_key_id
 
   tags = merge(var.tags, {
     Name = "${var.project_name}-${var.environment}-alerts-topic"

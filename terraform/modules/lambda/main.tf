@@ -55,6 +55,9 @@ resource "aws_lambda_function" "convert" {
     })
   }
 
+  # Encrypt environment variables
+  kms_key_arn = var.kms_key_id
+
   # Enable X-Ray tracing for performance monitoring
   tracing_config {
     mode = var.environment == "production" ? "Active" : "PassThrough"
@@ -91,6 +94,9 @@ resource "aws_lambda_function" "compress" {
     })
   }
 
+  # Encrypt environment variables
+  kms_key_arn = var.kms_key_id
+
   tracing_config {
     mode = var.environment == "production" ? "Active" : "PassThrough"
   }
@@ -125,6 +131,9 @@ resource "aws_lambda_function" "process" {
     })
   }
 
+  # Encrypt environment variables
+  kms_key_arn = var.kms_key_id
+
   tracing_config {
     mode = var.environment == "production" ? "Active" : "PassThrough"
   }
@@ -144,6 +153,7 @@ resource "aws_lambda_function" "process" {
 resource "aws_cloudwatch_log_group" "convert" {
   name              = "/aws/lambda/${aws_lambda_function.convert.function_name}"
   retention_in_days = 14
+  kms_key_id        = var.kms_key_id
 
   tags = merge(var.tags, {
     Name = "${var.project_name}-${var.environment}-convert-logs"
@@ -153,6 +163,7 @@ resource "aws_cloudwatch_log_group" "convert" {
 resource "aws_cloudwatch_log_group" "compress" {
   name              = "/aws/lambda/${aws_lambda_function.compress.function_name}"
   retention_in_days = 14
+  kms_key_id        = var.kms_key_id
 
   tags = merge(var.tags, {
     Name = "${var.project_name}-${var.environment}-compress-logs"
@@ -162,6 +173,7 @@ resource "aws_cloudwatch_log_group" "compress" {
 resource "aws_cloudwatch_log_group" "process" {
   name              = "/aws/lambda/${aws_lambda_function.process.function_name}"
   retention_in_days = 14
+  kms_key_id        = var.kms_key_id
 
   tags = merge(var.tags, {
     Name = "${var.project_name}-${var.environment}-process-logs"

@@ -112,7 +112,8 @@ resource "aws_ce_anomaly_detector" "prod_anomaly_detector" {
 
 # SNS topic for production alerts
 resource "aws_sns_topic" "prod_alerts" {
-  name = "cloud-tools-prod-alerts"
+  name              = "cloud-tools-prod-alerts"
+  kms_master_key_id = "alias/aws/sns"
 
   tags = {
     Environment = "production"

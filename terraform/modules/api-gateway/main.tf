@@ -51,6 +51,23 @@ variable "tags" {
   default     = {}
 }
 
+variable "kms_key_id" {
+  description = "KMS key ID for encryption"
+  type        = string
+}
+
+variable "allowed_cors_origins" {
+  description = "List of allowed CORS origins"
+  type        = list(string)
+  default     = ["*"]
+}
+
+variable "enable_waf" {
+  description = "Enable AWS WAF for API Gateway"
+  type        = bool
+  default     = true
+}
+
 # API Gateway REST API
 resource "aws_api_gateway_rest_api" "main" {
   name        = "${var.project_name}-api-${var.environment}-${var.resource_suffix}"
@@ -64,6 +81,10 @@ resource "aws_api_gateway_rest_api" "main" {
     Name = "${var.project_name}-${var.environment}-api"
     Type = "APIGateway"
   })
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # API Gateway resources
@@ -265,6 +286,13 @@ resource "aws_api_gateway_stage" "main" {
   rest_api_id   = aws_api_gateway_rest_api.main.id
   stage_name    = var.environment
 
+  # Enable X-Ray tracing
+  xray_tracing_enabled = true
+
+  # Enable API Gateway caching for production
+  cache_cluster_enabled = var.environment == "production"
+  cache_cluster_size    = var.environment == "production" ? "0.5" : null
+
   access_log_settings {
     destination_arn = aws_cloudwatch_log_group.api_gateway.arn
     format = jsonencode({
@@ -285,12 +313,17 @@ resource "aws_api_gateway_stage" "main" {
     Name = "${var.project_name}-${var.environment}-api-stage"
     Type = "APIGatewayStage"
   })
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # CloudWatch log group for API Gateway
 resource "aws_cloudwatch_log_group" "api_gateway" {
   name              = "/aws/apigateway/${var.project_name}-${var.environment}"
-  retention_in_days = 14
+  retention_in_days = var.environment == "production" ? 365 : 14
+  kms_key_id        = var.kms_key_id
 
   tags = merge(var.tags, {
     Name = "${var.project_name}-${var.environment}-api-logs"

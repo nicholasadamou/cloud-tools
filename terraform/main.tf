@@ -19,6 +19,23 @@ locals {
   }
 }
 
+# KMS key for encryption
+resource "aws_kms_key" "main" {
+  description             = "KMS key for ${var.project_name} ${var.environment} encryption"
+  deletion_window_in_days = var.environment == "production" ? 30 : 7
+  enable_key_rotation     = true
+
+  tags = merge(local.common_tags, {
+    Name = "${var.project_name}-${var.environment}-kms-key"
+    Type = "Encryption"
+  })
+}
+
+resource "aws_kms_alias" "main" {
+  name          = "alias/${var.project_name}-${var.environment}-key"
+  target_key_id = aws_kms_key.main.key_id
+}
+
 # IAM roles and policies (must be created first)
 module "iam" {
   source = "./modules/iam"
@@ -45,6 +62,7 @@ module "s3" {
   bucket_prefix             = var.s3_bucket_prefix
   enable_versioning         = var.enable_s3_versioning
   lifecycle_expiration_days = var.s3_lifecycle_expiration_days
+  kms_key_id                = aws_kms_key.main.arn
 
   tags = local.common_tags
 }
@@ -86,6 +104,7 @@ module "cloudwatch" {
   resource_suffix            = local.resource_suffix
   log_retention_in_days      = var.log_retention_in_days
   enable_detailed_monitoring = var.enable_detailed_monitoring
+  kms_key_id                 = aws_kms_key.main.arn
 
   # Lambda function names for log groups
   lambda_function_names = [
@@ -115,6 +134,7 @@ module "lambda" {
   lambda_timeout     = var.lambda_timeout
   lambda_memory_size = var.lambda_memory_size
   lambda_runtime     = var.lambda_runtime
+  kms_key_id         = aws_kms_key.main.arn
 
   # IAM role for Lambda functions
   lambda_execution_role_arn = module.iam.lambda_execution_role_arn
@@ -143,6 +163,7 @@ module "api_gateway" {
   resource_suffix      = local.resource_suffix
   allowed_cors_origins = var.allowed_cors_origins
   enable_waf           = var.enable_waf
+  kms_key_id           = aws_kms_key.main.arn
 
   # Lambda function integration
   convert_lambda_arn  = module.lambda.convert_function_arn
