@@ -24,7 +24,7 @@ import {
 interface Tool {
   name: string;
   href: string;
-  icon: React.ComponentType;
+  icon: React.ComponentType<{ className?: string }>;
   keywords?: string[];
 }
 
@@ -111,10 +111,7 @@ export function SearchTool() {
                     }}
                   >
                     <div className="flex items-center">
-                      {/* @ts-expect-error tool.icon may not have correct React component type */}
-                      {React.createElement(tool.icon, {
-                        className: "mr-2 h-4 w-4",
-                      })}
+                      <tool.icon className="mr-2 h-4 w-4" />
                       <span>{tool.name}</span>
                     </div>
                   </CommandItem>
